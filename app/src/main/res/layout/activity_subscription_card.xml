@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80000000"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <!-- CARD -->
+    <LinearLayout
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_subscription"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- BEE LOGO -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_bee"
+                android:contentDescription="Bee Logo"
+                android:layout_marginEnd="6dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Subscription"
+                android:textStyle="bold"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Go avail Sensors for monitoring hives"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:paddingTop="8dp"/>
+
+        <!-- Subtitle -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Apiaries Available:"
+            android:gravity="center"
+            android:paddingTop="6dp"/>
+
+        <!-- PLANS -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:paddingTop="10dp">
+
+            <!-- 1-2 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1-2"
+                    android:textColor="@android:color/white"
+                    android:background="@android:color/black"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:padding="6dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="P550.00\n3 months"
+                    android:gravity="center"
+                    android:background="#FFECB3"
+                    android:padding="6dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="P183.00\nmonthly"
+                    android:gravity="center"
+                    android:background="#FFD54F"
+                    android:padding="6dp"/>
+            </LinearLayout>
+
+            <!-- 3-5 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="3-5"
+                    android:textColor="@android:color/white"
+                    android:background="@android:color/black"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:padding="6dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="P750.00\n3 months"
+                    android:gravity="center"
+                    android:background="#FFECB3"
+                    android:padding="6dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="P250.00\nmonthly"
+                    android:gravity="center"
+                    android:background="#FFD54F"
+                    android:padding="6dp"/>
+            </LinearLayout>
+
+            <!-- 5+ -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="5+"
+                    android:textColor="@android:color/white"
+                    android:background="@android:color/black"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:padding="6dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="P999.00\n3 months"
+                    android:gravity="center"
+                    android:background="#FFECB3"
+                    android:padding="6dp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="P333.00\nmonthly"
+                    android:gravity="center"
+                    android:background="#FFD54F"
+                    android:padding="6dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Description -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sensors are used for monitoring its temperature, humidity, weight, and time harvesting for each hive."
+            android:textSize="12sp"
+            android:gravity="center"
+            android:paddingTop="10dp"/>
+
+        <!-- Dismiss -->
+        <TextView
+            android:id="@+id/btnDismiss"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dismiss"
+            android:layout_gravity="center"
+            android:paddingTop="14dp"/>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Water drop outline (EXTREMELY HIGH) -->
+    <path
+        android:pathData="
+            M12,0
+            C9,4 7,6.5 7,9
+            C7,11.2 9.5,13.2 12,13.2
+            C14.5,13.2 17,11.2 17,9
+            C17,6.5 15,4 12,0
+            Z
+        "
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+    <!-- Hand outline (unchanged) -->
+    <path
+        android:pathData="
+            M3,15
+            C4,14 6,14 7.5,14.5
+            L11,16
+            C12,16.5 13,16.5 14,16
+            L20,13
+            C21,12.5 22,13 22,14
+            C22,15 21,16 20,16.5
+            L14,19
+            C12.5,19.7 11,20 9.5,20
+            H6
+            C4,20 3,19 3,17
+            Z
+        "
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+</vector>

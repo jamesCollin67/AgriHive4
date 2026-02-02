@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#000000" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/btnBack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btnBack" />
+
+    <View
+        android:id="@+id/headerDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="#EEEEEE"
+        app:layout_constraintTop_toBottomOf="@id/btnBack" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/footerNav"
+        app:layout_constraintTop_toBottomOf="@id/headerDivider">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout style="@style/SettingsRowStyle">
+                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_notifications" />
+                <TextView style="@style/SettingsTextStyle" android:text="Notifications" />
+                <androidx.appcompat.widget.SwitchCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    app:trackTint="#4CAF50" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+            <LinearLayout style="@style/SettingsRowStyle">
+                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_phone" />
+                <TextView style="@style/SettingsTextStyle" android:text="Device Controls" />
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+            <LinearLayout style="@style/SettingsRowStyle">
+                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_cloud" />
+                <TextView style="@style/SettingsTextStyle" android:text="Cloud Sync" />
+                <androidx.appcompat.widget.SwitchCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    app:trackTint="#4CAF50" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+            <LinearLayout style="@style/SettingsRowStyle">
+                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_activity" />
+                <TextView style="@style/SettingsTextStyle" android:text="Activity log" />
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+            <LinearLayout style="@style/SettingsRowStyle">
+                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_lock" />
+                <TextView style="@style/SettingsTextStyle" android:text="Change password" />
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+            <LinearLayout style="@style/SettingsRowStyle">
+                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_saved" />
+                <TextView style="@style/SettingsTextStyle" android:text="Saved Treatments" />
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+            <LinearLayout style="@style/SettingsRowStyle">
+                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_bee" />
+                <TextView style="@style/SettingsTextStyle" android:text="Subscription" />
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+            <LinearLayout style="@style/SettingsRowStyle">
+                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_logout" />
+                <TextView style="@style/SettingsTextStyle" android:text="Logout" />
+                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <include
+        android:id="@+id/footerNav"
+        layout="@layout/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
