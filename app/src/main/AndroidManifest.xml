@@ -11,17 +11,62 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AgriHive">
+
+        <!-- Splash Screen Activity -->
+        <activity
+            android:name=".splash.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AgriHive.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@style/Theme.AgriHive" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <!-- Landing Activity (if used after splash) -->
+        <activity
+            android:name=".landing.LandingActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AgriHive" />
+
+        <activity
+            android:name=".login.LoginActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AgriHive" />
+
+        <activity
+            android:name=".register.RegisterActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AgriHive" />
+        <activity
+            android:name=".forgot.ForgotPasswordActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AgriHive" />
+        <activity
+            android:name=".dashboard.DashboardActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AgriHive" />
+        <activity
+            android:name=".profile.ProfileActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AgriHive" />
+
+
+
     </application>
 
 </manifest>

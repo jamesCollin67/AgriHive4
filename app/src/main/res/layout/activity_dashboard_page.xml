@@ -112,8 +112,7 @@
         app:layout_constraintBottom_toTopOf="@id/bottomNav"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:tint="#000000" />
+        android:layout_marginBottom="16dp" />
 
     <!-- Bottom Navigation (FIXED AT BOTTOM) -->
     <include

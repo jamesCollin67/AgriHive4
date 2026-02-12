@@ -13,8 +13,31 @@
         <item name="android:layout_height">48dp</item>
         <item name="android:padding">10dp</item>
         <item name="android:background">@drawable/bg_settings_icon</item>
-        <item name="app:tint">#FFFFFF</item>
+        <item name="android:tint">#FFFFFF</item>   <!-- ✅ fixed -->
     </style>
+
+    <style name="CodeBox">
+        <item name="android:layout_width">52dp</item>
+        <item name="android:layout_height">52dp</item>
+
+        <item name="android:background">@drawable/code_box_bg</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+
+        <item name="android:inputType">number</item>
+        <item name="android:maxLength">1</item>
+        <item name="android:cursorVisible">false</item>
+        <item name="android:textAlignment">center</item>
+
+        <!-- spacing inside box -->
+        <item name="android:padding">6dp</item>
+
+        <!-- spacing between boxes -->
+        <item name="android:layout_marginStart">6dp</item>
+        <item name="android:layout_marginEnd">6dp</item>
+    </style>
+
 
     <style name="SettingsTextStyle">
         <item name="android:layout_width">0dp</item>
@@ -26,7 +49,11 @@
     </style>
 
 
-    <style name="CircleImage">
+
+
+    <style name="CircleImage" parent="Widget.MaterialComponents.ShapeableImageView">
+        <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
 </resources>

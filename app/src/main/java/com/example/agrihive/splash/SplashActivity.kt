@@ -2,34 +2,54 @@ package com.example.agrihive.splash
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.agrihive.R
+import com.example.agrihive.databinding.ActivitySplashScreenBinding
 import com.example.agrihive.landing.LandingActivity
+import com.google.firebase.FirebaseApp
 
 class SplashActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivitySplashScreenBinding
     private val viewModel: SplashViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash_screen)
 
-        val progressHoney = findViewById<View>(R.id.progressHoney)
+        // Initialize Firebase
+        FirebaseApp.initializeApp(this)
 
+        // Initialize ViewBinding
+        binding = ActivitySplashScreenBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        observeViewModel()
+        viewModel.startSplash()
+    }
+
+    private fun observeViewModel() {
+        // Animate progressHoney width
         viewModel.progress.observe(this) { progress ->
-            val maxWidth = resources.getDimensionPixelSize(R.dimen.progress_max_width)
-            val width = (progress / 100f * maxWidth).toInt()
-
-            val params = progressHoney.layoutParams
-            params.width = width
-            progressHoney.layoutParams = params
+            binding.progressContainer.post {
+                val containerWidth = binding.progressContainer.width
+                if (containerWidth > 0) {
+                    val newWidth = (containerWidth * (progress / 100f)).toInt()
+                    val params: ViewGroup.LayoutParams = binding.progressHoney.layoutParams
+                    params.width = newWidth
+                    binding.progressHoney.layoutParams = params
+                }
+            }
         }
 
-        viewModel.navigate.observe(this) {
-            startActivity(Intent(this, LandingActivity::class.java))
-            finish()
+        // Navigate after progress complete
+        viewModel.navigate.observe(this) { navigate ->
+            if (navigate) { // always check true
+                startActivity(Intent(this, LandingActivity::class.java))
+                finish() // close splash
+            }
         }
+
+
     }
 }

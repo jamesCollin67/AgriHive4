@@ -13,10 +13,10 @@
         android:layout_height="32dp"
         android:contentDescription="Back"
         android:src="@drawable/ic_back"
-        android:tint="#000000"
         app:layout_constraintBottom_toBottomOf="@id/titleHeader"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/titleHeader" />
+        app:layout_constraintTop_toTopOf="@id/titleHeader"
+        app:tint="#000000" />
 
     <TextView
         android:id="@+id/titleHeader"
