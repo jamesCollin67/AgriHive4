@@ -45,10 +45,20 @@
                 android:textSize="12sp"/>
         </LinearLayout>
 
+        <!-- Profile Icon -->
         <ImageView
+            android:id="@+id/ivProfile"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:src="@drawable/ic_bell"/>
+            android:src="@drawable/ic_profile"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Settings Icon -->
+        <ImageView
+            android:id="@+id/ivSettings"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_settings"/>
     </LinearLayout>
 
     <!-- Divider -->
@@ -79,6 +89,7 @@
 
     <!-- Active Hives -->
     <TextView
+        android:id="@+id/tvActiveHives"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0 active hives"
@@ -87,7 +98,18 @@
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"/>
 
-    <!-- Empty State (NOW STOPS ABOVE NAV BAR) -->
+    <!-- RecyclerView (ADDED) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerApiaries"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/btnAddApiary"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Empty State -->
     <TextView
         android:id="@+id/tvEmpty"
         android:layout_width="wrap_content"
@@ -95,12 +117,12 @@
         android:text="You haven’t added any apiaries yet"
         android:textSize="16sp"
         android:textColor="#666666"
-        app:layout_constraintTop_toBottomOf="@id/topBar"
-        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintTop_toTopOf="@id/recyclerApiaries"
+        app:layout_constraintBottom_toBottomOf="@id/recyclerApiaries"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Floating Camera Button (ABOVE NAV) -->
+    <!-- Floating Camera Button -->
     <ImageButton
         android:id="@+id/btnCamera"
         android:layout_width="80dp"
@@ -114,7 +136,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- Bottom Navigation (FIXED AT BOTTOM) -->
+    <!-- Bottom Navigation -->
     <include
         android:id="@+id/bottomNav"
         layout="@layout/bottom_nav"

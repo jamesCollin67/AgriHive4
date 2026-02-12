@@ -15,10 +15,40 @@ import com.example.agrihive.settings.SettingsActivity
 class DashboardActivity : AppCompatActivity() {
 
     private val viewModel: DashboardViewModel by viewModels()
+    private lateinit var apiaryAdapter: ApiaryAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard_page)
+
+        // RecyclerView setup
+        val recyclerView =
+            findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerApiaries)
+
+        apiaryAdapter = ApiaryAdapter()
+        recyclerView.adapter = apiaryAdapter
+        recyclerView.layoutManager =
+            androidx.recyclerview.widget.LinearLayoutManager(this)
+
+        // Add Apiary button
+        findViewById<android.widget.Button>(R.id.btnAddApiary).setOnClickListener {
+            viewModel.onAddApiaryClicked()
+        }
+
+        // Observe apiary list
+        viewModel.apiaryList.observe(this) { list ->
+
+            apiaryAdapter.submitList(list)
+
+            findViewById<TextView>(R.id.tvActiveHives).text =
+                "${list.count { it.isActive }} active hives"
+
+            findViewById<TextView>(R.id.tvEmpty).visibility =
+                if (list.isEmpty()) android.view.View.VISIBLE
+                else android.view.View.GONE
+        }
+
+
 
         // Add Apiary button
         findViewById<android.widget.Button>(R.id.btnAddApiary).setOnClickListener {
@@ -52,6 +82,7 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun showSubscriptionDialog() {
         val dialogView = layoutInflater.inflate(R.layout.activity_subscription_card, null)

@@ -4,7 +4,7 @@
     <!-- Splash Screen Theme -->
     <style name="Theme.AgriHive.Splash" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Background image for splash -->
-        <item name="android:windowBackground">@drawable/splash</item>
+        <item name="android:windowBackground">#FFFFFF</item>
         <!-- Make fullscreen -->
         <item name="android:windowFullscreen">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -23,7 +23,7 @@
         <item name="android:navigationBarColor">@android:color/black</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@drawable/splash</item>
+        <item name="android:windowBackground">#FFFFFF</item>
     </style>
 
 </resources>
