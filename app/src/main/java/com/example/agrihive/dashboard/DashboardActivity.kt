@@ -1,16 +1,21 @@
 package com.example.agrihive.dashboard
 
+import ApiaryAdapter
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.agrihive.R
 import com.example.agrihive.addapiary.AddApiaryActivity
+import android.widget.ImageView
 import com.example.agrihive.profile.ProfileActivity
 import com.example.agrihive.settings.SettingsActivity
+import com.example.agrihive.hivestreams.HiveStreamsActivity
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -22,18 +27,21 @@ class DashboardActivity : AppCompatActivity() {
         setContentView(R.layout.activity_dashboard_page)
 
         // RecyclerView setup
-        val recyclerView =
-            findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerApiaries)
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerApiaries)
 
-        apiaryAdapter = ApiaryAdapter()
-        recyclerView.adapter = apiaryAdapter
-        recyclerView.layoutManager =
-            androidx.recyclerview.widget.LinearLayoutManager(this)
+        apiaryAdapter = ApiaryAdapter { apiary ->
 
-        // Add Apiary button
-        findViewById<android.widget.Button>(R.id.btnAddApiary).setOnClickListener {
-            viewModel.onAddApiaryClicked()
+            val intent = Intent(this, HiveStreamsActivity::class.java)
+            intent.putExtra("APIARY_ID", apiary.id)
+            intent.putExtra("APIARY_NAME", apiary.name)
+            startActivity(intent)
         }
+
+        recyclerView.apply {
+            adapter = apiaryAdapter
+            layoutManager = LinearLayoutManager(this@DashboardActivity)
+        }
+
 
         // Observe apiary list
         viewModel.apiaryList.observe(this) { list ->
@@ -43,29 +51,28 @@ class DashboardActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.tvActiveHives).text =
                 "${list.count { it.isActive }} active hives"
 
-            findViewById<TextView>(R.id.tvEmpty).visibility =
-                if (list.isEmpty()) android.view.View.VISIBLE
-                else android.view.View.GONE
+            findViewById<TextView>(R.id.tvEmpty).isVisible = list.isEmpty()
         }
-
-
 
         // Add Apiary button
         findViewById<android.widget.Button>(R.id.btnAddApiary).setOnClickListener {
             viewModel.onAddApiaryClicked()
         }
+        // Bottom Navigation Click Listeners
+        findViewById<ImageView>(R.id.navHome).setOnClickListener {
+            // Already in Dashboard (Home)
+        }
 
-        // Profile icon click
-        findViewById<ImageView>(R.id.ivProfile).setOnClickListener {
+        findViewById<ImageView>(R.id.navProfile).setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
 
-        // Settings icon click
-        findViewById<ImageView>(R.id.ivSettings).setOnClickListener {
+        findViewById<ImageView>(R.id.navSettings).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        // Observe navigation
+
+        // Navigation to Add Apiary
         viewModel.navigateToAddApiary.observe(this) { navigate ->
             if (navigate) {
                 startActivity(Intent(this, AddApiaryActivity::class.java))
@@ -82,7 +89,6 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun showSubscriptionDialog() {
         val dialogView = layoutInflater.inflate(R.layout.activity_subscription_card, null)

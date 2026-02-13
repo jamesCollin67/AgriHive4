@@ -9,7 +9,6 @@ import com.google.firebase.database.*
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ProfileViewModel : ViewModel() {
-
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
     private val realtimeDb = FirebaseDatabase.getInstance().reference
@@ -36,31 +35,27 @@ class ProfileViewModel : ViewModel() {
 
     private fun loadUser() {
         val uid = auth.currentUser?.uid ?: return
-
         firestore.collection("users").document(uid)
             .get()
-            .addOnSuccessListener { document ->
-                val userData = document.toObject(User::class.java)
-                userData?.let { _user.value = it }
+            .addOnSuccessListener { doc ->
+                val userData = doc.toObject(User::class.java)
+                userData?.let {
+                    _user.value = it
+                }
             }
+    }
+
+    fun refreshUserData() {
+        loadUser()
+        listenApiaryCount()
     }
 
     private fun listenApiaryCount() {
         val uid = auth.currentUser?.uid ?: return
-
-        realtimeDb.child("apiaries")
-            .orderByChild("ownerId")
-            .equalTo(uid)
-            .addValueEventListener(object : ValueEventListener {
-
+        realtimeDb.child("apiaries").orderByChild("ownerId").equalTo(uid)
+            .addValueEventListener(object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    var count = 0
-
-                    for (child in snapshot.children) {
-                        val isActive = child.child("isActive").getValue(Boolean::class.java) ?: false
-                        if (isActive) count++
-                    }
-
+                    val count = snapshot.childrenCount.toInt()
                     _apiaryCount.value = count
                 }
 
@@ -68,9 +63,17 @@ class ProfileViewModel : ViewModel() {
             })
     }
 
-    fun editClicked() { _goEdit.value = true }
-    fun backClicked() { _goDashboard.value = true }
-    fun settingsClicked() { _goSettings.value = true }
+    fun editClicked() {
+        _goEdit.value = true
+    }
+
+    fun backClicked() {
+        _goDashboard.value = true
+    }
+
+    fun settingsClicked() {
+        _goSettings.value = true
+    }
 
     fun doneNav() {
         _goEdit.value = false

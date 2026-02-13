@@ -18,7 +18,6 @@ class AddApiaryViewModel : ViewModel() {
         weight: String,
         isActive: Boolean
     ) {
-
         if (name.isEmpty()) {
             _addStatus.value = false
             return

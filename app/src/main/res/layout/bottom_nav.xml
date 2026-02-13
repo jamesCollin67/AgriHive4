@@ -10,7 +10,7 @@
     android:paddingBottom="16dp">
 
     <ImageView
-        android:id="@+id/ivHome"
+        android:id="@+id/navHome"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_weight="1"
@@ -19,7 +19,7 @@
         app:tint="#000000" />
 
     <ImageView
-        android:id="@+id/ivProfile"
+        android:id="@+id/navProfile"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_weight="1"
@@ -28,7 +28,7 @@
         app:tint="#000000" />
 
     <ImageView
-        android:id="@+id/ivSettings"
+        android:id="@+id/navSettings"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_weight="1"

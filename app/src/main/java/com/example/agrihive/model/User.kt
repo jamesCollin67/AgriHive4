@@ -7,5 +7,7 @@ data class User(
     val email: String = "",
     val farm: String = "",
     val location: String = "",
-    val apiaries: Int = 0
+    val apiaries: Int = 0,
+    val photoUrl: String = "",  // ADD THIS LINE
+    val createdAt: Long = System.currentTimeMillis()
 )

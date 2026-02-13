@@ -14,21 +14,12 @@ class DashboardViewModel : ViewModel() {
     private val usersRef = database.getReference("users")
     private val apiaryRef = database.getReference("apiaries")
 
-    // -------------------------
-    // Apiary List
-    // -------------------------
     private val _apiaryList = MutableLiveData<List<Apiary>>()
     val apiaryList: LiveData<List<Apiary>> = _apiaryList
 
-    // -------------------------
-    // Subscription
-    // -------------------------
     private val _showSubscription = MutableLiveData<Boolean>()
     val showSubscription: LiveData<Boolean> = _showSubscription
 
-    // -------------------------
-    // Navigation
-    // -------------------------
     private val _navigateToAddApiary = MutableLiveData<Boolean>()
     val navigateToAddApiary: LiveData<Boolean> = _navigateToAddApiary
 
@@ -57,7 +48,6 @@ class DashboardViewModel : ViewModel() {
                 override fun onCancelled(error: DatabaseError) {}
             })
     }
-
 
     fun checkSubscription() {
         val uid = auth.currentUser?.uid ?: return

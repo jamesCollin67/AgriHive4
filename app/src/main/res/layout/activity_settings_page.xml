@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,6 +19,7 @@
         app:tint="#000000" />
 
     <TextView
+        android:id="@+id/tvSettingsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Settings"
@@ -38,79 +40,209 @@
         app:layout_constraintTop_toBottomOf="@id/btnBack" />
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/footerNav"
         app:layout_constraintTop_toBottomOf="@id/headerDivider">
 
         <LinearLayout
+            android:id="@+id/settingsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout style="@style/SettingsRowStyle">
-                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_notifications" />
-                <TextView style="@style/SettingsTextStyle" android:text="Notifications" />
+            <LinearLayout
+                android:id="@+id/rowNotifications"
+                style="@style/SettingsRowStyle">
+                <ImageView
+                    android:id="@+id/iconNotifications"
+                    style="@style/SettingsIconStyle"
+                    android:src="@drawable/ic_notifications" />
+                <TextView
+                    android:id="@+id/tvNotifications"
+                    style="@style/SettingsTextStyle"
+                    android:text="Notifications" />
                 <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchNotifications"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
                     app:trackTint="#4CAF50" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+            <View
+                android:id="@+id/dividerNotifications"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE" />
 
-            <LinearLayout style="@style/SettingsRowStyle">
-                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_phone" />
-                <TextView style="@style/SettingsTextStyle" android:text="Device Controls" />
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            <LinearLayout
+                android:id="@+id/rowDeviceControls"
+                style="@style/SettingsRowStyle">
+                <ImageView
+                    android:id="@+id/iconDeviceControls"
+                    style="@style/SettingsIconStyle"
+                    android:src="@drawable/ic_phone" />
+                <TextView
+                    android:id="@+id/tvDeviceControls"
+                    style="@style/SettingsTextStyle"
+                    android:text="Device Controls" />
+                <ImageView
+                    android:id="@+id/chevronDeviceControls"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#FFB74D" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+            <View
+                android:id="@+id/dividerDeviceControls"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE" />
 
-            <LinearLayout style="@style/SettingsRowStyle">
-                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_cloud" />
-                <TextView style="@style/SettingsTextStyle" android:text="Cloud Sync" />
+            <LinearLayout
+                android:id="@+id/rowCloudSync"
+                style="@style/SettingsRowStyle">
+                <ImageView
+                    android:id="@+id/iconCloudSync"
+                    style="@style/SettingsIconStyle"
+                    android:src="@drawable/ic_cloud" />
+                <TextView
+                    android:id="@+id/tvCloudSync"
+                    style="@style/SettingsTextStyle"
+                    android:text="Cloud Sync" />
                 <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchCloudSync"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
                     app:trackTint="#4CAF50" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+            <View
+                android:id="@+id/dividerCloudSync"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE" />
 
-            <LinearLayout style="@style/SettingsRowStyle">
-                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_activity" />
-                <TextView style="@style/SettingsTextStyle" android:text="Activity log" />
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            <LinearLayout
+                android:id="@+id/rowActivityLog"
+                style="@style/SettingsRowStyle">
+                <ImageView
+                    android:id="@+id/iconActivityLog"
+                    style="@style/SettingsIconStyle"
+                    android:src="@drawable/ic_activity" />
+                <TextView
+                    android:id="@+id/tvActivityLog"
+                    style="@style/SettingsTextStyle"
+                    android:text="Activity log" />
+                <ImageView
+                    android:id="@+id/chevronActivityLog"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#FFB74D" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+            <View
+                android:id="@+id/dividerActivityLog"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE" />
 
-            <LinearLayout style="@style/SettingsRowStyle">
-                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_lock" />
-                <TextView style="@style/SettingsTextStyle" android:text="Change password" />
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            <LinearLayout
+                android:id="@+id/rowChangePassword"
+                style="@style/SettingsRowStyle">
+                <ImageView
+                    android:id="@+id/iconChangePassword"
+                    style="@style/SettingsIconStyle"
+                    android:src="@drawable/ic_lock" />
+                <TextView
+                    android:id="@+id/tvChangePassword"
+                    style="@style/SettingsTextStyle"
+                    android:text="Change password" />
+                <ImageView
+                    android:id="@+id/chevronChangePassword"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#FFB74D" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+            <View
+                android:id="@+id/dividerChangePassword"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE" />
 
-            <LinearLayout style="@style/SettingsRowStyle">
-                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_saved" />
-                <TextView style="@style/SettingsTextStyle" android:text="Saved Treatments" />
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            <LinearLayout
+                android:id="@+id/rowSavedTreatments"
+                style="@style/SettingsRowStyle">
+                <ImageView
+                    android:id="@+id/iconSavedTreatments"
+                    style="@style/SettingsIconStyle"
+                    android:src="@drawable/ic_saved" />
+                <TextView
+                    android:id="@+id/tvSavedTreatments"
+                    style="@style/SettingsTextStyle"
+                    android:text="Saved Treatments" />
+                <ImageView
+                    android:id="@+id/chevronSavedTreatments"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#FFB74D" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+            <View
+                android:id="@+id/dividerSavedTreatments"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE" />
 
-            <LinearLayout style="@style/SettingsRowStyle">
-                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_bee" />
-                <TextView style="@style/SettingsTextStyle" android:text="Subscription" />
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            <LinearLayout
+                android:id="@+id/rowSubscription"
+                style="@style/SettingsRowStyle">
+                <ImageView
+                    android:id="@+id/iconSubscription"
+                    style="@style/SettingsIconStyle"
+                    android:src="@drawable/ic_bee" />
+                <TextView
+                    android:id="@+id/tvSubscription"
+                    style="@style/SettingsTextStyle"
+                    android:text="Subscription" />
+                <ImageView
+                    android:id="@+id/chevronSubscription"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#FFB74D" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+            <View
+                android:id="@+id/dividerSubscription"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE" />
 
-            <LinearLayout style="@style/SettingsRowStyle">
-                <ImageView style="@style/SettingsIconStyle" android:src="@drawable/ic_logout" />
-                <TextView style="@style/SettingsTextStyle" android:text="Logout" />
-                <ImageView android:layout_width="50dp" android:layout_height="50dp" android:src="@drawable/ic_chevron_right" app:tint="#FFB74D" />
+            <LinearLayout
+                android:id="@+id/rowLogout"
+                style="@style/SettingsRowStyle">
+                <ImageView
+                    android:id="@+id/iconLogout"
+                    style="@style/SettingsIconStyle"
+                    android:src="@drawable/ic_logout" />
+                <TextView
+                    android:id="@+id/tvLogout"
+                    style="@style/SettingsTextStyle"
+                    android:text="Logout" />
+                <ImageView
+                    android:id="@+id/chevronLogout"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#FFB74D" />
             </LinearLayout>
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
+            <View
+                android:id="@+id/dividerLogout"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

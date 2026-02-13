@@ -23,16 +23,12 @@ class ApiaryRepository {
     }
 
     fun listenApiaries(callback: (List<Apiary>) -> Unit) {
-
         apiaryRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-
                 val list = mutableListOf<Apiary>()
-
                 for (child in snapshot.children) {
-                    val apiary = child.getValue(Apiary::class.java)
-                    if (apiary?.ownerId == uid) {
-                        list.add(apiary)
+                    child.getValue(Apiary::class.java)?.let { apiary ->
+                        if (apiary.ownerId == uid) list.add(apiary)
                     }
                 }
                 callback(list)
