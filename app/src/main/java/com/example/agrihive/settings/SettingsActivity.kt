@@ -4,11 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Switch
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.profile.ProfileActivity
@@ -24,8 +24,8 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var navProfile: ImageView
 
     private lateinit var rowLogout: LinearLayout
-    private lateinit var switchNotifications: Switch
-    private lateinit var switchCloudSync: Switch
+    private lateinit var switchNotifications: SwitchCompat
+    private lateinit var switchCloudSync: SwitchCompat
 
     private lateinit var rowDeviceControls: LinearLayout
     private lateinit var rowActivityLog: LinearLayout

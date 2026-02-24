@@ -2,6 +2,7 @@ package com.example.agrihive.profile
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -73,6 +74,16 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.tvHomeLogo.setOnClickListener {
             viewModel.backClicked()
+        }
+
+        // Bottom Navigation Click Listeners
+        val footerNav = binding.root.findViewById<android.view.View>(R.id.footerNav)
+        footerNav?.findViewById<ImageView>(R.id.navHome)?.setOnClickListener {
+            viewModel.backClicked()
+        }
+
+        footerNav?.findViewById<ImageView>(R.id.navSettings)?.setOnClickListener {
+            viewModel.settingsClicked()
         }
     }
 
