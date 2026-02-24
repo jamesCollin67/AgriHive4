@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -20,8 +21,6 @@ class SettingsActivity : AppCompatActivity() {
     // UI elements
     private lateinit var btnBack: ImageView
     private lateinit var footerNav: LinearLayout
-    private lateinit var navHome: ImageView
-    private lateinit var navProfile: ImageView
 
     private lateinit var rowLogout: LinearLayout
     private lateinit var switchNotifications: SwitchCompat
@@ -37,13 +36,12 @@ class SettingsActivity : AppCompatActivity() {
         initViews()
         setupUI()
         setupObservers()
+        setupBottomNavigationHighlight()
     }
 
     private fun initViews() {
         btnBack = findViewById(R.id.btnBack)
         footerNav = findViewById(R.id.footerNav) as LinearLayout
-        navHome = footerNav.findViewById(R.id.navHome)
-        navProfile = footerNav.findViewById(R.id.navProfile)
 
         rowLogout = findViewById(R.id.rowLogout)
         switchNotifications = findViewById(R.id.switchNotifications)
@@ -61,14 +59,26 @@ class SettingsActivity : AppCompatActivity() {
             finish()
         }
 
-        // Bottom nav
-        navHome.setOnClickListener {
+        // Bottom navigation click listeners
+        // Home
+        footerNav.findViewById<LinearLayout>(R.id.navHomeContainer)?.setOnClickListener {
             val intent = Intent(this, DashboardActivity::class.java)
             startActivity(intent)
             finish()
         }
 
-        navProfile.setOnClickListener {
+        // History - placeholder
+        footerNav.findViewById<LinearLayout>(R.id.navHistoryContainer)?.setOnClickListener {
+            // History functionality coming soon
+        }
+
+        // Camera - placeholder
+        footerNav.findViewById<LinearLayout>(R.id.navScanContainer)?.setOnClickListener {
+            // Camera functionality coming soon
+        }
+
+        // Profile
+        footerNav.findViewById<LinearLayout>(R.id.navProfileContainer)?.setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
             finish()
@@ -96,6 +106,25 @@ class SettingsActivity : AppCompatActivity() {
         rowActivityLog.setOnClickListener {
             Toast.makeText(this, "Activity Log clicked", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun setupBottomNavigationHighlight() {
+        // Highlight Settings when on Settings page
+        val navSettings = footerNav.findViewById<ImageView>(R.id.navSettings)
+        val tvSettings = footerNav.findViewById<TextView>(R.id.tvSettings)
+        
+        navSettings?.isSelected = true
+        tvSettings?.setTextColor(getColor(R.color.honey_dark))
+        
+        // Reset others
+        footerNav.findViewById<ImageView>(R.id.navHome)?.isSelected = false
+        footerNav.findViewById<ImageView>(R.id.navHistory)?.isSelected = false
+        footerNav.findViewById<ImageView>(R.id.navProfile)?.isSelected = false
+        
+        footerNav.findViewById<TextView>(R.id.tvHome)?.setTextColor(getColor(android.R.color.black))
+        footerNav.findViewById<TextView>(R.id.tvHistory)?.setTextColor(getColor(android.R.color.black))
+        footerNav.findViewById<TextView>(R.id.tvScan)?.setTextColor(getColor(android.R.color.black))
+        footerNav.findViewById<TextView>(R.id.tvProfile)?.setTextColor(getColor(android.R.color.black))
     }
 
     private fun setupObservers() {

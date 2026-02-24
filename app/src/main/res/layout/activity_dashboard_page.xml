@@ -120,20 +120,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Floating Camera -->
-    <ImageButton
-        android:id="@+id/btnCamera"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:background="@drawable/bg_fab"
-        android:src="@drawable/ic_camera"
-        android:padding="14dp"
-        android:elevation="6dp"
-        app:layout_constraintBottom_toTopOf="@id/bottomNav"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"/>
-
     <!-- Bottom Navigation -->
     <include
         android:id="@+id/bottomNav"

@@ -3,6 +3,8 @@ package com.example.agrihive.profile
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -34,6 +36,7 @@ class ProfileActivity : AppCompatActivity() {
 
         setupObservers()
         setupClickListeners()
+        setupBottomNavigationHighlight()
     }
 
     private fun setupObservers() {
@@ -78,13 +81,49 @@ class ProfileActivity : AppCompatActivity() {
 
         // Bottom Navigation Click Listeners
         val footerNav = binding.root.findViewById<android.view.View>(R.id.footerNav)
-        footerNav?.findViewById<ImageView>(R.id.navHome)?.setOnClickListener {
-            viewModel.backClicked()
+        
+        // Home
+        footerNav?.findViewById<LinearLayout>(R.id.navHomeContainer)?.setOnClickListener {
+            startActivity(Intent(this, DashboardActivity::class.java))
+            finish()
         }
 
-        footerNav?.findViewById<ImageView>(R.id.navSettings)?.setOnClickListener {
-            viewModel.settingsClicked()
+        // History - placeholder
+        footerNav?.findViewById<LinearLayout>(R.id.navHistoryContainer)?.setOnClickListener {
+            // History functionality coming soon
         }
+
+        // Camera - placeholder
+        footerNav?.findViewById<LinearLayout>(R.id.navScanContainer)?.setOnClickListener {
+            // Camera functionality coming soon
+        }
+
+        // Settings
+        footerNav?.findViewById<LinearLayout>(R.id.navSettingsContainer)?.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            finish()
+        }
+    }
+
+    private fun setupBottomNavigationHighlight() {
+        // Highlight Profile when on Profile page
+        val footerNav = binding.root.findViewById<android.view.View>(R.id.footerNav)
+        
+        val navProfile = footerNav?.findViewById<ImageView>(R.id.navProfile)
+        val tvProfile = footerNav?.findViewById<TextView>(R.id.tvProfile)
+        
+        navProfile?.isSelected = true
+        tvProfile?.setTextColor(getColor(R.color.honey_dark))
+        
+        // Reset others
+        footerNav?.findViewById<ImageView>(R.id.navHome)?.isSelected = false
+        footerNav?.findViewById<ImageView>(R.id.navHistory)?.isSelected = false
+        footerNav?.findViewById<ImageView>(R.id.navSettings)?.isSelected = false
+        
+        footerNav?.findViewById<TextView>(R.id.tvHome)?.setTextColor(getColor(android.R.color.black))
+        footerNav?.findViewById<TextView>(R.id.tvHistory)?.setTextColor(getColor(android.R.color.black))
+        footerNav?.findViewById<TextView>(R.id.tvScan)?.setTextColor(getColor(android.R.color.black))
+        footerNav?.findViewById<TextView>(R.id.tvSettings)?.setTextColor(getColor(android.R.color.black))
     }
 
     private fun observeNavigation() {
