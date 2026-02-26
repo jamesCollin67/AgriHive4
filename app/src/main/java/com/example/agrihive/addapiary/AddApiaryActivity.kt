@@ -21,6 +21,14 @@ class AddApiaryActivity : AppCompatActivity() {
         binding = ActivityAddApiaryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Back button - go to Dashboard
+        binding.backBtn.setOnClickListener {
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        }
+
         // ADD button
         binding.btnAdd.setOnClickListener {
 

@@ -1,12 +1,10 @@
 package com.example.agrihive.hivestreams
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.R
-import com.example.agrihive.dashboard.DashboardActivity
 
 class HiveStreamsActivity : AppCompatActivity() {
 
@@ -24,8 +22,6 @@ class HiveStreamsActivity : AppCompatActivity() {
         bottomInfo = findViewById(R.id.bottom_info)  // LinearLayout
 
         btnBack.setOnClickListener {
-            val intent = Intent(this, DashboardActivity::class.java)
-            startActivity(intent)
             finish()
         }
     }

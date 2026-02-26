@@ -45,9 +45,30 @@ class EditProfileViewModel : ViewModel() {
         firestore.collection("users").document(uid)
             .get()
             .addOnSuccessListener { doc ->
-                val userData = doc.toObject(User::class.java)
-                userData?.let {
-                    _user.value = it
+                if (doc.exists()) {
+                    val userData = doc.toObject(User::class.java)
+                    userData?.let {
+                        _user.value = it
+                    }
+                } else {
+                    // Create a new user document if it doesn't exist
+                    val newUser = User(
+                        uid = uid,
+                        email = auth.currentUser?.email ?: "",
+                        firstName = "",
+                        lastName = "",
+                        farm = "",
+                        location = "",
+                        photoUrl = ""
+                    )
+                    firestore.collection("users").document(uid)
+                        .set(newUser)
+                        .addOnSuccessListener {
+                            _user.value = newUser
+                        }
+                        .addOnFailureListener {
+                            _errorMessage.value = "Failed to create user profile"
+                        }
                 }
             }
             .addOnFailureListener { exception ->

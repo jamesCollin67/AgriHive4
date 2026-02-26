@@ -12,7 +12,9 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_subscription"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:elevation="0dp"
+        android:backgroundTint="#FFFFFF">
 
         <!-- BEE LOGO -->
         <LinearLayout
@@ -34,7 +36,8 @@
                 android:layout_height="wrap_content"
                 android:text="Subscription"
                 android:textStyle="bold"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textColor="#000000"/>
         </LinearLayout>
 
 
@@ -46,7 +49,8 @@
             android:textStyle="bold"
             android:textSize="18sp"
             android:gravity="center"
-            android:paddingTop="8dp"/>
+            android:paddingTop="8dp"
+            android:textColor="#000000"/>
 
         <!-- Subtitle -->
         <TextView
@@ -54,7 +58,8 @@
             android:layout_height="wrap_content"
             android:text="Apiaries Available:"
             android:gravity="center"
-            android:paddingTop="6dp"/>
+            android:paddingTop="6dp"
+            android:textColor="#000000"/>
 
         <!-- PLANS -->
         <LinearLayout
@@ -174,7 +179,8 @@
             android:text="Sensors are used for monitoring its temperature, humidity, weight, and time harvesting for each hive."
             android:textSize="12sp"
             android:gravity="center"
-            android:paddingTop="10dp"/>
+            android:paddingTop="10dp"
+            android:textColor="#000000"/>
 
         <!-- Dismiss -->
         <TextView
@@ -183,6 +189,7 @@
             android:layout_height="wrap_content"
             android:text="Dismiss"
             android:layout_gravity="center"
-            android:paddingTop="14dp"/>
+            android:paddingTop="14dp"
+            android:textColor="#000000"/>
     </LinearLayout>
 </LinearLayout>

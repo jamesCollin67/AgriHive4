@@ -178,6 +178,7 @@ class DashboardActivity : AppCompatActivity() {
             .create()
 
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setGravity(android.view.Gravity.CENTER)
 
         dialogView.findViewById<TextView>(R.id.btnDismiss).setOnClickListener {
             dialog.dismiss()
