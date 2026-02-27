@@ -57,7 +57,7 @@ class ForgotPasswordViewModel : ViewModel() {
         }
 
         if (inputOtp != generatedOtp) {
-            _errorMessage.value = "Invalid verification code."
+            _errorMessage.value = "Invalid code. Please try again"
             return
         }
 

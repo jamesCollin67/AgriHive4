@@ -2,6 +2,7 @@ package com.example.agrihive.dashboard
 
 import ApiaryAdapter
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.TextView
 import android.widget.Toast
@@ -22,10 +23,22 @@ class DashboardActivity : AppCompatActivity() {
 
     private val viewModel: DashboardViewModel by viewModels()
     private lateinit var apiaryAdapter: ApiaryAdapter
+    private lateinit var prefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard_page)
+
+        prefs = getSharedPreferences("AgriHivePrefs", MODE_PRIVATE)
+
+        // Show subscription dialog on login (when coming from login screen) - only once per session
+        val fromLogin = intent.getBooleanExtra("FROM_LOGIN", false)
+        val subscriptionShownThisSession = prefs.getBoolean("subscription_dialog_shown_this_login", false)
+        
+        if (fromLogin && !subscriptionShownThisSession) {
+            showSubscriptionDialog()
+            prefs.edit().putBoolean("subscription_dialog_shown_this_login", true).apply()
+        }
 
         // RecyclerView setup
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerApiaries)
@@ -74,8 +87,9 @@ class DashboardActivity : AppCompatActivity() {
         // Subscription popup
         viewModel.checkSubscription()
         viewModel.showSubscription.observe(this) { show ->
-            if (show) {
+            if (show && !prefs.getBoolean("subscription_dialog_shown", false)) {
                 showSubscriptionDialog()
+                prefs.edit().putBoolean("subscription_dialog_shown", true).apply()
                 viewModel.doneShowingSubscription()
             }
         }
@@ -172,13 +186,29 @@ class DashboardActivity : AppCompatActivity() {
     private fun showSubscriptionDialog() {
         val dialogView = layoutInflater.inflate(R.layout.activity_subscription_card, null)
 
-        val dialog = AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this, android.R.style.Theme_Translucent_NoTitleBar)
             .setView(dialogView)
             .setCancelable(false)
             .create()
 
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.window?.setGravity(android.view.Gravity.CENTER)
+        dialog.window?.apply {
+            setBackgroundDrawable(null)
+            setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT)
+            setDimAmount(0.7f)
+            
+            val params = attributes
+            params?.apply {
+                width = android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                height = android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                gravity = android.view.Gravity.CENTER
+            }
+            attributes = params
+            
+            decorView.systemUiVisibility = (
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            )
+        }
 
         dialogView.findViewById<TextView>(R.id.btnDismiss).setOnClickListener {
             dialog.dismiss()

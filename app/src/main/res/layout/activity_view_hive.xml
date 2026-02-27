@@ -108,6 +108,16 @@
                     <TextView android:text="18%" android:textStyle="bold" />
                 </TableRow>
             </TableLayout>
+
+            <!-- Sensor Info Note -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Note: Temperature and Humidity are already set from the sensor for its normal ranges. Weight can be changed based on your preferred size apiary. This will notify you if one of these will raised."
+                android:textSize="11sp"
+                android:textColor="#666666"
+                android:fontStyle="italic" />
         </LinearLayout>
     </ScrollView>
 
@@ -126,15 +136,5 @@
         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#999999" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:text="Weight: 35 - 45 kg" />
     </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_camera"
-        app:backgroundTint="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/bottom_info" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

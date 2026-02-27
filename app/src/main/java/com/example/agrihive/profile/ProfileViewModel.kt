@@ -7,6 +7,7 @@ import com.example.agrihive.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 
 class ProfileViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
@@ -36,7 +37,7 @@ class ProfileViewModel : ViewModel() {
     private fun loadUser() {
         val uid = auth.currentUser?.uid ?: return
         firestore.collection("users").document(uid)
-            .get()
+            .get(Source.SERVER)
             .addOnSuccessListener { doc ->
                 val userData = doc.toObject(User::class.java)
                 userData?.let {

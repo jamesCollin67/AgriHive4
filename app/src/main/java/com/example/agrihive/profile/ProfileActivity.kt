@@ -39,6 +39,12 @@ class ProfileActivity : AppCompatActivity() {
         setupBottomNavigationHighlight()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Refresh user data when returning to this page
+        viewModel.refreshUserData()
+    }
+
     private fun setupObservers() {
         // Observe user info
         viewModel.user.observe(this) { user ->

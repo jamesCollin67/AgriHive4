@@ -13,6 +13,8 @@ import com.bumptech.glide.Glide
 import com.example.agrihive.R
 import com.example.agrihive.databinding.ActivityEditProfileBinding
 import com.example.agrihive.profile.ProfileActivity
+import java.io.File
+import java.io.FileOutputStream
 
 class EditProfileActivity : AppCompatActivity() {
 
@@ -25,8 +27,41 @@ class EditProfileActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             val imageUri = result.data?.data
             imageUri?.let {
-                binding.profilePic.setImageURI(it)
-                viewModel.setSelectedPhotoUri(it)
+                // Convert content URI to a persistent file URI
+                val fileUri = getPersistentUri(it)
+                if (fileUri != null) {
+                    binding.profilePic.setImageURI(fileUri)
+                    viewModel.setSelectedPhotoUri(fileUri)
+                } else {
+                    // Fallback to original URI
+                    binding.profilePic.setImageURI(it)
+                    viewModel.setSelectedPhotoUri(it)
+                }
+            }
+        }
+    }
+
+    // Convert content:// URI to a file URI that Firebase can access
+    private fun getPersistentUri(contentUri: Uri): Uri? {
+        return try {
+            // Try to take persistable permission
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            contentResolver.takePersistableUriPermission(contentUri, takeFlags)
+            contentUri
+        } catch (e: SecurityException) {
+            // If we can't take persistent permission, try to copy the file
+            try {
+                val inputStream = contentResolver.openInputStream(contentUri) ?: return null
+                val tempFile = File(cacheDir, "profile_${System.currentTimeMillis()}.jpg")
+                val outputStream = FileOutputStream(tempFile)
+                inputStream.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                Uri.fromFile(tempFile)
+            } catch (e: Exception) {
+                null
             }
         }
     }

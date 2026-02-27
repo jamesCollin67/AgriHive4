@@ -3,6 +3,7 @@ package com.example.agrihive.login
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.view.MotionEvent
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -33,9 +34,28 @@ class LoginActivity : AppCompatActivity() {
         // Set initial password toggle drawable
         binding.passwordInput.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye, 0)
 
-        // Password visibility toggle
-        binding.passwordInput.setOnClickListener {
-            togglePasswordVisibility()
+        // Password visibility toggle - only when touching the eye icon
+        binding.passwordInput.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                // Check if touch was on the drawable (right side)
+                val drawableEnd = binding.passwordInput.compoundDrawables[2]
+                if (drawableEnd != null) {
+                    val touchX = event.rawX
+                    val drawableRight = binding.passwordInput.right - binding.passwordInput.paddingRight
+                    val drawableLeft = drawableRight - drawableEnd.bounds.width()
+                    
+                    if (touchX >= drawableLeft && touchX <= drawableRight) {
+                        togglePasswordVisibility()
+                        true
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            } else {
+                false
+            }
         }
 
         // Observe login success/error
@@ -55,7 +75,9 @@ class LoginActivity : AppCompatActivity() {
         // Navigate to DashboardActivity
         viewModel.navigateToDashboard.observe(this) { navigate ->
             if (navigate) {
-                startActivity(Intent(this, DashboardActivity::class.java))
+                val intent = Intent(this, DashboardActivity::class.java)
+                intent.putExtra("FROM_LOGIN", true)
+                startActivity(intent)
                 finish()
                 viewModel.doneNavigating()
             }
@@ -86,6 +108,26 @@ class LoginActivity : AppCompatActivity() {
         // Optional: back button
         binding.btnBack.setOnClickListener {
             finish() // go back to previous activity
+        }
+
+        // Facebook login button
+        binding.facebook.setOnClickListener {
+            openUrl("https://www.facebook.com")
+        }
+
+        // Google login button
+        binding.google.setOnClickListener {
+            openUrl("https://accounts.google.com")
+        }
+    }
+
+    // Helper function to open URLs
+    private fun openUrl(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Unable to open browser", Toast.LENGTH_SHORT).show()
         }
     }
 

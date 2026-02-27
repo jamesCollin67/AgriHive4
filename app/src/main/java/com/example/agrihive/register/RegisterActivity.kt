@@ -67,5 +67,25 @@ class RegisterActivity : AppCompatActivity() {
         binding.back.setOnClickListener {
             finish()
         }
+
+        // Facebook login button
+        binding.facebook.setOnClickListener {
+            openUrl("https://www.facebook.com")
+        }
+
+        // Google login button
+        binding.google.setOnClickListener {
+            openUrl("https://accounts.google.com")
+        }
+    }
+
+    // Helper function to open URLs
+    private fun openUrl(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Unable to open browser", Toast.LENGTH_SHORT).show()
+        }
     }
 }

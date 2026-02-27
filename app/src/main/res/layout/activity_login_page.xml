@@ -60,7 +60,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
         android:text="Email"
-        android:textColor="#9E9E9E"
+        android:textColor="#1A1A1A"
         app:layout_constraintTop_toBottomOf="@id/title"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -91,7 +91,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="20dp"
         android:text="Password"
-        android:textColor="#9E9E9E"
+        android:textColor="#1A1A1A"
         app:layout_constraintTop_toBottomOf="@id/emailInput"
         app:layout_constraintStart_toStartOf="parent"/>
 
