@@ -14,8 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.agrihive.R
 import com.example.agrihive.addapiary.AddApiaryActivity
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.view.View
 import com.example.agrihive.profile.ProfileActivity
 import com.example.agrihive.settings.SettingsActivity
 
@@ -68,6 +70,7 @@ class DashboardActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.tvEmpty).isVisible = list.isEmpty()
         }
 
+
         // Add Apiary button
         findViewById<android.widget.Button>(R.id.btnAddApiary).setOnClickListener {
             viewModel.onAddApiaryClicked()
@@ -84,102 +87,101 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
 
-        // Subscription popup
+        // Subscription popup - show every time user logs in
         viewModel.checkSubscription()
         viewModel.showSubscription.observe(this) { show ->
-            if (show && !prefs.getBoolean("subscription_dialog_shown", false)) {
+            if (show) {
                 showSubscriptionDialog()
-                prefs.edit().putBoolean("subscription_dialog_shown", true).apply()
                 viewModel.doneShowingSubscription()
             }
         }
     }
 
     private fun setupBottomNavigation() {
-        val navHome = findViewById<ImageView>(R.id.navHome)
-        val navHistory = findViewById<ImageView>(R.id.navHistory)
-        val navScan = findViewById<LinearLayout>(R.id.navScanContainer)
-        val navProfile = findViewById<ImageView>(R.id.navProfile)
-        val navSettings = findViewById<ImageView>(R.id.navSettings)
-
+        // Get the bottom navigation layout
+        val footerNav = findViewById<View>(R.id.footerNav)
+        
+        // Get ImageViews for icon color change
+        val navHome = footerNav?.findViewById<ImageView>(R.id.navHome)
+        val navSearch = footerNav?.findViewById<ImageView>(R.id.navSearch)
+        val navProfile = footerNav?.findViewById<ImageView>(R.id.navProfile)
+        val navSettings = footerNav?.findViewById<ImageView>(R.id.navHistory)
+        
         // Get text views for color change
-        val tvHome = findViewById<TextView>(R.id.tvHome)
-        val tvHistory = findViewById<TextView>(R.id.tvHistory)
-        val tvScan = findViewById<TextView>(R.id.tvScan)
-        val tvProfile = findViewById<TextView>(R.id.tvProfile)
-        val tvSettings = findViewById<TextView>(R.id.tvSettings)
-
+        val tvHome = footerNav?.findViewById<TextView>(R.id.tvHome)
+        val tvSearch = footerNav?.findViewById<TextView>(R.id.tvSearch)
+        val tvProfile = footerNav?.findViewById<TextView>(R.id.tvProfile)
+        val tvSettings = footerNav?.findViewById<TextView>(R.id.tvHistory)
+        
+        // Colors
+        val activeColor = getColor(R.color.nav_active)
+        val inactiveColor = getColor(R.color.nav_inactive)
+        
         // Helper function to update selected state
         fun updateSelection(selectedId: Int) {
-            // Reset all to unselected (gray)
-            navHome.isSelected = false
-            navHistory.isSelected = false
-            navProfile.isSelected = false
-            navSettings.isSelected = false
-
-            tvHome.setTextColor(resources.getColor(android.R.color.black, theme))
-            tvHistory.setTextColor(resources.getColor(android.R.color.black, theme))
-            tvScan.setTextColor(resources.getColor(android.R.color.black, theme))
-            tvProfile.setTextColor(resources.getColor(android.R.color.black, theme))
-            tvSettings.setTextColor(resources.getColor(android.R.color.black, theme))
-
+            // Reset all to inactive (gray)
+            navHome?.setColorFilter(inactiveColor)
+            navSearch?.setColorFilter(inactiveColor)
+            navProfile?.setColorFilter(inactiveColor)
+            navSettings?.setColorFilter(inactiveColor)
+            
+            tvHome?.setTextColor(inactiveColor)
+            tvSearch?.setTextColor(inactiveColor)
+            tvProfile?.setTextColor(inactiveColor)
+            tvSettings?.setTextColor(inactiveColor)
+            
             // Highlight selected one (yellow)
             when (selectedId) {
                 R.id.navHomeContainer -> {
-                    navHome.isSelected = true
-                    tvHome.setTextColor(resources.getColor(R.color.honey_dark, theme))
+                    navHome?.setColorFilter(activeColor)
+                    tvHome?.setTextColor(activeColor)
                 }
-                R.id.navHistoryContainer -> {
-                    navHistory.isSelected = true
-                    tvHistory.setTextColor(resources.getColor(R.color.honey_dark, theme))
-                }
-                R.id.navScanContainer -> {
-                    tvScan.setTextColor(resources.getColor(R.color.honey_dark, theme))
+                R.id.navSearchContainer -> {
+                    navSearch?.setColorFilter(activeColor)
+                    tvSearch?.setTextColor(activeColor)
                 }
                 R.id.navProfileContainer -> {
-                    navProfile.isSelected = true
-                    tvProfile.setTextColor(resources.getColor(R.color.honey_dark, theme))
+                    navProfile?.setColorFilter(activeColor)
+                    tvProfile?.setTextColor(activeColor)
                 }
-                R.id.navSettingsContainer -> {
-                    navSettings.isSelected = true
-                    tvSettings.setTextColor(resources.getColor(R.color.honey_dark, theme))
+                R.id.navHistoryContainer -> {
+                    navSettings?.setColorFilter(activeColor)
+                    tvSettings?.setTextColor(activeColor)
                 }
             }
         }
-
+        
         // Set Home as selected by default
         updateSelection(R.id.navHomeContainer)
-
+        
         // Home - Already in Dashboard
-        findViewById<LinearLayout>(R.id.navHomeContainer).setOnClickListener {
+        footerNav?.findViewById<View>(R.id.navHomeContainer)?.setOnClickListener {
             updateSelection(R.id.navHomeContainer)
-            // Already in Dashboard - do nothing
         }
-
-        // History navigation
-        findViewById<LinearLayout>(R.id.navHistoryContainer).setOnClickListener {
-            updateSelection(R.id.navHistoryContainer)
-            // TODO: Navigate to History screen
+        
+        // Search/History navigation
+        footerNav?.findViewById<View>(R.id.navSearchContainer)?.setOnClickListener {
+            updateSelection(R.id.navSearchContainer)
             Toast.makeText(this, "History coming soon!", Toast.LENGTH_SHORT).show()
         }
-
+        
         // Scan/Camera button
-        navScan.setOnClickListener {
-            updateSelection(R.id.navScanContainer)
-            // TODO: Implement scan functionality
+        footerNav?.findViewById<View>(R.id.navScanContainer)?.setOnClickListener {
             Toast.makeText(this, "Scan feature coming soon!", Toast.LENGTH_SHORT).show()
         }
-
+        
         // Profile navigation
-        findViewById<LinearLayout>(R.id.navProfileContainer).setOnClickListener {
+        footerNav?.findViewById<View>(R.id.navProfileContainer)?.setOnClickListener {
             updateSelection(R.id.navProfileContainer)
             startActivity(Intent(this, ProfileActivity::class.java))
+            finish()
         }
-
+        
         // Settings navigation
-        findViewById<LinearLayout>(R.id.navSettingsContainer).setOnClickListener {
-            updateSelection(R.id.navSettingsContainer)
+        footerNav?.findViewById<View>(R.id.navHistoryContainer)?.setOnClickListener {
+            updateSelection(R.id.navHistoryContainer)
             startActivity(Intent(this, SettingsActivity::class.java))
+            finish()
         }
     }
 

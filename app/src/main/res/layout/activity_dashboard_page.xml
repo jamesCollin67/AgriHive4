@@ -82,6 +82,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="12dp"/>
 
+
     <!-- Active Hives -->
     <TextView
         android:id="@+id/tvActiveHives"
@@ -101,7 +102,7 @@
         android:padding="16dp"
         android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/tvActiveHives"
-        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintBottom_toTopOf="@id/footerNav"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -122,10 +123,11 @@
 
     <!-- Bottom Navigation -->
     <include
-        android:id="@+id/bottomNav"
+        android:id="@+id/footerNav"
         layout="@layout/bottom_nav"
         android:layout_width="0dp"
-        android:layout_height="64dp"
+        android:layout_height="90dp"
+        android:clipChildren="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

@@ -4,8 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.PhoneAuthProvider
-import java.util.regex.Pattern
 
 class ForgotPasswordViewModel : ViewModel() {
 
@@ -22,10 +20,11 @@ class ForgotPasswordViewModel : ViewModel() {
     private val _navigateToLogin = MutableLiveData<Boolean>()
     val navigateToLogin: LiveData<Boolean> = _navigateToLogin
 
-    // For simplicity, we store a fake OTP here (in real app use Firebase or your backend)
-    private var generatedOtp: String? = null
+    // Loading state
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    // Send verification code
+    // Send password reset link using Firebase Auth
     fun sendVerificationCode(email: String) {
         if (email.isBlank()) {
             _errorMessage.value = "Email cannot be empty."
@@ -38,31 +37,22 @@ class ForgotPasswordViewModel : ViewModel() {
             return
         }
 
-        // Fake OTP generation (5-digit)
-        generatedOtp = (10000..99999).random().toString()
-        // TODO: Integrate Firebase Email / OTP API to send actual code
-        _successMessage.value = "Verification code sent to $email"
-    }
+        // Show loading
+        _isLoading.value = true
 
-    // Confirm OTP
-    fun confirmOtp(inputOtp: String) {
-        if (inputOtp.length != 5) {
-            _errorMessage.value = "Please enter the 5-digit code."
-            return
-        }
-
-        if (generatedOtp == null) {
-            _errorMessage.value = "Please request a verification code first."
-            return
-        }
-
-        if (inputOtp != generatedOtp) {
-            _errorMessage.value = "Invalid code. Please try again"
-            return
-        }
-
-        // OTP is correct
-        _successMessage.value = "OTP verified! You can reset your password now."
+        // Send password reset email via Firebase
+        firebaseAuth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                _isLoading.value = false
+                if (task.isSuccessful) {
+                    // Firebase sends the password reset email automatically
+                    _successMessage.value = "Password reset link sent to $email. Please check your email inbox (and spam folder)."
+                } else {
+                    // Handle error - could be invalid email, user not found, etc.
+                    val errorMsg = task.exception?.message ?: "Failed to send password reset email. Please try again."
+                    _errorMessage.value = errorMsg
+                }
+            }
     }
 
     fun doneError() {

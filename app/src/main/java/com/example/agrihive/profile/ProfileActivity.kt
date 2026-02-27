@@ -2,9 +2,12 @@ package com.example.agrihive.profile
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -89,23 +92,46 @@ class ProfileActivity : AppCompatActivity() {
         val footerNav = binding.root.findViewById<android.view.View>(R.id.footerNav)
         
         // Home
-        footerNav?.findViewById<LinearLayout>(R.id.navHomeContainer)?.setOnClickListener {
+        footerNav?.findViewById<View>(R.id.navHomeContainer)?.setOnClickListener {
             startActivity(Intent(this, DashboardActivity::class.java))
             finish()
         }
 
         // History - placeholder
-        footerNav?.findViewById<LinearLayout>(R.id.navHistoryContainer)?.setOnClickListener {
-            // History functionality coming soon
+        footerNav?.findViewById<View>(R.id.navSearchContainer)?.setOnClickListener {
+            // Highlight History (yellow) and show toast
+            val navSearch = footerNav.findViewById<ImageView>(R.id.navSearch)
+            val tvSearch = footerNav.findViewById<TextView>(R.id.tvSearch)
+            val activeColor = getColor(R.color.nav_active)
+            val inactiveColor = getColor(R.color.nav_inactive)
+            
+            // Reset all to inactive first
+            footerNav.findViewById<ImageView>(R.id.navHome)?.setColorFilter(inactiveColor)
+            footerNav.findViewById<ImageView>(R.id.navProfile)?.setColorFilter(inactiveColor)
+            footerNav.findViewById<ImageView>(R.id.navHistory)?.setColorFilter(inactiveColor)
+            footerNav.findViewById<TextView>(R.id.tvHome)?.setTextColor(inactiveColor)
+            footerNav.findViewById<TextView>(R.id.tvProfile)?.setTextColor(inactiveColor)
+            footerNav.findViewById<TextView>(R.id.tvHistory)?.setTextColor(inactiveColor)
+            
+            // Highlight History (yellow)
+            navSearch?.setColorFilter(activeColor)
+            tvSearch?.setTextColor(activeColor)
+            
+            Toast.makeText(this, "History coming soon!", Toast.LENGTH_SHORT).show()
         }
 
         // Camera - placeholder
-        footerNav?.findViewById<LinearLayout>(R.id.navScanContainer)?.setOnClickListener {
+        footerNav?.findViewById<View>(R.id.navScanContainer)?.setOnClickListener {
             // Camera functionality coming soon
         }
 
+        // Profile - Already in Profile page
+        footerNav?.findViewById<View>(R.id.navProfileContainer)?.setOnClickListener {
+            // Already in Profile - do nothing
+        }
+
         // Settings
-        footerNav?.findViewById<LinearLayout>(R.id.navSettingsContainer)?.setOnClickListener {
+        footerNav?.findViewById<View>(R.id.navHistoryContainer)?.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
             finish()
         }
@@ -116,20 +142,30 @@ class ProfileActivity : AppCompatActivity() {
         val footerNav = binding.root.findViewById<android.view.View>(R.id.footerNav)
         
         val navProfile = footerNav?.findViewById<ImageView>(R.id.navProfile)
+        val navHome = footerNav?.findViewById<ImageView>(R.id.navHome)
+        val navSearch = footerNav?.findViewById<ImageView>(R.id.navSearch)
+        val navSettings = footerNav?.findViewById<ImageView>(R.id.navHistory)
+        
         val tvProfile = footerNav?.findViewById<TextView>(R.id.tvProfile)
+        val tvHome = footerNav?.findViewById<TextView>(R.id.tvHome)
+        val tvSearch = footerNav?.findViewById<TextView>(R.id.tvSearch)
+        val tvSettings = footerNav?.findViewById<TextView>(R.id.tvHistory)
         
-        navProfile?.isSelected = true
-        tvProfile?.setTextColor(getColor(R.color.honey_dark))
+        val activeColor = getColor(R.color.nav_active)
+        val inactiveColor = getColor(R.color.nav_inactive)
         
-        // Reset others
-        footerNav?.findViewById<ImageView>(R.id.navHome)?.isSelected = false
-        footerNav?.findViewById<ImageView>(R.id.navHistory)?.isSelected = false
-        footerNav?.findViewById<ImageView>(R.id.navSettings)?.isSelected = false
+        // Set Profile as selected (yellow)
+        navProfile?.setColorFilter(activeColor)
+        tvProfile?.setTextColor(activeColor)
         
-        footerNav?.findViewById<TextView>(R.id.tvHome)?.setTextColor(getColor(android.R.color.black))
-        footerNav?.findViewById<TextView>(R.id.tvHistory)?.setTextColor(getColor(android.R.color.black))
-        footerNav?.findViewById<TextView>(R.id.tvScan)?.setTextColor(getColor(android.R.color.black))
-        footerNav?.findViewById<TextView>(R.id.tvSettings)?.setTextColor(getColor(android.R.color.black))
+        // Reset others to inactive (gray)
+        navHome?.setColorFilter(inactiveColor)
+        navSearch?.setColorFilter(inactiveColor)
+        navSettings?.setColorFilter(inactiveColor)
+        
+        tvHome?.setTextColor(inactiveColor)
+        tvSearch?.setTextColor(inactiveColor)
+        tvSettings?.setTextColor(inactiveColor)
     }
 
     private fun observeNavigation() {

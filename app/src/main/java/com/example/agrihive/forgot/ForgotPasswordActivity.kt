@@ -2,8 +2,7 @@ package com.example.agrihive.forgot
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.EditText
-import android.widget.LinearLayout
+import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
@@ -26,16 +25,10 @@ class ForgotPasswordActivity : AppCompatActivity() {
             navigateToLogin()
         }
 
-        // SEND VERIFICATION
+        // SEND PASSWORD RESET LINK
         binding.sendVerification.setOnClickListener {
             val email = binding.emailInput.text.toString().trim()
             viewModel.sendVerificationCode(email)
-        }
-
-        // CONFIRM OTP
-        binding.confirmButton.setOnClickListener {
-            val otp = getOtpFromFields()
-            viewModel.confirmOtp(otp)
         }
 
         // OBSERVE ERRORS
@@ -51,12 +44,16 @@ class ForgotPasswordActivity : AppCompatActivity() {
             msg?.let {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
                 viewModel.doneSuccess()
+                // Navigate back to login after successful send
+                navigateToLogin()
             }
         }
 
-        // NAVIGATE TO LOGIN
-        viewModel.navigateToLogin.observe(this) { navigate ->
-            if (navigate) navigateToLogin()
+        // OBSERVE LOADING STATE
+        viewModel.isLoading.observe(this) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.sendVerification.isEnabled = !isLoading
+            binding.emailInput.isEnabled = !isLoading
         }
 
         // Handle system back gesture using OnBackPressedDispatcher
@@ -65,17 +62,6 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 navigateToLogin()
             }
         })
-    }
-
-    // Helper to read OTP from EditText boxes
-    private fun getOtpFromFields(): String {
-        val codeLayout = binding.codeLayout as LinearLayout
-        var otp = ""
-        for (i in 0 until codeLayout.childCount) {
-            val editText = codeLayout.getChildAt(i) as EditText
-            otp += editText.text.toString()
-        }
-        return otp
     }
 
     // Centralized function to navigate to login

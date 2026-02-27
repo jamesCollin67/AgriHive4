@@ -23,6 +23,7 @@ class DashboardViewModel : ViewModel() {
     private val _navigateToAddApiary = MutableLiveData<Boolean>()
     val navigateToAddApiary: LiveData<Boolean> = _navigateToAddApiary
 
+
     init {
         loadApiaries()
     }
@@ -48,6 +49,7 @@ class DashboardViewModel : ViewModel() {
                 override fun onCancelled(error: DatabaseError) {}
             })
     }
+
 
     fun checkSubscription() {
         val uid = auth.currentUser?.uid ?: return

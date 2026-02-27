@@ -3,6 +3,8 @@ package com.example.agrihive.settings
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -21,7 +23,7 @@ class SettingsActivity : AppCompatActivity() {
 
     // UI elements
     private lateinit var btnBack: ImageView
-    private lateinit var footerNav: LinearLayout
+    private lateinit var footerNav: View
 
     private lateinit var rowLogout: LinearLayout
     private lateinit var switchNotifications: SwitchCompat
@@ -43,7 +45,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun initViews() {
         btnBack = findViewById(R.id.btnBack)
-        footerNav = findViewById(R.id.footerNav) as LinearLayout
+        footerNav = findViewById(R.id.footerNav)
 
         rowLogout = findViewById(R.id.rowLogout)
         switchNotifications = findViewById(R.id.switchNotifications)
@@ -64,27 +66,50 @@ class SettingsActivity : AppCompatActivity() {
 
         // Bottom navigation click listeners
         // Home
-        footerNav.findViewById<LinearLayout>(R.id.navHomeContainer)?.setOnClickListener {
+        footerNav.findViewById<View>(R.id.navHomeContainer)?.setOnClickListener {
             val intent = Intent(this, DashboardActivity::class.java)
             startActivity(intent)
             finish()
         }
 
         // History - placeholder
-        footerNav.findViewById<LinearLayout>(R.id.navHistoryContainer)?.setOnClickListener {
-            // History functionality coming soon
+        footerNav.findViewById<View>(R.id.navSearchContainer)?.setOnClickListener {
+            // Highlight History (yellow) and show toast
+            val navSearch = footerNav.findViewById<ImageView>(R.id.navSearch)
+            val tvSearch = footerNav.findViewById<TextView>(R.id.tvSearch)
+            val activeColor = getColor(R.color.nav_active)
+            val inactiveColor = getColor(R.color.nav_inactive)
+            
+            // Reset all to inactive first
+            footerNav.findViewById<ImageView>(R.id.navHome)?.setColorFilter(inactiveColor)
+            footerNav.findViewById<ImageView>(R.id.navProfile)?.setColorFilter(inactiveColor)
+            footerNav.findViewById<ImageView>(R.id.navHistory)?.setColorFilter(inactiveColor)
+            footerNav.findViewById<TextView>(R.id.tvHome)?.setTextColor(inactiveColor)
+            footerNav.findViewById<TextView>(R.id.tvProfile)?.setTextColor(inactiveColor)
+            footerNav.findViewById<TextView>(R.id.tvHistory)?.setTextColor(inactiveColor)
+            
+            // Highlight History (yellow)
+            navSearch?.setColorFilter(activeColor)
+            tvSearch?.setTextColor(activeColor)
+            
+            Toast.makeText(this, "History coming soon!", Toast.LENGTH_SHORT).show()
         }
 
         // Camera - placeholder
-        footerNav.findViewById<LinearLayout>(R.id.navScanContainer)?.setOnClickListener {
+        footerNav.findViewById<View>(R.id.navScanContainer)?.setOnClickListener {
             // Camera functionality coming soon
         }
 
         // Profile
-        footerNav.findViewById<LinearLayout>(R.id.navProfileContainer)?.setOnClickListener {
+        footerNav.findViewById<View>(R.id.navProfileContainer)?.setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java)
             startActivity(intent)
             finish()
+        }
+
+        // Settings - Already in Settings page
+        footerNav.findViewById<View>(R.id.navHistoryContainer)?.setOnClickListener {
+            // Already in Settings - do nothing
         }
 
         // Logout
@@ -118,21 +143,31 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun setupBottomNavigationHighlight() {
         // Highlight Settings when on Settings page
-        val navSettings = footerNav.findViewById<ImageView>(R.id.navSettings)
-        val tvSettings = footerNav.findViewById<TextView>(R.id.tvSettings)
+        val navSettings = footerNav.findViewById<ImageView>(R.id.navHistory)
+        val navHome = footerNav.findViewById<ImageView>(R.id.navHome)
+        val navSearch = footerNav.findViewById<ImageView>(R.id.navSearch)
+        val navProfile = footerNav.findViewById<ImageView>(R.id.navProfile)
         
-        navSettings?.isSelected = true
-        tvSettings?.setTextColor(getColor(R.color.honey_dark))
+        val tvSettings = footerNav.findViewById<TextView>(R.id.tvHistory)
+        val tvHome = footerNav.findViewById<TextView>(R.id.tvHome)
+        val tvSearch = footerNav.findViewById<TextView>(R.id.tvSearch)
+        val tvProfile = footerNav.findViewById<TextView>(R.id.tvProfile)
         
-        // Reset others
-        footerNav.findViewById<ImageView>(R.id.navHome)?.isSelected = false
-        footerNav.findViewById<ImageView>(R.id.navHistory)?.isSelected = false
-        footerNav.findViewById<ImageView>(R.id.navProfile)?.isSelected = false
+        val activeColor = getColor(R.color.nav_active)
+        val inactiveColor = getColor(R.color.nav_inactive)
         
-        footerNav.findViewById<TextView>(R.id.tvHome)?.setTextColor(getColor(android.R.color.black))
-        footerNav.findViewById<TextView>(R.id.tvHistory)?.setTextColor(getColor(android.R.color.black))
-        footerNav.findViewById<TextView>(R.id.tvScan)?.setTextColor(getColor(android.R.color.black))
-        footerNav.findViewById<TextView>(R.id.tvProfile)?.setTextColor(getColor(android.R.color.black))
+        // Set Settings as selected (yellow)
+        navSettings?.setColorFilter(activeColor)
+        tvSettings?.setTextColor(activeColor)
+        
+        // Reset others to inactive (gray)
+        navHome?.setColorFilter(inactiveColor)
+        navSearch?.setColorFilter(inactiveColor)
+        navProfile?.setColorFilter(inactiveColor)
+        
+        tvHome?.setTextColor(inactiveColor)
+        tvSearch?.setTextColor(inactiveColor)
+        tvProfile?.setTextColor(inactiveColor)
     }
 
     private fun setupObservers() {
