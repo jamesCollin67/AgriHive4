@@ -15,7 +15,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
+import com.example.agrihive.device.DeviceControlActivity
+import com.example.agrihive.log.ActivityLogActivity
 import com.example.agrihive.profile.ProfileActivity
+import com.example.agrihive.sensorsubscription.SensorSubscriptionActivity
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -32,6 +35,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var rowDeviceControls: LinearLayout
     private lateinit var rowActivityLog: LinearLayout
     private lateinit var rowChangePassword: LinearLayout
+    private lateinit var rowSubscription: LinearLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +58,7 @@ class SettingsActivity : AppCompatActivity() {
         rowDeviceControls = findViewById(R.id.rowDeviceControls)
         rowActivityLog = findViewById(R.id.rowActivityLog)
         rowChangePassword = findViewById(R.id.rowChangePassword)
+        rowSubscription = findViewById(R.id.rowSubscription)
     }
 
     private fun setupUI() {
@@ -128,15 +133,22 @@ class SettingsActivity : AppCompatActivity() {
 
         // Other rows
         rowDeviceControls.setOnClickListener {
-            Toast.makeText(this, "Device Controls clicked", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, DeviceControlActivity::class.java)
+            startActivity(intent)
         }
 
         rowActivityLog.setOnClickListener {
-            Toast.makeText(this, "Activity Log clicked", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, ActivityLogActivity::class.java)
+            startActivity(intent)
         }
 
         rowChangePassword.setOnClickListener {
             val intent = Intent(this, ChangePasswordActivity::class.java)
+            startActivity(intent)
+        }
+
+        rowSubscription.setOnClickListener {
+            val intent = Intent(this, SensorSubscriptionActivity::class.java)
             startActivity(intent)
         }
     }

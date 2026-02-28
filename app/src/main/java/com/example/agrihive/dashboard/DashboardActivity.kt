@@ -20,6 +20,8 @@ import android.widget.LinearLayout
 import android.view.View
 import com.example.agrihive.profile.ProfileActivity
 import com.example.agrihive.settings.SettingsActivity
+import com.example.agrihive.sensorsubscription.SensorSubscriptionActivity
+import com.example.agrihive.subscription.SubscriptionActivity
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -214,6 +216,38 @@ class DashboardActivity : AppCompatActivity() {
 
         dialogView.findViewById<TextView>(R.id.btnDismiss).setOnClickListener {
             dialog.dismiss()
+        }
+
+        // Add click listeners to pricing options to navigate to SubscriptionActivity
+        val plan1Container = dialogView.findViewById<LinearLayout>(R.id.plan1Container)
+        val plan2Container = dialogView.findViewById<LinearLayout>(R.id.plan2Container)
+        val plan3Container = dialogView.findViewById<LinearLayout>(R.id.plan3Container)
+
+        plan1Container?.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, SubscriptionActivity::class.java)
+            intent.putExtra("PLAN_NAME", "1-2 Apiaries")
+            intent.putExtra("PLAN_PRICE", 183.00)
+            intent.putExtra("BILLING_TYPE", "Monthly payment")
+            startActivity(intent)
+        }
+
+        plan2Container?.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, SubscriptionActivity::class.java)
+            intent.putExtra("PLAN_NAME", "3-5 Apiaries")
+            intent.putExtra("PLAN_PRICE", 250.00)
+            intent.putExtra("BILLING_TYPE", "Monthly payment")
+            startActivity(intent)
+        }
+
+        plan3Container?.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, SubscriptionActivity::class.java)
+            intent.putExtra("PLAN_NAME", "5+ Apiaries")
+            intent.putExtra("PLAN_PRICE", 333.00)
+            intent.putExtra("BILLING_TYPE", "Monthly payment")
+            startActivity(intent)
         }
 
         dialog.show()

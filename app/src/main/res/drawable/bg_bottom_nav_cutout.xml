@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Gray background -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#F5F5F5"/>
+        </shape>
+    </item>
+    <!-- White nav bar area with cutout in center -->
+    <item
+        android:left="0dp"
+        android:right="56dp"
+        android:top="0dp"
+        android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/>
+        </shape>
+    </item>
+    <item
+        android:left="56dp"
+        android:right="0dp"
+        android:top="0dp"
+        android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/>
+        </shape>
+    </item>
+    <!-- Top border line -->
+    <item android:top="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#E0E0E0"/>
+        </shape>
+    </item>
+</layer-list>

@@ -76,6 +76,7 @@
 
             <!-- 1-2 -->
             <LinearLayout
+                android:id="@+id/plan1Container"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -110,6 +111,7 @@
 
             <!-- 3-5 -->
             <LinearLayout
+                android:id="@+id/plan2Container"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -144,6 +146,7 @@
 
             <!-- 5+ -->
             <LinearLayout
+                android:id="@+id/plan3Container"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

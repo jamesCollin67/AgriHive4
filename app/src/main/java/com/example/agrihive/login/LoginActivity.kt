@@ -112,12 +112,14 @@ class LoginActivity : AppCompatActivity() {
 
         // Facebook login button
         binding.facebook.setOnClickListener {
-            openUrl("https://www.facebook.com")
+            Toast.makeText(this, "Opening Facebook...", Toast.LENGTH_SHORT).show()
+            openUrl("https://www.facebook.com/login")
         }
 
         // Google login button
         binding.google.setOnClickListener {
-            openUrl("https://accounts.google.com")
+            Toast.makeText(this, "Opening Google...", Toast.LENGTH_SHORT).show()
+            openUrl("https://accounts.google.com/signin")
         }
     }
 
@@ -125,9 +127,10 @@ class LoginActivity : AppCompatActivity() {
     private fun openUrl(url: String) {
         try {
             val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intent)
         } catch (e: Exception) {
-            Toast.makeText(this, "Unable to open browser", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Unable to open browser: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
