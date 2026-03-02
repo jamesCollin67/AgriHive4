@@ -3,6 +3,7 @@ package com.example.agrihive.sensorsubscription
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.R
@@ -27,32 +28,32 @@ class SensorSubscriptionActivity : AppCompatActivity() {
         }
 
         // Tier 1-2: Quarterly
-        findViewById<View>(R.id.btnTier1Quarter).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnTier1Quarter).setOnClickListener {
             navigateToSubscription("1-2 Apiaries", 550.00, "3 months")
         }
 
         // Tier 1-2: Monthly
-        findViewById<View>(R.id.btnTier1Monthly).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnTier1Monthly).setOnClickListener {
             navigateToSubscription("1-2 Apiaries", 183.00, "Monthly payment")
         }
 
         // Tier 3-5: Quarterly
-        findViewById<View>(R.id.btnTier2Quarter).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnTier2Quarter).setOnClickListener {
             navigateToSubscription("3-5 Apiaries", 750.00, "3 months")
         }
 
         // Tier 3-5: Monthly
-        findViewById<View>(R.id.btnTier2Monthly).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnTier2Monthly).setOnClickListener {
             navigateToSubscription("3-5 Apiaries", 250.00, "Monthly payment")
         }
 
         // Tier 5+: Quarterly
-        findViewById<View>(R.id.btnTier3Quarter).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnTier3Quarter).setOnClickListener {
             navigateToSubscription("5+ Apiaries", 999.00, "3 months")
         }
 
         // Tier 5+: Monthly
-        findViewById<View>(R.id.btnTier3Monthly).setOnClickListener {
+        findViewById<LinearLayout>(R.id.btnTier3Monthly).setOnClickListener {
             navigateToSubscription("5+ Apiaries", 333.00, "Monthly payment")
         }
     }

@@ -3,129 +3,138 @@ package com.example.agrihive.log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import java.util.Calendar
 import java.util.UUID
 
 class ActivityLogViewModel : ViewModel() {
 
+    companion object {
+        // Singleton instance - simpler version
+        @Volatile
+        private var instance: ActivityLogViewModel? = null
+
+        fun getInstance(): ActivityLogViewModel {
+            return instance ?: synchronized(this) {
+                instance ?: ActivityLogViewModel().also { instance = it }
+            }
+        }
+    }
+
+    private val repository = ActivityLogRepository.getInstance()
+
     private val _activityLogs = MutableLiveData<List<ActivityLogItem>>()
     val activityLogs: LiveData<List<ActivityLogItem>> = _activityLogs
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    // Track if we're currently loading from Firebase
+    @Volatile
+    private var isLoadingFromFirebase = false
+
+    // Track current user ID to detect logout/login
+    private var currentUserId: String? = null
+
+    // Store logs in memory for persistence
+    private val cachedLogs = mutableListOf<ActivityLogItem>()
+
     init {
-        loadSampleLogs()
+        // Don't auto-load on init - let the Activity decide when to load
+        _activityLogs.value = emptyList()
     }
 
-    private fun loadSampleLogs() {
-        val logs = mutableListOf<ActivityLogItem>()
-        val calendar = Calendar.getInstance()
+    private fun loadActivityLogs() {
+        // Don't reload if already loading from Firebase
+        if (isLoadingFromFirebase) {
+            return
+        }
 
-        // Sample Hive Sensor Events
-        calendar.timeInMillis = System.currentTimeMillis()
-        calendar.add(Calendar.MINUTE, -5)
-        logs.add(
-            ActivityLogItem(
-                id = UUID.randomUUID().toString(),
-                type = LogType.HIVE_SENSOR,
-                title = "Temperature Normalized",
-                description = "Hive 1 - Temperature Normalized (35°C)",
-                timestamp = calendar.time,
-                userName = "System"
-            )
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        // If no user logged in, don't load
+        if (uid == null) {
+            _isLoading.value = false
+            return
+        }
+
+        // Check if user changed - if so, clear cached data
+        if (currentUserId != null && currentUserId != uid) {
+            // User logged out and came back with different session
+            cachedLogs.clear()
+            _activityLogs.value = emptyList()
+        }
+        currentUserId = uid
+
+        _isLoading.value = true
+        isLoadingFromFirebase = true
+
+        repository.getActivityLogs(
+            onSuccess = { logs ->
+                _isLoading.value = false
+                isLoadingFromFirebase = false
+                
+                // Update cache with Firebase data
+                cachedLogs.clear()
+                cachedLogs.addAll(logs)
+                
+                // Use Firebase logs directly
+                _activityLogs.value = logs.sortedByDescending { it.timestamp }
+            },
+            onFailure = { exception ->
+                _isLoading.value = false
+                isLoadingFromFirebase = false
+                // Show cached data on failure
+                _activityLogs.value = cachedLogs.sortedByDescending { it.timestamp }
+            }
         )
+    }
 
-        calendar.add(Calendar.MINUTE, -15)
-        logs.add(
-            ActivityLogItem(
-                id = UUID.randomUUID().toString(),
-                type = LogType.HIVE_SENSOR,
-                title = "High Temperature",
-                description = "Hive 1 - High Temperature (38.2°C) → Fan automatically turned On",
-                timestamp = calendar.time,
-                userName = "System"
-            )
-        )
+    fun refresh() {
+        // Reset loading flag to allow refresh
+        isLoadingFromFirebase = false
+        loadActivityLogs()
+    }
 
-        // Sample User Account Actions
-        calendar.add(Calendar.HOUR, -2)
-        logs.add(
-            ActivityLogItem(
-                id = UUID.randomUUID().toString(),
-                type = LogType.USER_ACCOUNT,
-                title = "Profile Update",
-                description = "James Collin changed his profile picture",
-                timestamp = calendar.time,
-                userName = "James Collin"
-            )
-        )
+    /**
+     * Clear all cached data and reset state.
+     * Call this when user logs out to ensure fresh data on next login.
+     */
+    fun clearCache() {
+        // Clear local storage (persisted logs for privacy)
+        repository.clearLocalLogs()
+        // Clear in-memory cache
+        cachedLogs.clear()
+        _activityLogs.value = emptyList()
+        currentUserId = null
+        isLoadingFromFirebase = false
+    }
 
-        calendar.add(Calendar.DAY_OF_YEAR, -1)
-        logs.add(
-            ActivityLogItem(
-                id = UUID.randomUUID().toString(),
-                type = LogType.USER_ACCOUNT,
-                title = "Password Changed",
-                description = "James Collin changed his password",
-                timestamp = calendar.time,
-                userName = "James Collin"
-            )
-        )
+    fun loadFromFirebase() {
+        // Get current user ID
+        val currentUid = FirebaseAuth.getInstance().currentUser?.uid
 
-        // Sample Data Actions
-        calendar.add(Calendar.HOUR, -3)
-        logs.add(
-            ActivityLogItem(
-                id = UUID.randomUUID().toString(),
-                type = LogType.DATA_ACTION,
-                title = "Result Saved",
-                description = "James Collin saved result treatment",
-                timestamp = calendar.time,
-                userName = "James Collin"
-            )
-        )
+        // Always clear cache and reload when explicitly called
+        // This ensures fresh data after logout/login
+        if (currentUserId != currentUid) {
+            // User changed (including logout/login scenario) - clear cache
+            cachedLogs.clear()
+            _activityLogs.value = emptyList()
+        }
 
-        // Sample Subscription Events
-        calendar.add(Calendar.DAY_OF_YEAR, -2)
-        logs.add(
-            ActivityLogItem(
-                id = UUID.randomUUID().toString(),
-                type = LogType.SUBSCRIPTION,
-                title = "Payment",
-                description = "Paid Subscription - P899.00",
-                timestamp = calendar.time,
-                userName = "James Collin"
-            )
-        )
+        // Update current user ID
+        currentUserId = currentUid
 
-        // Sample System Events
-        calendar.add(Calendar.DAY_OF_YEAR, -3)
-        logs.add(
-            ActivityLogItem(
-                id = UUID.randomUUID().toString(),
-                type = LogType.SYSTEM,
-                title = "Notification Enabled",
-                description = "Notification enabled",
-                timestamp = calendar.time,
-                userName = "James Collin"
-            )
-        )
-
-        calendar.add(Calendar.DAY_OF_YEAR, -5)
-        logs.add(
-            ActivityLogItem(
-                id = UUID.randomUUID().toString(),
-                type = LogType.SYSTEM,
-                title = "Settings Changed",
-                description = "Fan Auto-Control time set to 1 minute",
-                timestamp = calendar.time,
-                userName = "James Collin"
-            )
-        )
-
-        _activityLogs.value = logs.sortedByDescending { it.timestamp }
+        // Force load from Firebase - call this when activity becomes visible
+        isLoadingFromFirebase = false
+        loadActivityLogs()
     }
 
     fun addLog(type: LogType, description: String, userName: String? = null) {
-        val currentLogs = _activityLogs.value?.toMutableList() ?: mutableListOf()
+        // Create new log entry
         val newLog = ActivityLogItem(
             id = UUID.randomUUID().toString(),
             type = type,
@@ -134,11 +143,51 @@ class ActivityLogViewModel : ViewModel() {
             timestamp = Calendar.getInstance().time,
             userName = userName
         )
+        
+        // Add to cache immediately for instant display
+        cachedLogs.add(0, newLog)
+        
+        // Update LiveData
+        val currentLogs = _activityLogs.value?.toMutableList() ?: mutableListOf()
         currentLogs.add(0, newLog)
-        _activityLogs.value = currentLogs
+        _activityLogs.value = currentLogs.sortedByDescending { it.timestamp }
+        
+        // Save to Firebase in background
+        repository.saveActivityLog(
+            type = type,
+            title = description,
+            description = description
+        )
+    }
+
+    fun logPasswordChanged() {
+        addLog(LogType.USER_ACCOUNT, "Password Changed", "You")
+    }
+
+    fun logProfileUpdated(field: String) {
+        addLog(LogType.USER_ACCOUNT, "Profile Updated: $field", "You")
+    }
+
+    fun logTemperatureAlert(hiveName: String, temperature: Float, threshold: Float) {
+        addLog(
+            LogType.HIVE_SENSOR,
+            "$hiveName - High temperature alert: ${temperature.toInt()}°C exceeds threshold of ${threshold.toInt()}°C"
+        )
+    }
+
+    fun logFanActivated(hiveName: String) {
+        addLog(
+            LogType.HIVE_SENSOR,
+            "$hiveName - Cooling fan automatically activated"
+        )
     }
 
     fun clearLogs() {
+        cachedLogs.clear()
         _activityLogs.value = emptyList()
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 }

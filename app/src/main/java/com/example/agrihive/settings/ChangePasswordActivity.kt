@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
+import com.example.agrihive.log.ActivityLogViewModel
 import com.google.firebase.auth.EmailAuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -30,6 +31,7 @@ class ChangePasswordActivity : AppCompatActivity() {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
     private val currentUser = firebaseAuth.currentUser
+    private val activityLogViewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,6 +129,9 @@ class ChangePasswordActivity : AppCompatActivity() {
                         .addOnCompleteListener { updateTask ->
                             if (updateTask.isSuccessful) {
                                 Toast.makeText(this, "Password changed successfully", Toast.LENGTH_SHORT).show()
+                                
+                                // Log the password change activity
+                                activityLogViewModel.logPasswordChanged()
                                 
                                 // Navigate back to settings
                                 finish()

@@ -11,6 +11,10 @@ class LoginViewModel : ViewModel() {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    // LiveData for loading state
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
     // LiveData for login result
     private val _loginSuccess = MutableLiveData<Boolean>()
     val loginSuccess: LiveData<Boolean> = _loginSuccess
@@ -35,8 +39,14 @@ class LoginViewModel : ViewModel() {
             return
         }
 
+        // Show loading indicator
+        _isLoading.value = true
+
         firebaseAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
+                // Hide loading indicator
+                _isLoading.value = false
+                
                 if (task.isSuccessful) {
                     _loginSuccess.value = true
                     _navigateToDashboard.value = true

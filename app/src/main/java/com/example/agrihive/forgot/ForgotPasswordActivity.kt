@@ -8,12 +8,15 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.databinding.ActivityForgotPasswordBinding
+import com.example.agrihive.log.ActivityLogViewModel
+import com.example.agrihive.log.LogType
 import com.example.agrihive.login.LoginActivity
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityForgotPasswordBinding
     private val viewModel: ForgotPasswordViewModel by viewModels()
+    private val activityLogViewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +47,9 @@ class ForgotPasswordActivity : AppCompatActivity() {
             msg?.let {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
                 viewModel.doneSuccess()
+                // Log the password reset request
+                val email = binding.emailInput.text.toString()
+                activityLogViewModel.addLog(LogType.USER_ACCOUNT, "Password reset requested for: $email")
                 // Navigate back to login after successful send
                 navigateToLogin()
             }

@@ -9,11 +9,14 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.R
+import com.example.agrihive.log.ActivityLogViewModel
+import com.example.agrihive.log.LogType
 
 class DeviceControlActivity : AppCompatActivity() {
 
     private val viewModel: DeviceControlViewModel by viewModels()
     private lateinit var prefs: SharedPreferences
+    private val activityLogViewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
 
     // Fan time options in seconds
     private val fanTimeOptions = listOf(10, 20, 30, 60, 120, 300) // 10s, 20s, 30s, 1min, 2min, 5min
@@ -42,6 +45,11 @@ class DeviceControlActivity : AppCompatActivity() {
             viewModel.setCoolingFanNotification(isChecked)
             prefs.edit().putBoolean("cooling_fan_notification", isChecked).apply()
             val message = if (isChecked) "Notifications enabled" else "Notifications silenced"
+            // Log the cooling fan notification change
+            activityLogViewModel.addLog(
+                LogType.SYSTEM,
+                if (isChecked) "Cooling fan notifications enabled" else "Cooling fan notifications disabled"
+            )
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
 
@@ -58,9 +66,15 @@ class DeviceControlActivity : AppCompatActivity() {
         spinnerFanTime.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedTime = fanTimeOptions[position]
+                val selectedLabel = fanTimeLabels[position]
                 viewModel.setFanAutoTime(selectedTime)
                 prefs.edit().putInt("fan_auto_time_index", position).apply()
                 prefs.edit().putInt("fan_auto_time_seconds", selectedTime).apply()
+                // Log the fan auto control time change
+                activityLogViewModel.addLog(
+                    LogType.SYSTEM,
+                    "Fan auto-control time set to $selectedLabel"
+                )
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {

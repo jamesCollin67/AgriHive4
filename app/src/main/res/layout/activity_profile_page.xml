@@ -6,16 +6,21 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <androidx.core.widget.NestedScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@id/footerNav"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="32dp">
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="32dp">
 
             <ImageView
                 android:id="@+id/bannerImage"
@@ -73,7 +78,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="James Collin Gantaan"
+                android:text="Loading..."
                 android:textColor="#000000"
                 android:textSize="22sp"
                 android:textStyle="bold"
@@ -94,7 +99,7 @@
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email Address" android:textColor="#888888" android:textSize="14sp" />
-                    <TextView android:id="@+id/tvEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="jamescollin.gantaan@gmail.com" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Loading..." android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
@@ -108,14 +113,14 @@
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Farm" android:textColor="#888888" android:textSize="14sp" />
-                    <TextView android:id="@+id/tvFarm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvFarm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Loading..." android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Location" android:textColor="#888888" android:textSize="14sp" />
-                    <TextView android:id="@+id/tvLocation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvLocation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Loading..." android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
@@ -137,7 +142,25 @@
                 app:cornerRadius="12dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- Loading Overlay -->
+    <FrameLayout
+        android:id="@+id/loadingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#80FFFFFF"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/footerNav"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="#F9A825"/>
+    </FrameLayout>
 
     <!-- Bottom Navigation -->
     <include

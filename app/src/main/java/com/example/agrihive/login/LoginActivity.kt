@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
 import android.view.MotionEvent
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -11,12 +12,15 @@ import com.example.agrihive.R
 import com.example.agrihive.databinding.ActivityLoginPageBinding
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.forgot.ForgotPasswordActivity
+import com.example.agrihive.log.ActivityLogViewModel
+import com.example.agrihive.log.LogType
 import com.example.agrihive.register.RegisterActivity
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginPageBinding
     private val viewModel: LoginViewModel by viewModels()
+    private val activityLogViewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
     private var isPasswordVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +62,14 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
+        // Observe loading state
+        viewModel.isLoading.observe(this) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.btnSignIn.isEnabled = !isLoading
+            binding.emailInput.isEnabled = !isLoading
+            binding.passwordInput.isEnabled = !isLoading
+        }
+
         // Observe login success/error
         viewModel.loginSuccess.observe(this) { success ->
             if (success) {
@@ -75,6 +87,9 @@ class LoginActivity : AppCompatActivity() {
         // Navigate to DashboardActivity
         viewModel.navigateToDashboard.observe(this) { navigate ->
             if (navigate) {
+                // Log the login activity
+                activityLogViewModel.addLog(LogType.USER_ACCOUNT, "User logged in")
+                
                 val intent = Intent(this, DashboardActivity::class.java)
                 intent.putExtra("FROM_LOGIN", true)
                 startActivity(intent)

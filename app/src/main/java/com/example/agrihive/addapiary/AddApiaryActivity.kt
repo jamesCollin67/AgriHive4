@@ -9,11 +9,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.databinding.ActivityAddApiaryBinding
+import com.example.agrihive.log.ActivityLogViewModel
+import com.example.agrihive.log.LogType
 
 class AddApiaryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddApiaryBinding
     private val viewModel: AddApiaryViewModel by viewModels()
+    private val activityLogViewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +47,10 @@ class AddApiaryActivity : AppCompatActivity() {
         // Observe add status
         viewModel.addStatus.observe(this) { success ->
             if (success) {
+                // Get the name from the input field at the time of success
+                val apiaryName = binding.inputName.text.toString().ifEmpty { "New Apiary" }
+                // Log the apiary addition activity
+                activityLogViewModel.addLog(LogType.DATA_ACTION, "Added new Apiary: $apiaryName")
                 showSuccessDialog()
             } else {
                 Toast.makeText(this, "Failed to add Apiary", Toast.LENGTH_SHORT).show()

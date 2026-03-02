@@ -11,7 +11,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.agrihive.R
+import com.example.agrihive.data.UserSessionManager
 import com.example.agrihive.databinding.ActivityEditProfileBinding
+import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.profile.ProfileActivity
 import java.io.File
 import java.io.FileOutputStream
@@ -20,6 +22,8 @@ class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding
     private val viewModel: EditProfileViewModel by viewModels()
+    private val activityLogViewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
+    private lateinit var sessionManager: UserSessionManager
 
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -71,6 +75,9 @@ class EditProfileActivity : AppCompatActivity() {
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize session manager
+        sessionManager = UserSessionManager(this)
+
         setupObservers()
         setupClickListeners()
     }
@@ -109,6 +116,10 @@ class EditProfileActivity : AppCompatActivity() {
         viewModel.updateSuccess.observe(this) { success ->
             if (success) {
                 Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show()
+                
+                // Log the profile update activity
+                activityLogViewModel.logProfileUpdated("Profile Information")
+                
                 setResult(RESULT_OK)
                 navigateToProfile()
             }
@@ -169,8 +180,22 @@ class EditProfileActivity : AppCompatActivity() {
     }
 
     private fun navigateToProfile() {
+        // Save updated user data to SharedPreferences for immediate display on Profile
+        sessionManager.saveUserData(
+            firstName = binding.etFirstName.text.toString().trim(),
+            lastName = binding.etLastName.text.toString().trim(),
+            email = binding.etEmail.text.toString().trim(),
+            farm = binding.etFarm.text.toString().trim(),
+            location = binding.etLocation.text.toString().trim()
+        )
+        
         val intent = Intent(this, ProfileActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        // Pass updated user data back to Profile
+        intent.putExtra("updated_firstName", binding.etFirstName.text.toString().trim())
+        intent.putExtra("updated_lastName", binding.etLastName.text.toString().trim())
+        intent.putExtra("updated_farm", binding.etFarm.text.toString().trim())
+        intent.putExtra("updated_location", binding.etLocation.text.toString().trim())
         startActivity(intent)
         finish()
     }

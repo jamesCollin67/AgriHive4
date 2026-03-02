@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.agrihive.R
 import com.example.agrihive.addapiary.AddApiaryActivity
 import android.widget.FrameLayout
@@ -28,6 +29,7 @@ class DashboardActivity : AppCompatActivity() {
     private val viewModel: DashboardViewModel by viewModels()
     private lateinit var apiaryAdapter: ApiaryAdapter
     private lateinit var prefs: SharedPreferences
+    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +44,24 @@ class DashboardActivity : AppCompatActivity() {
         if (fromLogin && !subscriptionShownThisSession) {
             showSubscriptionDialog()
             prefs.edit().putBoolean("subscription_dialog_shown_this_login", true).apply()
+        }
+
+        // Set up SwipeRefreshLayout with yellow color
+        swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeResources(
+            R.color.yellow_primary
+        )
+        swipeRefresh.setProgressBackgroundColorSchemeColor(
+            resources.getColor(android.R.color.white, theme)
+        )
+        swipeRefresh.setOnRefreshListener {
+            viewModel.fetchApiaries()
+            // Ensure refresh stops after a timeout if no observer update
+            swipeRefresh.postDelayed({
+                if (swipeRefresh.isRefreshing) {
+                    swipeRefresh.isRefreshing = false
+                }
+            }, 10000) // 10 second timeout
         }
 
         // RecyclerView setup
@@ -70,6 +90,9 @@ class DashboardActivity : AppCompatActivity() {
                 "${list.count { it.isActive }} active hives"
 
             findViewById<TextView>(R.id.tvEmpty).isVisible = list.isEmpty()
+            
+            // Stop refresh animation
+            swipeRefresh.isRefreshing = false
         }
 
 
@@ -218,7 +241,62 @@ class DashboardActivity : AppCompatActivity() {
             dialog.dismiss()
         }
 
-        // Add click listeners to pricing options to navigate to SubscriptionActivity
+        // Add click listeners to quarterly pricing options
+        dialogView.findViewById<TextView>(R.id.plan1Quarterly)?.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, SubscriptionActivity::class.java)
+            intent.putExtra("PLAN_NAME", "1-2 Apiaries")
+            intent.putExtra("PLAN_PRICE", 550.00)
+            intent.putExtra("BILLING_TYPE", "3 months")
+            startActivity(intent)
+        }
+
+        dialogView.findViewById<TextView>(R.id.plan1Monthly)?.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, SubscriptionActivity::class.java)
+            intent.putExtra("PLAN_NAME", "1-2 Apiaries")
+            intent.putExtra("PLAN_PRICE", 183.00)
+            intent.putExtra("BILLING_TYPE", "Monthly payment")
+            startActivity(intent)
+        }
+
+        dialogView.findViewById<TextView>(R.id.plan2Quarterly)?.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, SubscriptionActivity::class.java)
+            intent.putExtra("PLAN_NAME", "3-5 Apiaries")
+            intent.putExtra("PLAN_PRICE", 750.00)
+            intent.putExtra("BILLING_TYPE", "3 months")
+            startActivity(intent)
+        }
+
+        dialogView.findViewById<TextView>(R.id.plan2Monthly)?.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, SubscriptionActivity::class.java)
+            intent.putExtra("PLAN_NAME", "3-5 Apiaries")
+            intent.putExtra("PLAN_PRICE", 250.00)
+            intent.putExtra("BILLING_TYPE", "Monthly payment")
+            startActivity(intent)
+        }
+
+        dialogView.findViewById<TextView>(R.id.plan3Quarterly)?.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, SubscriptionActivity::class.java)
+            intent.putExtra("PLAN_NAME", "5+ Apiaries")
+            intent.putExtra("PLAN_PRICE", 999.00)
+            intent.putExtra("BILLING_TYPE", "3 months")
+            startActivity(intent)
+        }
+
+        dialogView.findViewById<TextView>(R.id.plan3Monthly)?.setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(this, SubscriptionActivity::class.java)
+            intent.putExtra("PLAN_NAME", "5+ Apiaries")
+            intent.putExtra("PLAN_PRICE", 333.00)
+            intent.putExtra("BILLING_TYPE", "Monthly payment")
+            startActivity(intent)
+        }
+
+        // Legacy click listeners for plan containers (fallback to monthly)
         val plan1Container = dialogView.findViewById<LinearLayout>(R.id.plan1Container)
         val plan2Container = dialogView.findViewById<LinearLayout>(R.id.plan2Container)
         val plan3Container = dialogView.findViewById<LinearLayout>(R.id.plan3Container)

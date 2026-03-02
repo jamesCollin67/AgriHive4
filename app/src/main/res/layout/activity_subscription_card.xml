@@ -93,20 +93,26 @@
                     android:padding="6dp"/>
 
                 <TextView
+                    android:id="@+id/plan1Quarterly"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="P550.00\n3 months"
                     android:gravity="center"
                     android:background="#FFECB3"
-                    android:padding="6dp"/>
+                    android:padding="6dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
 
                 <TextView
+                    android:id="@+id/plan1Monthly"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="P183.00\nmonthly"
                     android:gravity="center"
                     android:background="#FFD54F"
-                    android:padding="6dp"/>
+                    android:padding="6dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
             </LinearLayout>
 
             <!-- 3-5 -->
@@ -128,20 +134,26 @@
                     android:padding="6dp"/>
 
                 <TextView
+                    android:id="@+id/plan2Quarterly"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="P750.00\n3 months"
                     android:gravity="center"
                     android:background="#FFECB3"
-                    android:padding="6dp"/>
+                    android:padding="6dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
 
                 <TextView
+                    android:id="@+id/plan2Monthly"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="P250.00\nmonthly"
                     android:gravity="center"
                     android:background="#FFD54F"
-                    android:padding="6dp"/>
+                    android:padding="6dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
             </LinearLayout>
 
             <!-- 5+ -->
@@ -163,20 +175,26 @@
                     android:padding="6dp"/>
 
                 <TextView
+                    android:id="@+id/plan3Quarterly"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="P999.00\n3 months"
                     android:gravity="center"
                     android:background="#FFECB3"
-                    android:padding="6dp"/>
+                    android:padding="6dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
 
                 <TextView
+                    android:id="@+id/plan3Monthly"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="P333.00\nmonthly"
                     android:gravity="center"
                     android:background="#FFD54F"
-                    android:padding="6dp"/>
+                    android:padding="6dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
             </LinearLayout>
         </LinearLayout>
 

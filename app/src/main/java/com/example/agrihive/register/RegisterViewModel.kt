@@ -1,16 +1,20 @@
 package com.example.agrihive.register
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.agrihive.data.UserSessionManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.regex.Pattern
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel(application: Application) : AndroidViewModel(application) {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val sessionManager: UserSessionManager = UserSessionManager(application)
 
     private val _registerSuccess = MutableLiveData<Boolean>()
     val registerSuccess: LiveData<Boolean> = _registerSuccess
@@ -84,6 +88,12 @@ class RegisterViewModel : ViewModel() {
                         .document(uid)
                         .set(user)
                         .addOnSuccessListener {
+                            // Save user data to local session for immediate profile display
+                            sessionManager.saveUserData(
+                                firstName = firstName,
+                                lastName = lastName,
+                                email = email
+                            )
 
                             firebaseAuth.currentUser?.sendEmailVerification()
 

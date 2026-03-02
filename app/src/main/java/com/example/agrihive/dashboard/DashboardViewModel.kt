@@ -25,10 +25,10 @@ class DashboardViewModel : ViewModel() {
 
 
     init {
-        loadApiaries()
+        fetchApiaries()
     }
 
-    private fun loadApiaries() {
+    fun fetchApiaries() {
         val uid = auth.currentUser?.uid ?: return
 
         apiaryRef.orderByChild("ownerId").equalTo(uid)

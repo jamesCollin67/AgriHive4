@@ -118,6 +118,20 @@
             android:label="@string/app_name"
             android:theme="@style/Theme.AgriHive" />
 
+        <!-- Send Report -->
+        <activity
+            android:name=".hivestreams.SendReportActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AgriHive" />
+
+        <!-- Report Sent -->
+        <activity
+            android:name=".hivestreams.ReportSentActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.AgriHive" />
+
     </application>
 
 </manifest>

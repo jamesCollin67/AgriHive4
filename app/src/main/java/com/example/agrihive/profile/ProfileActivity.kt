@@ -11,8 +11,10 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.example.agrihive.R
+import com.example.agrihive.data.UserSessionManager
 import com.example.agrihive.databinding.ActivityProfilePageBinding
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.editprofile.EditProfileActivity
@@ -22,6 +24,7 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityProfilePageBinding
     private val viewModel: ProfileViewModel by viewModels()
+    private lateinit var sessionManager: UserSessionManager
 
     private val editProfileLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -37,9 +40,47 @@ class ProfileActivity : AppCompatActivity() {
         binding = ActivityProfilePageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Initialize session manager and load local data first for immediate display
+        sessionManager = UserSessionManager(this)
+        loadLocalUserData()
+
+        setupSwipeRefresh()
         setupObservers()
         setupClickListeners()
         setupBottomNavigationHighlight()
+        
+        // Check for updated data from EditProfileActivity
+        checkForUpdatedData(intent)
+    }
+
+    // Load user data from SharedPreferences for immediate display
+    private fun loadLocalUserData() {
+        if (sessionManager.hasUserData()) {
+            val firstName = sessionManager.getFirstName()
+            val lastName = sessionManager.getLastName()
+            val farm = sessionManager.getFarm()
+            val location = sessionManager.getLocation()
+            val email = sessionManager.getEmail()
+            
+            // Display local data immediately
+            binding.userName.text = "$firstName $lastName"
+            binding.tvEmail.text = if (email.isNotEmpty()) email else "Not set"
+            binding.tvFarm.text = if (farm.isNotEmpty()) farm else "Not set"
+            binding.tvLocation.text = if (location.isNotEmpty()) location else "Not set"
+        }
+    }
+
+    private fun setupSwipeRefresh() {
+        // Set up SwipeRefreshLayout with yellow color
+        binding.swipeRefresh.setColorSchemeResources(
+            android.R.color.holo_orange_light
+        )
+        binding.swipeRefresh.setProgressBackgroundColorSchemeColor(
+            resources.getColor(android.R.color.white, theme)
+        )
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.refreshUserData()
+        }
     }
 
     override fun onResume() {
@@ -48,7 +89,41 @@ class ProfileActivity : AppCompatActivity() {
         viewModel.refreshUserData()
     }
 
+    // Handle updated data from EditProfileActivity
+    private fun checkForUpdatedData(intent: Intent?) {
+        intent?.let {
+            val updatedFirstName = it.getStringExtra("updated_firstName")
+            val updatedLastName = it.getStringExtra("updated_lastName")
+            val updatedFarm = it.getStringExtra("updated_farm")
+            val updatedLocation = it.getStringExtra("updated_location")
+            
+            if (updatedFirstName != null && updatedLastName != null) {
+                // Update UI immediately with the new data
+                binding.userName.text = "$updatedFirstName $updatedLastName"
+                if (updatedFarm != null) {
+                    binding.tvFarm.text = if(updatedFarm.isNotEmpty()) updatedFarm else "Not set"
+                }
+                if (updatedLocation != null) {
+                    binding.tvLocation.text = if(updatedLocation.isNotEmpty()) updatedLocation else "Not set"
+                }
+            }
+        }
+    }
+
+    // Handle new intent when returning from EditProfileActivity
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        checkForUpdatedData(intent)
+    }
+
     private fun setupObservers() {
+        // Observe loading state
+        viewModel.isLoading.observe(this) { isLoading ->
+            binding.loadingContainer.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.swipeRefresh.isRefreshing = isLoading
+        }
+
         // Observe user info
         viewModel.user.observe(this) { user ->
             binding.userName.text = "${user.firstName} ${user.lastName}"

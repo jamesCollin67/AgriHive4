@@ -13,16 +13,22 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
+import com.example.agrihive.data.UserSessionManager
 import com.example.agrihive.device.DeviceControlActivity
 import com.example.agrihive.log.ActivityLogActivity
+import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.profile.ProfileActivity
 import com.example.agrihive.sensorsubscription.SensorSubscriptionActivity
+import com.google.firebase.auth.FirebaseAuth
 
 class SettingsActivity : AppCompatActivity() {
 
     private val viewModel: SettingsViewModel by viewModels()
+    private lateinit var sessionManager: UserSessionManager
+    private lateinit var auth: FirebaseAuth
 
     // UI elements
     private lateinit var btnBack: ImageView
@@ -40,6 +46,13 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings_page)
+
+        // Initialize session manager and auth
+        sessionManager = UserSessionManager(this)
+        auth = FirebaseAuth.getInstance()
+
+        // Initialize repository with app context for local storage
+        com.example.agrihive.log.ActivityLogRepository.init(applicationContext)
 
         initViews()
         setupUI()
@@ -59,6 +72,19 @@ class SettingsActivity : AppCompatActivity() {
         rowActivityLog = findViewById(R.id.rowActivityLog)
         rowChangePassword = findViewById(R.id.rowChangePassword)
         rowSubscription = findViewById(R.id.rowSubscription)
+
+        // Setup SwipeRefreshLayout with yellow color
+        val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeResources(R.color.yellow_primary)
+        swipeRefresh.setProgressBackgroundColorSchemeColor(
+            resources.getColor(android.R.color.white, theme)
+        )
+        swipeRefresh.setOnRefreshListener {
+            // Refresh settings data
+            swipeRefresh.postDelayed({
+                swipeRefresh.isRefreshing = false
+            }, 1000) // Stop after 1 second
+        }
     }
 
     private fun setupUI() {
@@ -196,16 +222,29 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun showLogoutDialog() {
         val prefs = getSharedPreferences("AgriHivePrefs", MODE_PRIVATE)
-        
+
         AlertDialog.Builder(this)
             .setTitle("Log out")
             .setMessage("Are you sure you want to log out?")
             .setPositiveButton("Log out") { dialog, _ ->
                 dialog.dismiss()
+
+                // Sign out from Firebase Auth
+                auth.signOut()
+
+                // Clear user session data from SharedPreferences
+                sessionManager.clearUserData()
+
+                // NOTE: We do NOT clear ActivityLog local storage here
+                // because user wants logs to persist after logout
+                // When same user logs back in, their logs will be loaded from local storage
+
                 // Reset subscription dialog flag so it shows on next login
                 prefs.edit().putBoolean("subscription_dialog_shown_this_login", false).apply()
+
                 Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
-                // Navigate to Login page instead of stopping the app
+
+                // Navigate to Login page and clear activity stack
                 val intent = Intent(this, com.example.agrihive.login.LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)

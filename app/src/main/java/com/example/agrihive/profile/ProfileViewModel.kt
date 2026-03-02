@@ -20,6 +20,9 @@ class ProfileViewModel : ViewModel() {
     private val _apiaryCount = MutableLiveData<Int>()
     val apiaryCount: LiveData<Int> = _apiaryCount
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
     private val _goEdit = MutableLiveData<Boolean>()
     val goEdit: LiveData<Boolean> = _goEdit
 
@@ -36,13 +39,30 @@ class ProfileViewModel : ViewModel() {
 
     private fun loadUser() {
         val uid = auth.currentUser?.uid ?: return
+        
+        // First try to get cached data for immediate display
         firestore.collection("users").document(uid)
-            .get(Source.SERVER)
+            .get(Source.CACHE)
             .addOnSuccessListener { doc ->
                 val userData = doc.toObject(User::class.java)
                 userData?.let {
                     _user.value = it
                 }
+            }
+        
+        // Then get from server and show loading if it takes time
+        _isLoading.value = true
+        firestore.collection("users").document(uid)
+            .get(Source.SERVER)
+            .addOnSuccessListener { doc ->
+                _isLoading.value = false
+                val userData = doc.toObject(User::class.java)
+                userData?.let {
+                    _user.value = it
+                }
+            }
+            .addOnFailureListener {
+                _isLoading.value = false
             }
     }
 

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <!-- ===== TOP BACK ARROW ===== -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_back"
+            android:contentDescription="Back" />
+
+    </RelativeLayout>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:paddingTop="48dp">
+
+        <!-- Title: Report sent -->
+        <TextView
+            android:id="@+id/tvReportSent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Report sent"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A1A"
+            android:layout_marginBottom="28dp" />
+
+        <!-- Green Circle + White Checkmark -->
+        <FrameLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="28dp">
+
+            <!-- Green Circle -->
+            <View
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/bg_green_circle" />
+
+            <!-- White Check Icon centered -->
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_check_white"
+                android:contentDescription="Success checkmark" />
+
+        </FrameLayout>
+
+        <!-- Thanks for your feedback! -->
+        <TextView
+            android:id="@+id/tvThanks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thanks for your feedback!"
+            android:textSize="14sp"
+            android:textColor="#555555"
+            android:gravity="center"
+            android:layout_marginBottom="4dp" />
+
+        <!-- The colony appreciates your care! -->
+        <TextView
+            android:id="@+id/tvColony"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="The colony appreciates your care!"
+            android:textSize="14sp"
+            android:textColor="#555555"
+            android:gravity="center"
+            android:layout_marginBottom="36dp" />
+
+        <!-- ===== YELLOW TIP CARD ===== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_yellow_card"
+            android:padding="28dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvTip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="A healthy hive starts with consistent monitoring. Keep an eye on temperature and humidity to ensure your bees stay happy!"
+                android:textSize="17sp"
+                android:textStyle="italic"
+                android:textColor="#1A1A1A"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.6" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

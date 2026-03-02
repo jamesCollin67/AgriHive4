@@ -34,32 +34,48 @@ class ActivityLogAdapter : ListAdapter<ActivityLogItem, ActivityLogAdapter.LogVi
         fun bind(item: ActivityLogItem) {
             tvDescription.text = item.description
 
+            // Format date label (Today, Yesterday, or date)
+            tvTimeAgo.text = getDateLabel(item.timestamp)
+
             // Format exact time
             val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
             tvTime.text = timeFormat.format(item.timestamp)
-
-            // Format relative time
-            tvTimeAgo.text = getRelativeTime(item.timestamp)
         }
 
-        private fun getRelativeTime(date: Date): String {
+        private fun getDateLabel(date: Date): String {
             val now = Calendar.getInstance()
             val target = Calendar.getInstance().apply { time = date }
 
-            val diffInMillis = now.timeInMillis - target.timeInMillis
-            val diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(diffInMillis)
-            val diffInHours = TimeUnit.MILLISECONDS.toHours(diffInMillis)
-            val diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis)
-            val diffInWeeks = diffInDays / 7
+            // Check if same day
+            val isSameDay = now.get(Calendar.YEAR) == target.get(Calendar.YEAR) &&
+                    now.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
 
-            return when {
-                diffInMinutes < 1 -> "Just now"
-                diffInMinutes < 60 -> "${diffInMinutes}m ago"
-                diffInHours < 24 -> "${diffInHours}h ago"
-                diffInDays < 7 -> "${diffInDays}d ago"
-                diffInWeeks < 4 -> "${diffInWeeks}w ago"
-                else -> SimpleDateFormat("MMM d", Locale.getDefault()).format(date)
+            if (isSameDay) {
+                return "Today"
             }
+
+            // Check if yesterday
+            now.add(Calendar.DAY_OF_YEAR, -1)
+            val isYesterday = now.get(Calendar.YEAR) == target.get(Calendar.YEAR) &&
+                    now.get(Calendar.DAY_OF_YEAR) == target.get(Calendar.DAY_OF_YEAR)
+
+            if (isYesterday) {
+                return "Yesterday"
+            }
+
+            // Check if within this week
+            val diffInDays = TimeUnit.MILLISECONDS.toDays(
+                Calendar.getInstance().timeInMillis - date.time
+            )
+            if (diffInDays < 7) {
+                // Show day name (Monday, Tuesday, etc.)
+                val dayFormat = SimpleDateFormat("EEEE", Locale.getDefault())
+                return dayFormat.format(date)
+            }
+
+            // Show date (Jan 15)
+            val dateFormat = SimpleDateFormat("MMM d", Locale.getDefault())
+            return dateFormat.format(date)
         }
     }
 
