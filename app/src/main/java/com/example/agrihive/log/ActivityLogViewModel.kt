@@ -113,6 +113,18 @@ class ActivityLogViewModel : ViewModel() {
         isLoadingFromFirebase = false
     }
 
+    /**
+     * Reset user session state without clearing local logs.
+     * This allows logs to persist after logout and be available on next login.
+     */
+    fun resetUserState() {
+        // Clear in-memory cache only
+        cachedLogs.clear()
+        _activityLogs.value = emptyList()
+        currentUserId = null
+        isLoadingFromFirebase = false
+    }
+
     fun loadFromFirebase() {
         // Get current user ID
         val currentUid = FirebaseAuth.getInstance().currentUser?.uid

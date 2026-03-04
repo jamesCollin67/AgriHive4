@@ -23,6 +23,8 @@ import com.example.agrihive.profile.ProfileActivity
 import com.example.agrihive.settings.SettingsActivity
 import com.example.agrihive.sensorsubscription.SensorSubscriptionActivity
 import com.example.agrihive.subscription.SubscriptionActivity
+import com.example.agrihive.hivestreams.SendReportActivity
+import com.example.agrihive.camera.CameraActivity
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -192,7 +194,7 @@ class DashboardActivity : AppCompatActivity() {
         
         // Scan/Camera button
         footerNav?.findViewById<View>(R.id.navScanContainer)?.setOnClickListener {
-            Toast.makeText(this, "Scan feature coming soon!", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, CameraActivity::class.java))
         }
         
         // Profile navigation

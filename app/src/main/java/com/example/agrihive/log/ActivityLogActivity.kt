@@ -5,14 +5,12 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.agrihive.R
 
 class ActivityLogActivity : AppCompatActivity() {
 
     private val viewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
     private lateinit var adapter: ActivityLogAdapter
-    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,23 +35,6 @@ class ActivityLogActivity : AppCompatActivity() {
             finish()
         }
 
-        // SwipeRefreshLayout setup
-        swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
-        // Set yellow color scheme
-        swipeRefresh.setColorSchemeResources(R.color.yellow_primary)
-        swipeRefresh.setProgressBackgroundColorSchemeColor(
-            resources.getColor(android.R.color.white, theme)
-        )
-        swipeRefresh.setOnRefreshListener {
-            viewModel.refresh()
-            // Ensure refresh stops after timeout
-            swipeRefresh.postDelayed({
-                if (swipeRefresh.isRefreshing) {
-                    swipeRefresh.isRefreshing = false
-                }
-            }, 10000) // 10 second timeout
-        }
-
         // RecyclerView setup
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerActivityLog)
         adapter = ActivityLogAdapter()
@@ -72,7 +53,6 @@ class ActivityLogActivity : AppCompatActivity() {
         }
         
         viewModel.isLoading.observe(this) { isLoading ->
-            swipeRefresh.isRefreshing = isLoading
             findViewById<View>(R.id.progressBar)?.visibility = if (isLoading && adapter.itemCount == 0) View.VISIBLE else View.GONE
         }
     }

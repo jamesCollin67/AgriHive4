@@ -13,12 +13,14 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.data.UserSessionManager
 import com.example.agrihive.device.DeviceControlActivity
+import com.example.agrihive.hivestreams.SendReportActivity
+import com.example.agrihive.camera.CameraActivity
 import com.example.agrihive.log.ActivityLogActivity
+import com.example.agrihive.log.ActivityLogRepository
 import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.profile.ProfileActivity
 import com.example.agrihive.sensorsubscription.SensorSubscriptionActivity
@@ -72,19 +74,6 @@ class SettingsActivity : AppCompatActivity() {
         rowActivityLog = findViewById(R.id.rowActivityLog)
         rowChangePassword = findViewById(R.id.rowChangePassword)
         rowSubscription = findViewById(R.id.rowSubscription)
-
-        // Setup SwipeRefreshLayout with yellow color
-        val swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
-        swipeRefresh.setColorSchemeResources(R.color.yellow_primary)
-        swipeRefresh.setProgressBackgroundColorSchemeColor(
-            resources.getColor(android.R.color.white, theme)
-        )
-        swipeRefresh.setOnRefreshListener {
-            // Refresh settings data
-            swipeRefresh.postDelayed({
-                swipeRefresh.isRefreshing = false
-            }, 1000) // Stop after 1 second
-        }
     }
 
     private fun setupUI() {
@@ -126,9 +115,9 @@ class SettingsActivity : AppCompatActivity() {
             Toast.makeText(this, "History coming soon!", Toast.LENGTH_SHORT).show()
         }
 
-        // Camera - placeholder
+        // Camera - navigate to CameraActivity
         footerNav.findViewById<View>(R.id.navScanContainer)?.setOnClickListener {
-            // Camera functionality coming soon
+            startActivity(Intent(this, CameraActivity::class.java))
         }
 
         // Profile
@@ -234,6 +223,11 @@ class SettingsActivity : AppCompatActivity() {
 
                 // Clear user session data from SharedPreferences
                 sessionManager.clearUserData()
+
+                // Reset ActivityLogViewModel state for fresh start on next login
+                // This ensures logs are reloaded properly when user logs back in
+                // Use resetUserState to keep local logs while resetting in-memory state
+                ActivityLogViewModel.getInstance().resetUserState()
 
                 // NOTE: We do NOT clear ActivityLog local storage here
                 // because user wants logs to persist after logout

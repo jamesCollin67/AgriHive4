@@ -18,6 +18,8 @@ import com.example.agrihive.data.UserSessionManager
 import com.example.agrihive.databinding.ActivityProfilePageBinding
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.editprofile.EditProfileActivity
+import com.example.agrihive.hivestreams.SendReportActivity
+import com.example.agrihive.camera.CameraActivity
 import com.example.agrihive.settings.SettingsActivity
 
 class ProfileActivity : AppCompatActivity() {
@@ -195,9 +197,9 @@ class ProfileActivity : AppCompatActivity() {
             Toast.makeText(this, "History coming soon!", Toast.LENGTH_SHORT).show()
         }
 
-        // Camera - placeholder
+        // Camera - navigate to CameraActivity
         footerNav?.findViewById<View>(R.id.navScanContainer)?.setOnClickListener {
-            // Camera functionality coming soon
+            startActivity(Intent(this, CameraActivity::class.java))
         }
 
         // Profile - Already in Profile page

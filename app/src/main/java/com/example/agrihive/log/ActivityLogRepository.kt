@@ -184,12 +184,12 @@ class ActivityLogRepository {
         val currentUid = auth.currentUser?.uid
 
         // If user is logged in, only return logs for current user
-        // If user is not logged in, still return the saved logs (so they persist after logout)
         if (currentUid != null && savedUid != currentUid) {
+            // Different user - return empty (will load from Firebase)
             return emptyList()
         }
 
-        // If no user is currently logged in, just return saved logs (they persist)
+        // If no user is currently logged in, return saved logs
         return try {
             val jsonArray = JSONArray(logsJson)
             val logs = mutableListOf<ActivityLogItem>()

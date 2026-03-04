@@ -12,6 +12,7 @@ import com.example.agrihive.R
 import com.example.agrihive.databinding.ActivityLoginPageBinding
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.forgot.ForgotPasswordActivity
+import com.example.agrihive.log.ActivityLogRepository
 import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.log.LogType
 import com.example.agrihive.register.RegisterActivity
@@ -27,6 +28,9 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Initialize repository with app context for local storage
+        ActivityLogRepository.init(applicationContext)
 
         // Sign in button
         binding.btnSignIn.setOnClickListener {

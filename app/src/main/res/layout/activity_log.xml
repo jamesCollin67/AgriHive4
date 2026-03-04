@@ -42,37 +42,30 @@
             android:layout_height="1dp"
             android:background="#E0E0E0" />
 
-        <!-- SwipeRefreshLayout with RecyclerView -->
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefresh"
+        <!-- RecyclerView -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <FrameLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerActivityLog"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:paddingTop="4dp"
+                android:clipToPadding="false" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerActivityLog"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:paddingTop="4dp"
-                    android:clipToPadding="false" />
+            <!-- Empty State -->
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="No activity yet"
+                android:textColor="#666666"
+                android:textSize="16sp"
+                android:visibility="gone" />
 
-                <!-- Empty State -->
-                <TextView
-                    android:id="@+id/tvEmpty"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="No activity yet"
-                    android:textColor="#666666"
-                    android:textSize="16sp"
-                    android:visibility="gone" />
-
-            </FrameLayout>
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </FrameLayout>
 
     </LinearLayout>
 
