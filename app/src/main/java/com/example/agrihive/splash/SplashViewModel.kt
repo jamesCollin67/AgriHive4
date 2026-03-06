@@ -4,19 +4,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.agrihive.data.SessionRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SplashViewModel : ViewModel() {
 
-    private val repository = SessionRepository()
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 
     private val _progress = MutableLiveData(0)
     val progress: LiveData<Int> = _progress
 
-    private val _navigate = MutableLiveData(false)
-    val navigate: LiveData<Boolean> = _navigate
+    private val _navigate = MutableLiveData<String?>()
+    val navigate: LiveData<String?> = _navigate
 
     fun startSplash() {
         viewModelScope.launch {
@@ -27,11 +27,19 @@ class SplashViewModel : ViewModel() {
                 _progress.value = progressValue
             }
 
-            // Optional: you can check if user is logged in here
-            val isLoggedIn = repository.isUserLoggedIn()
+            // Check if user is logged in
+            val isLoggedIn = firebaseAuth.currentUser != null
 
-            // Navigate to LandingActivity
-            _navigate.value = true
+            // Navigate based on login status
+            if (isLoggedIn) {
+                _navigate.value = "dashboard"
+            } else {
+                _navigate.value = "landing"
+            }
         }
+    }
+
+    fun doneNavigating() {
+        _navigate.value = null
     }
 }

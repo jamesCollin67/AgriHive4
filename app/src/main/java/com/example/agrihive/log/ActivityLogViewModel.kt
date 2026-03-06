@@ -199,6 +199,22 @@ class ActivityLogViewModel : ViewModel() {
         _activityLogs.value = emptyList()
     }
 
+    /**
+     * Reset user state for fresh start on next login.
+     * This clears in-memory state but keeps local logs in storage.
+     * Call this when user logs out.
+     */
+    fun resetUserState() {
+        // Clear in-memory cached logs
+        cachedLogs.clear()
+        _activityLogs.value = emptyList()
+        
+        // Reset state variables but do NOT clear local storage
+        // This keeps the logs persisted for when the same user logs back in
+        currentUserId = null
+        isLoadingFromFirebase = false
+    }
+
     fun clearError() {
         _errorMessage.value = null
     }

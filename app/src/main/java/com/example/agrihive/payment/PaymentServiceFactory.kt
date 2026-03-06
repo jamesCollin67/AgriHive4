@@ -13,7 +13,7 @@ object PaymentServiceFactory {
     fun getPaymentService(paymentMethod: PaymentMethod): PaymentService {
         return when (paymentMethod) {
             PaymentMethod.GCASH -> GCashPaymentService()
-            PaymentMethod.PAYMAYA -> PayMayaPaymentService()
+            PaymentMethod.MAYA -> MayaPaymentService()
             PaymentMethod.BDO -> BDOPaymentService()
             PaymentMethod.PAYPAL -> PayPalPaymentService()
         }
@@ -32,7 +32,7 @@ object PaymentServiceFactory {
     fun getAppNotInstalledMessage(paymentMethod: PaymentMethod): String {
         return when (paymentMethod) {
             PaymentMethod.GCASH -> "GCash app is not installed. Please install GCash from the Play Store."
-            PaymentMethod.PAYMAYA -> "PayMaya app is not installed. Please install PayMaya from the Play Store."
+            PaymentMethod.MAYA -> "Maya app is not installed. Please install Maya from the Play Store."
             PaymentMethod.BDO -> "BDO Online Banking app is not installed. Please install it from the Play Store."
             PaymentMethod.PAYPAL -> "PayPal app is not installed. Please install PayPal from the Play Store."
         }

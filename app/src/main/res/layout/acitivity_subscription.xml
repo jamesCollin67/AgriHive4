@@ -192,7 +192,7 @@
 
             <!-- PayMaya -->
             <LinearLayout
-                android:id="@+id/layoutPaymaya"
+                android:id="@+id/layoutMaya"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:orientation="horizontal"
@@ -205,7 +205,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:src="@drawable/ic_paymaya"
-                    android:contentDescription="PayMaya"
+                    android:contentDescription="Maya"
                     android:layout_marginEnd="16dp" />
 
                 <TextView

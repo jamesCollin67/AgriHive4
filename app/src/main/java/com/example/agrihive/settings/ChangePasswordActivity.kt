@@ -3,8 +3,10 @@ package com.example.agrihive.settings
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.R
@@ -24,6 +26,7 @@ class ChangePasswordActivity : AppCompatActivity() {
     private lateinit var ivToggleCurrentPassword: ImageView
     private lateinit var ivToggleNewPassword: ImageView
     private lateinit var ivToggleConfirmPassword: ImageView
+    private lateinit var progressBar: ProgressBar
 
     private var isCurrentPasswordVisible = false
     private var isNewPasswordVisible = false
@@ -50,6 +53,7 @@ class ChangePasswordActivity : AppCompatActivity() {
         ivToggleCurrentPassword = findViewById(R.id.ivToggleCurrentPassword)
         ivToggleNewPassword = findViewById(R.id.ivToggleNewPassword)
         ivToggleConfirmPassword = findViewById(R.id.ivToggleConfirmPassword)
+        progressBar = findViewById(R.id.progressBar)
     }
 
     private fun setupUI() {
@@ -118,6 +122,10 @@ class ChangePasswordActivity : AppCompatActivity() {
             return
         }
 
+        // Show loading indicator
+        progressBar.visibility = View.VISIBLE
+        btnChangePassword.isEnabled = false
+
         // Re-authenticate user before changing password
         val credential = EmailAuthProvider.getCredential(email, currentPassword)
 
@@ -127,6 +135,10 @@ class ChangePasswordActivity : AppCompatActivity() {
                     // Re-authentication successful, now update password
                     user.updatePassword(newPassword)
                         .addOnCompleteListener { updateTask ->
+                            // Hide loading indicator
+                            progressBar.visibility = View.GONE
+                            btnChangePassword.isEnabled = true
+                            
                             if (updateTask.isSuccessful) {
                                 Toast.makeText(this, "Password changed successfully", Toast.LENGTH_SHORT).show()
                                 
@@ -140,6 +152,10 @@ class ChangePasswordActivity : AppCompatActivity() {
                             }
                         }
                 } else {
+                    // Hide loading indicator
+                    progressBar.visibility = View.GONE
+                    btnChangePassword.isEnabled = true
+                    
                     // Re-authentication failed
                     val errorMessage = when {
                         reauthTask.exception?.message?.contains("INVALID_CREDENTIALS") == true ->

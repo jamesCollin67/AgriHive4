@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.databinding.ActivitySplashScreenBinding
+import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.landing.LandingActivity
 import com.google.firebase.FirebaseApp
 
@@ -43,13 +44,17 @@ class SplashActivity : AppCompatActivity() {
         }
 
         // Navigate after progress complete
-        viewModel.navigate.observe(this) { navigate ->
-            if (navigate) { // always check true
-                startActivity(Intent(this, LandingActivity::class.java))
-                finish() // close splash
+        viewModel.navigate.observe(this) { destination ->
+            destination?.let {
+                val intent = when (it) {
+                    "dashboard" -> Intent(this, DashboardActivity::class.java)
+                    "landing" -> Intent(this, LandingActivity::class.java)
+                    else -> Intent(this, LandingActivity::class.java)
+                }
+                startActivity(intent)
+                finish()
+                viewModel.doneNavigating()
             }
         }
-
-
     }
 }

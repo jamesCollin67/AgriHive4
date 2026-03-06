@@ -59,8 +59,8 @@ class SubscriptionActivity : AppCompatActivity() {
             processPayment(PaymentMethod.GCASH)
         }
 
-        findViewById<LinearLayout>(R.id.layoutPaymaya).setOnClickListener {
-            processPayment(PaymentMethod.PAYMAYA)
+        findViewById<LinearLayout>(R.id.layoutMaya).setOnClickListener {
+            processPayment(PaymentMethod.MAYA)
         }
 
         findViewById<LinearLayout>(R.id.layoutBdo).setOnClickListener {

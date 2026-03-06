@@ -30,7 +30,7 @@ enum class BillingType(val displayName: String) {
 
 enum class PaymentMethod(val displayName: String) {
     GCASH("GCash"),
-    PAYMAYA("PayMaya"),
+    MAYA("Maya"),
     BDO("BDO Online Banking"),
     PAYPAL("PayPal")
 }
