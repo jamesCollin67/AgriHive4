@@ -10,6 +10,9 @@
     <color name="nav_active">#E5C75A</color>
     <color name="nav_inactive">#888888</color>
     
+    <!-- Error/Alert colors -->
+    <color name="error_red">#FF0000</color>
+    
     <!-- Standard Android colors -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>

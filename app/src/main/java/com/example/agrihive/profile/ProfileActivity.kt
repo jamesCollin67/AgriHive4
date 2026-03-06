@@ -20,6 +20,8 @@ import com.example.agrihive.editprofile.EditProfileActivity
 import com.example.agrihive.hivestreams.SendReportActivity
 import com.example.agrihive.camera.CameraActivity
 import com.example.agrihive.settings.SettingsActivity
+import com.example.agrihive.utils.NetworkAlertDialog
+import com.example.agrihive.utils.NetworkUtils
 
 class ProfileActivity : AppCompatActivity() {
 
@@ -72,8 +74,40 @@ class ProfileActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        
+        // Check for internet connection and show message if offline
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            showNoInternetMessage()
+        }
+        
         // Refresh user data when returning to this page
         viewModel.refreshUserData()
+    }
+
+    private fun showNoInternetMessage() {
+        // Show a "No internet connection" text on the profile
+        binding.tvEmail.text = "No internet connection"
+        binding.tvEmail.setTextColor(getColor(R.color.error_red))
+        
+        // Show toast as additional notification
+        Toast.makeText(this, "No internet connection. Showing cached data.", Toast.LENGTH_LONG).show()
+        
+        // Show dialog for user to try again
+        NetworkAlertDialog.show(
+            context = this,
+            onTryAgain = {
+                // Check internet again
+                if (NetworkUtils.isNetworkAvailable(this)) {
+                    // Refresh data
+                    viewModel.refreshUserData()
+                } else {
+                    showNoInternetMessage()
+                }
+            },
+            onCancel = {
+                // Do nothing, stay with cached data
+            }
+        )
     }
 
     // Handle updated data from EditProfileActivity

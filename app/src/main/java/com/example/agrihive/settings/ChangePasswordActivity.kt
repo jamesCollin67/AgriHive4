@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.log.ActivityLogViewModel
+import com.example.agrihive.utils.NetworkUtils
 import com.google.firebase.auth.EmailAuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -106,8 +107,13 @@ class ChangePasswordActivity : AppCompatActivity() {
                     Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
                 }
                 else -> {
-                    // Re-authenticate and update password using Firebase
-                    changePassword(currentPassword, newPassword)
+                    // Check internet connection first
+                    if (!NetworkUtils.isNetworkAvailable(this)) {
+                        Toast.makeText(this, "No internet connection. Please check your network and try again.", Toast.LENGTH_LONG).show()
+                    } else {
+                        // Re-authenticate and update password using Firebase
+                        changePassword(currentPassword, newPassword)
+                    }
                 }
             }
         }
@@ -125,6 +131,11 @@ class ChangePasswordActivity : AppCompatActivity() {
         // Show loading indicator
         progressBar.visibility = View.VISIBLE
         btnChangePassword.isEnabled = false
+        btnChangePassword.text = "Changing..."
+        // Disable input fields during loading
+        etCurrentPassword.isEnabled = false
+        etNewPassword.isEnabled = false
+        etConfirmPassword.isEnabled = false
 
         // Re-authenticate user before changing password
         val credential = EmailAuthProvider.getCredential(email, currentPassword)
@@ -138,6 +149,11 @@ class ChangePasswordActivity : AppCompatActivity() {
                             // Hide loading indicator
                             progressBar.visibility = View.GONE
                             btnChangePassword.isEnabled = true
+                            btnChangePassword.text = "CHANGE PASSWORD"
+                            // Re-enable input fields
+                            etCurrentPassword.isEnabled = true
+                            etNewPassword.isEnabled = true
+                            etConfirmPassword.isEnabled = true
                             
                             if (updateTask.isSuccessful) {
                                 Toast.makeText(this, "Password changed successfully", Toast.LENGTH_SHORT).show()
@@ -155,6 +171,11 @@ class ChangePasswordActivity : AppCompatActivity() {
                     // Hide loading indicator
                     progressBar.visibility = View.GONE
                     btnChangePassword.isEnabled = true
+                    btnChangePassword.text = "CHANGE PASSWORD"
+                    // Re-enable input fields
+                    etCurrentPassword.isEnabled = true
+                    etNewPassword.isEnabled = true
+                    etConfirmPassword.isEnabled = true
                     
                     // Re-authentication failed
                     val errorMessage = when {

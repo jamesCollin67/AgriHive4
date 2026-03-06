@@ -11,6 +11,7 @@ import com.example.agrihive.databinding.ActivityForgotPasswordBinding
 import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.log.LogType
 import com.example.agrihive.login.LoginActivity
+import com.example.agrihive.utils.NetworkUtils
 
 class ForgotPasswordActivity : AppCompatActivity() {
 
@@ -31,7 +32,13 @@ class ForgotPasswordActivity : AppCompatActivity() {
         // SEND PASSWORD RESET LINK
         binding.sendVerification.setOnClickListener {
             val email = binding.emailInput.text.toString().trim()
-            viewModel.sendVerificationCode(email)
+            
+            // Check internet connection first
+            if (!NetworkUtils.isNetworkAvailable(this)) {
+                Toast.makeText(this, "No internet connection. Please check your network and try again.", Toast.LENGTH_LONG).show()
+            } else {
+                viewModel.sendVerificationCode(email)
+            }
         }
 
         // OBSERVE ERRORS

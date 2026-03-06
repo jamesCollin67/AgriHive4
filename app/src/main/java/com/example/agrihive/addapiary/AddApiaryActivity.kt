@@ -11,6 +11,8 @@ import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.databinding.ActivityAddApiaryBinding
 import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.log.LogType
+import com.example.agrihive.utils.NetworkAlertDialog
+import com.example.agrihive.utils.NetworkUtils
 
 class AddApiaryActivity : AppCompatActivity() {
 
@@ -34,6 +36,12 @@ class AddApiaryActivity : AppCompatActivity() {
 
         // ADD button
         binding.btnAdd.setOnClickListener {
+
+            // Check for internet connection first
+            if (!NetworkUtils.isNetworkAvailable(this)) {
+                showNoInternetDialog()
+                return@setOnClickListener
+            }
 
             val name = binding.inputName.text.toString()
             val temp = binding.inputTemp.text.toString()
@@ -81,5 +89,23 @@ class AddApiaryActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    private fun showNoInternetDialog() {
+        NetworkAlertDialog.show(
+            context = this,
+            onTryAgain = {
+                // Check internet again
+                if (NetworkUtils.isNetworkAvailable(this)) {
+                    // Retry adding apiary
+                    binding.btnAdd.performClick()
+                } else {
+                    showNoInternetDialog()
+                }
+            },
+            onCancel = {
+                // Do nothing, stay on the current screen
+            }
+        )
     }
 }

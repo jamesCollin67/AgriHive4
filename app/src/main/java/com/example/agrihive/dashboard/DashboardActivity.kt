@@ -25,6 +25,8 @@ import com.example.agrihive.sensorsubscription.SensorSubscriptionActivity
 import com.example.agrihive.subscription.SubscriptionActivity
 import com.example.agrihive.hivestreams.SendReportActivity
 import com.example.agrihive.camera.CameraActivity
+import com.example.agrihive.utils.NetworkAlertDialog
+import com.example.agrihive.utils.NetworkUtils
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -36,6 +38,11 @@ class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard_page)
+
+        // Check internet connection and show message if offline
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            showNoInternetMessage()
+        }
 
         prefs = getSharedPreferences("AgriHivePrefs", MODE_PRIVATE)
 
@@ -331,5 +338,27 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    private fun showNoInternetMessage() {
+        // Show toast notification
+        Toast.makeText(this, "No internet connection. Some features may not work.", Toast.LENGTH_LONG).show()
+        
+        // Show dialog for user to try again
+        NetworkAlertDialog.show(
+            context = this,
+            onTryAgain = {
+                // Check internet again
+                if (NetworkUtils.isNetworkAvailable(this)) {
+                    // Refresh data
+                    viewModel.fetchApiaries()
+                } else {
+                    showNoInternetMessage()
+                }
+            },
+            onCancel = {
+                // Do nothing, stay on current screen
+            }
+        )
     }
 }

@@ -15,6 +15,7 @@ import com.example.agrihive.data.UserSessionManager
 import com.example.agrihive.databinding.ActivityEditProfileBinding
 import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.profile.ProfileActivity
+import com.example.agrihive.utils.NetworkUtils
 import java.io.File
 import java.io.FileOutputStream
 
@@ -128,8 +129,14 @@ class EditProfileActivity : AppCompatActivity() {
         // Observe error message
         viewModel.errorMessage.observe(this) { error ->
             error?.let {
-                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                // Save to local storage even if Firebase update fails (offline)
+                saveToLocalStorage()
+                
+                Toast.makeText(this, "Profile saved locally. Will sync when online.", Toast.LENGTH_SHORT).show()
                 viewModel.clearError()
+                
+                // Navigate to profile anyway
+                navigateToProfile()
             }
         }
     }
@@ -153,7 +160,15 @@ class EditProfileActivity : AppCompatActivity() {
             val location = binding.etLocation.text.toString().trim()
 
             if (validateInputs(firstName, lastName)) {
-                viewModel.updateProfile(firstName, lastName, farm, location)
+                // Check internet connection first
+                if (!NetworkUtils.isNetworkAvailable(this)) {
+                    // Save locally even when offline
+                    saveToLocalStorage()
+                    Toast.makeText(this, "Profile saved locally. Will sync when online.", Toast.LENGTH_SHORT).show()
+                    navigateToProfile()
+                } else {
+                    viewModel.updateProfile(firstName, lastName, farm, location)
+                }
             }
         }
     }
@@ -181,13 +196,7 @@ class EditProfileActivity : AppCompatActivity() {
 
     private fun navigateToProfile() {
         // Save updated user data to SharedPreferences for immediate display on Profile
-        sessionManager.saveUserData(
-            firstName = binding.etFirstName.text.toString().trim(),
-            lastName = binding.etLastName.text.toString().trim(),
-            email = binding.etEmail.text.toString().trim(),
-            farm = binding.etFarm.text.toString().trim(),
-            location = binding.etLocation.text.toString().trim()
-        )
+        saveToLocalStorage()
         
         val intent = Intent(this, ProfileActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -198,6 +207,17 @@ class EditProfileActivity : AppCompatActivity() {
         intent.putExtra("updated_location", binding.etLocation.text.toString().trim())
         startActivity(intent)
         finish()
+    }
+    
+    // Save user data to local storage (SharedPreferences)
+    private fun saveToLocalStorage() {
+        sessionManager.saveUserData(
+            firstName = binding.etFirstName.text.toString().trim(),
+            lastName = binding.etLastName.text.toString().trim(),
+            email = binding.etEmail.text.toString().trim(),
+            farm = binding.etFarm.text.toString().trim(),
+            location = binding.etLocation.text.toString().trim()
+        )
     }
 
     // Handle hardware back button press
