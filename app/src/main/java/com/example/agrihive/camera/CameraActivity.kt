@@ -9,6 +9,7 @@ import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -25,12 +26,15 @@ import java.util.concurrent.Executors
 class CameraActivity : AppCompatActivity() {
 
     private var imageCapture: ImageCapture? = null
+    private var camera: Camera? = null
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var btnCapture: ImageButton
     private lateinit var btnSwitchCamera: ImageButton
     private lateinit var btnBack: ImageButton
+    private lateinit var btnFlash: ImageButton
     
     private var lensFacing = CameraSelector.LENS_FACING_BACK
+    private var flashMode = ImageCapture.FLASH_MODE_OFF
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -51,6 +55,7 @@ class CameraActivity : AppCompatActivity() {
         btnCapture = findViewById(R.id.btnCapture)
         btnSwitchCamera = findViewById(R.id.btnSwitchCamera)
         btnBack = findViewById(R.id.btnBack)
+        btnFlash = findViewById(R.id.btnFlash)
         
         cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -70,6 +75,13 @@ class CameraActivity : AppCompatActivity() {
             }
             startCamera()
         }
+
+        btnFlash.setOnClickListener {
+            toggleFlash()
+        }
+
+        // Set initial flash icon
+        updateFlashIcon()
 
         if (allPermissionsGranted()) {
             startCamera()
@@ -100,6 +112,7 @@ class CameraActivity : AppCompatActivity() {
 
             imageCapture = ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setFlashMode(flashMode)
                 .build()
 
             val cameraSelector = CameraSelector.Builder()
@@ -108,14 +121,43 @@ class CameraActivity : AppCompatActivity() {
 
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+                camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture
                 )
+                // Update flash mode on existing camera
+                imageCapture?.flashMode = flashMode
             } catch (exc: Exception) {
                 Toast.makeText(this, "Failed to start camera", Toast.LENGTH_SHORT).show()
             }
 
         }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun toggleFlash() {
+        flashMode = when (flashMode) {
+            ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
+            ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_AUTO
+            else -> ImageCapture.FLASH_MODE_OFF
+        }
+        imageCapture?.flashMode = flashMode
+        updateFlashIcon()
+    }
+
+    private fun updateFlashIcon() {
+        val iconRes = when (flashMode) {
+            ImageCapture.FLASH_MODE_ON -> android.R.drawable.ic_menu_compass
+            ImageCapture.FLASH_MODE_AUTO -> android.R.drawable.ic_menu_manage
+            else -> android.R.drawable.ic_menu_camera
+        }
+        btnFlash.setImageResource(iconRes)
+        
+        // Show toast for current mode
+        val modeText = when (flashMode) {
+            ImageCapture.FLASH_MODE_ON -> "Flash: On"
+            ImageCapture.FLASH_MODE_AUTO -> "Flash: Auto"
+            else -> "Flash: Off"
+        }
+        Toast.makeText(this, modeText, Toast.LENGTH_SHORT).show()
     }
 
     private fun takePhoto() {

@@ -6,21 +6,17 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefresh"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@id/footerNav"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.core.widget.NestedScrollView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="32dp">
+            android:layout_height="wrap_content"
+            android:paddingBottom="32dp">
 
             <ImageView
                 android:id="@+id/bannerImage"
@@ -99,28 +95,28 @@
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Email Address" android:textColor="#888888" android:textSize="14sp" />
-                    <TextView android:id="@+id/tvEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Loading..." android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvEmail" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Apiary Owned" android:textColor="#888888" android:textSize="14sp" />
-                    <TextView android:id="@+id/tvApiary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Loading..." android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvApiary" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Farm" android:textColor="#888888" android:textSize="14sp" />
-                    <TextView android:id="@+id/tvFarm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Loading..." android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvFarm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Location" android:textColor="#888888" android:textSize="14sp" />
-                    <TextView android:id="@+id/tvLocation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Loading..." android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/tvLocation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold" />
                 </LinearLayout>
 
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" />
@@ -142,8 +138,7 @@
                 app:cornerRadius="12dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.core.widget.NestedScrollView>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <!-- Loading Overlay -->
     <FrameLayout

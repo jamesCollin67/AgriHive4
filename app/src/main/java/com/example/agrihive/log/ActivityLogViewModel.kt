@@ -10,7 +10,6 @@ import java.util.UUID
 class ActivityLogViewModel : ViewModel() {
 
     companion object {
-        // Singleton instance - simpler version
         @Volatile
         private var instance: ActivityLogViewModel? = null
 
@@ -43,27 +42,22 @@ class ActivityLogViewModel : ViewModel() {
     private val cachedLogs = mutableListOf<ActivityLogItem>()
 
     init {
-        // Don't auto-load on init - let the Activity decide when to load
         _activityLogs.value = emptyList()
     }
 
     private fun loadActivityLogs() {
-        // Don't reload if already loading from Firebase
-        if (isLoadingFromFirebase) {
-            return
-        }
-
         val uid = FirebaseAuth.getInstance().currentUser?.uid
 
         // If no user logged in, don't load
         if (uid == null) {
             _isLoading.value = false
+            _activityLogs.value = emptyList()
             return
         }
 
-        // Check if user changed - if so, clear cached data
+        // Check if user changed - if so, clear cached data and load fresh
         if (currentUserId != null && currentUserId != uid) {
-            // User logged out and came back with different session
+            // User switched accounts - clear old data
             cachedLogs.clear()
             _activityLogs.value = emptyList()
         }
@@ -77,36 +71,38 @@ class ActivityLogViewModel : ViewModel() {
                 _isLoading.value = false
                 isLoadingFromFirebase = false
                 
-                // Update cache with Firebase data
+                // Update cache with fresh Firebase data
                 cachedLogs.clear()
                 cachedLogs.addAll(logs)
                 
-                // Use Firebase logs directly
+                // Update LiveData
                 _activityLogs.value = logs.sortedByDescending { it.timestamp }
             },
             onFailure = { exception ->
                 _isLoading.value = false
                 isLoadingFromFirebase = false
+                
                 // Show cached data on failure
                 _activityLogs.value = cachedLogs.sortedByDescending { it.timestamp }
+                _errorMessage.value = exception.message
             }
         )
     }
 
+    /**
+     * Force refresh - reload from Firebase
+     */
     fun refresh() {
-        // Reset loading flag to allow refresh
         isLoadingFromFirebase = false
         loadActivityLogs()
     }
 
     /**
-     * Clear all cached data and reset state.
-     * Call this when user logs out to ensure fresh data on next login.
+     * Clear all cached data.
+     * Call this when user logs out.
      */
     fun clearCache() {
-        // Clear local storage (persisted logs for privacy)
         repository.clearLocalLogs()
-        // Clear in-memory cache
         cachedLogs.clear()
         _activityLogs.value = emptyList()
         currentUserId = null
@@ -114,38 +110,35 @@ class ActivityLogViewModel : ViewModel() {
     }
 
     /**
-     * Reset user session state without clearing local logs.
-     * This allows logs to persist after logout and be available on next login.
+     * Load from Firebase - should be called when activity becomes visible
+     * This ensures we always get the latest user-specific data
      */
-    fun resetUserState() {
-        // Clear in-memory cache only
-        cachedLogs.clear()
-        _activityLogs.value = emptyList()
-        currentUserId = null
-        isLoadingFromFirebase = false
-    }
-
     fun loadFromFirebase() {
-        // Get current user ID
         val currentUid = FirebaseAuth.getInstance().currentUser?.uid
-
-        // Always clear cache and reload when explicitly called
-        // This ensures fresh data after logout/login
+        
+        // If user changed (different account), clear everything and reload
         if (currentUserId != currentUid) {
-            // User changed (including logout/login scenario) - clear cache
             cachedLogs.clear()
             _activityLogs.value = emptyList()
+            repository.clearLocalLogs()
         }
-
-        // Update current user ID
+        
         currentUserId = currentUid
-
-        // Force load from Firebase - call this when activity becomes visible
+        
+        // Always force reload from Firebase
         isLoadingFromFirebase = false
         loadActivityLogs()
     }
 
+    /**
+     * Add a new activity log entry
+     */
     fun addLog(type: LogType, description: String, userName: String? = null) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid == null) {
+            return // Can't log without user
+        }
+        
         // Create new log entry
         val newLog = ActivityLogItem(
             id = UUID.randomUUID().toString(),
@@ -191,6 +184,13 @@ class ActivityLogViewModel : ViewModel() {
         addLog(
             LogType.HIVE_SENSOR,
             "$hiveName - Cooling fan automatically activated"
+        )
+    }
+
+    fun logSubscription(planName: String, price: Double, paymentMethod: String) {
+        addLog(
+            LogType.SUBSCRIPTION,
+            "Subscribed to $planName - P${String.format("%.2f", price)} via $paymentMethod"
         )
     }
 

@@ -7,7 +7,7 @@
     <!-- Camera body -->
     <path
         android:pathData="M85,25 H72 L67,17 H33 L28,25 H15 C10.03,25 6,29.03 6,34 V75 C6,79.97 10.03,84 15,84 H85 C89.97,84 94,79.97 94,75 V34 C94,29.03 89.97,25 85,25 Z"
-        android:strokeColor="#FBF6F6"
+        android:strokeColor="#00000000"
         android:strokeWidth="4"
         android:fillColor="#00000000"
         android:strokeLineCap="round"

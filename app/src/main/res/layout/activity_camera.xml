@@ -28,6 +28,19 @@
         app:layout_constraintTop_toTopOf="parent"
         android:contentDescription="Back" />
 
+    <!-- Flash Button -->
+    <ImageButton
+        android:id="@+id/btnFlash"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_camera"
+        app:tint="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="Flash" />
+
     <!-- Controls Container -->
     <LinearLayout
         android:id="@+id/controlsContainer"

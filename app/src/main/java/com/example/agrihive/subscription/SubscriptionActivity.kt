@@ -12,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.R
 import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.log.LogType
+import com.example.agrihive.payment.PaymentCallback
+import com.example.agrihive.payment.PaymentRequest
+import com.example.agrihive.payment.PaymentServiceFactory
 
 class SubscriptionActivity : AppCompatActivity() {
 
@@ -74,23 +77,62 @@ class SubscriptionActivity : AppCompatActivity() {
         
         // Log the subscription activity
         val planName = viewModel.selectedPlan.value?.name ?: "Subscription"
+        val planPrice = viewModel.selectedPlan.value?.price ?: 0.0
         activityLogViewModel.addLog(LogType.SUBSCRIPTION, "Selected $planName - ${method.displayName}")
         
-        // Route to payment method
-        val paymentUrl = when (method) {
-            PaymentMethod.GCASH -> "https://www.gcash.com/"
-            PaymentMethod.PAYMAYA -> "https://www.paymaya.com/"
-            PaymentMethod.BDO -> "https://www.bdo.com.ph/"
-            PaymentMethod.PAYPAL -> "https://www.paypal.com/"
+        // Get the payment service for the selected payment method
+        val paymentService = PaymentServiceFactory.getPaymentService(method)
+        
+        // Check if the payment app is installed
+        if (!paymentService.isAppInstalled(this)) {
+            val message = PaymentServiceFactory.getAppNotInstalledMessage(method)
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            return
         }
         
+        // Create payment request
+        val orderId = "AGR-${System.currentTimeMillis()}"
+        val request = PaymentRequest(
+            amount = planPrice,
+            currency = "PHP",
+            description = "AgriHive Subscription - $planName",
+            orderId = orderId
+        )
+        
+        // Create payment callback
+        val callback = object : PaymentCallback {
+            override fun onPaymentSuccess(transactionId: String) {
+                runOnUiThread {
+                    Toast.makeText(this@SubscriptionActivity, "Payment Successful!", Toast.LENGTH_LONG).show()
+                    viewModel.setPaymentSuccess(true)
+                    
+                    // Log the subscription payment
+                    activityLogViewModel.addLog(
+                        LogType.SUBSCRIPTION,
+                        "Subscribed to $planName - P${String.format("%.2f", planPrice)} via $method"
+                    )
+                    finish()
+                }
+            }
+            
+            override fun onPaymentFailure(error: String) {
+                runOnUiThread {
+                    Toast.makeText(this@SubscriptionActivity, "Payment Failed: $error", Toast.LENGTH_LONG).show()
+                }
+            }
+            
+            override fun onPaymentCancelled() {
+                runOnUiThread {
+                    Toast.makeText(this@SubscriptionActivity, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        
+        // Initiate payment using the payment service
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(paymentUrl))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-            Toast.makeText(this, "Opening ${method.displayName}...", Toast.LENGTH_SHORT).show()
+            paymentService.initiatePayment(this, request, callback)
         } catch (e: Exception) {
-            Toast.makeText(this, "Unable to open ${method.displayName}. Please check if the app is installed.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Failed to initiate payment: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 

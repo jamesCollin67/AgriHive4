@@ -109,7 +109,6 @@
                     android:textSize="14sp"
                     android:textColor="#1A1A1A"
                     android:textColorHint="#AAAAAA"
-                    android:text="Greetings!\n\nHello! Our 2 apiary hive sensor is not working right now."
                     android:lineSpacingMultiplier="1.4" />
 
                 <!-- Camera Icon (bottom right) -->

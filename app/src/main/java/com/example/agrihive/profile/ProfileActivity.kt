@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.example.agrihive.R
 import com.example.agrihive.data.UserSessionManager
@@ -46,7 +45,6 @@ class ProfileActivity : AppCompatActivity() {
         sessionManager = UserSessionManager(this)
         loadLocalUserData()
 
-        setupSwipeRefresh()
         setupObservers()
         setupClickListeners()
         setupBottomNavigationHighlight()
@@ -69,19 +67,6 @@ class ProfileActivity : AppCompatActivity() {
             binding.tvEmail.text = if (email.isNotEmpty()) email else "Not set"
             binding.tvFarm.text = if (farm.isNotEmpty()) farm else "Not set"
             binding.tvLocation.text = if (location.isNotEmpty()) location else "Not set"
-        }
-    }
-
-    private fun setupSwipeRefresh() {
-        // Set up SwipeRefreshLayout with yellow color
-        binding.swipeRefresh.setColorSchemeResources(
-            android.R.color.holo_orange_light
-        )
-        binding.swipeRefresh.setProgressBackgroundColorSchemeColor(
-            resources.getColor(android.R.color.white, theme)
-        )
-        binding.swipeRefresh.setOnRefreshListener {
-            viewModel.refreshUserData()
         }
     }
 
@@ -123,7 +108,6 @@ class ProfileActivity : AppCompatActivity() {
         // Observe loading state
         viewModel.isLoading.observe(this) { isLoading ->
             binding.loadingContainer.visibility = if (isLoading) View.VISIBLE else View.GONE
-            binding.swipeRefresh.isRefreshing = isLoading
         }
 
         // Observe user info

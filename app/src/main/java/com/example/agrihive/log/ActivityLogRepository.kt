@@ -37,7 +37,9 @@ class ActivityLogRepository {
         get() = prefs
 
     /**
-     * Save an activity log entry to LOCAL storage
+     * Save an activity log entry to Firestore with user ID
+     * Each user's logs are stored separately under their own UID
+     * Optimized: Removed extra network call for username to speed up login
      */
     fun saveActivityLog(
         type: LogType,
@@ -51,68 +53,109 @@ class ActivityLogRepository {
             return
         }
 
-        // Get user name for the log
-        getUserName(uid) { userName ->
-            // Create new log item
-            val newLog = ActivityLogItem(
-                id = System.currentTimeMillis().toString(),
-                type = type,
-                title = title,
-                description = description,
-                timestamp = Date(),
-                userName = userName
-            )
+        // Create log data with user ID for proper isolation
+        // Use "User" as default to avoid extra Firestore read for speed
+        val logData = hashMapOf(
+            "uid" to uid,  // This ensures logs are user-specific
+            "type" to type.name,
+            "title" to title,
+            "description" to description,
+            "timestamp" to Date(),
+            "userName" to "User"
+        )
 
-            // Save to local storage
-            val currentLogs = getLocalLogs().toMutableList()
-            currentLogs.add(0, newLog) // Add at beginning (newest first)
-            saveLocalLogs(currentLogs, uid)
-
-            // Also try to save to Firestore (optional - not required for display)
-            val logData = hashMapOf(
-                "uid" to uid,
-                "type" to type.name,
-                "title" to title,
-                "description" to description,
-                "timestamp" to Date(),
-                "userName" to userName
-            )
-
-            firestore.collection("activity_logs")
-                .add(logData)
-                .addOnSuccessListener { onSuccess() }
-                .addOnFailureListener { exception ->
-                    // Still call success - local save worked
-                    onSuccess()
-                }
-        }
+        // Save to Firestore under user's personal collection for better isolation
+        firestore.collection("users")
+            .document(uid)
+            .collection("activity_logs")
+            .add(logData)
+            .addOnSuccessListener {
+                // Fire and forget - don't wait for global log
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
     }
 
     /**
      * Get all activity logs for the current user
-     * First checks local storage, then fetches from Firestore if needed
+     * Always fetches from Firestore to ensure latest data per user
      */
     fun getActivityLogs(
         onSuccess: (List<ActivityLogItem>) -> Unit,
         onFailure: (Exception) -> Unit = {}
     ) {
-        // First, try to get local logs
-        val localLogs = getLocalLogs()
-
-        if (localLogs.isNotEmpty()) {
-            // If we have local logs, return them immediately
-            onSuccess(localLogs)
-            return
-        }
-
-        // If no local logs, fetch from Firestore and save to local storage
         val uid = auth.currentUser?.uid
+        
         if (uid == null) {
             onSuccess(emptyList())
             return
         }
 
-        // Fetch from Firestore
+        // Always fetch from Firestore - user's personal collection for better isolation
+        firestore.collection("users")
+            .document(uid)
+            .collection("activity_logs")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { documents ->
+                val logs = mutableListOf<ActivityLogItem>()
+                for (document in documents) {
+                    val id = document.id
+                    val typeStr = document.getString("type") ?: "USER_ACCOUNT"
+                    val type = try {
+                        LogType.valueOf(typeStr)
+                    } catch (e: Exception) {
+                        LogType.USER_ACCOUNT
+                    }
+                    val title = document.getString("title") ?: ""
+                    val description = document.getString("description") ?: ""
+                    val timestamp = document.getTimestamp("timestamp")?.toDate() ?: Date()
+                    val userName = document.getString("userName")
+
+                    logs.add(
+                        ActivityLogItem(
+                            id = id,
+                            type = type,
+                            title = title,
+                            description = description,
+                            timestamp = timestamp,
+                            userName = userName
+                        )
+                    )
+                }
+                
+                // Also save to local cache for offline access
+                saveLocalLogs(logs, uid)
+                onSuccess(logs)
+            }
+            .addOnFailureListener { exception ->
+                // Try to get from local cache if Firestore fails
+                val localLogs = getLocalLogs(uid)
+                if (localLogs.isNotEmpty()) {
+                    onSuccess(localLogs)
+                } else {
+                    onFailure(exception)
+                }
+            }
+    }
+
+    /**
+     * Get activity logs from global collection (fallback)
+     * Only returns logs for the current user
+     */
+    fun getActivityLogsFromGlobal(
+        onSuccess: (List<ActivityLogItem>) -> Unit,
+        onFailure: (Exception) -> Unit = {}
+    ) {
+        val uid = auth.currentUser?.uid
+        
+        if (uid == null) {
+            onSuccess(emptyList())
+            return
+        }
+
         firestore.collection("activity_logs")
             .whereEqualTo("uid", uid)
             .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
@@ -143,8 +186,6 @@ class ActivityLogRepository {
                         )
                     )
                 }
-                // Save to local storage for future use
-                saveLocalLogs(logs, uid)
                 onSuccess(logs)
             }
             .addOnFailureListener { exception ->
@@ -153,7 +194,7 @@ class ActivityLogRepository {
     }
 
     /**
-     * Save logs to local SharedPreferences for persistence
+     * Save logs to local SharedPreferences for offline access
      */
     private fun saveLocalLogs(logs: List<ActivityLogItem>, uid: String) {
         val jsonArray = JSONArray()
@@ -177,19 +218,18 @@ class ActivityLogRepository {
 
     /**
      * Get logs from local SharedPreferences
+     * Only returns logs for the specified user
      */
-    private fun getLocalLogs(): List<ActivityLogItem> {
-        val logsJson = sharedPrefs?.getString("cached_logs", null) ?: return emptyList()
+    private fun getLocalLogs(uid: String): List<ActivityLogItem> {
         val savedUid = sharedPrefs?.getString("logs_uid", "") ?: ""
-        val currentUid = auth.currentUser?.uid
-
-        // If user is logged in, only return logs for current user
-        if (currentUid != null && savedUid != currentUid) {
-            // Different user - return empty (will load from Firebase)
+        
+        // Only return logs if they belong to the current user
+        if (savedUid != uid) {
             return emptyList()
         }
+        
+        val logsJson = sharedPrefs?.getString("cached_logs", null) ?: return emptyList()
 
-        // If no user is currently logged in, return saved logs
         return try {
             val jsonArray = JSONArray(logsJson)
             val logs = mutableListOf<ActivityLogItem>()
@@ -227,6 +267,7 @@ class ActivityLogRepository {
 
     /**
      * Clear locally cached logs (call on logout)
+     * This ensures no data leaks between users
      */
     fun clearLocalLogs() {
         sharedPrefs?.edit()?.apply {
@@ -237,19 +278,26 @@ class ActivityLogRepository {
     }
 
     /**
-     * Get user name from Firestore users collection
+     * Clear all logs for a specific user (from both local and Firestore)
      */
-    private fun getUserName(uid: String, onResult: (String) -> Unit) {
-        firestore.collection("users").document(uid)
+    fun clearUserLogs(uid: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit = {}) {
+        // Clear local cache
+        clearLocalLogs()
+        
+        // Clear from Firestore user's collection
+        firestore.collection("users")
+            .document(uid)
+            .collection("activity_logs")
             .get()
-            .addOnSuccessListener { document ->
-                val firstName = document.getString("firstName") ?: ""
-                val lastName = document.getString("lastName") ?: ""
-                val fullName = "$firstName $lastName".trim()
-                onResult(fullName.ifEmpty { "Unknown User" })
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    document.reference.delete()
+                }
+                onSuccess()
             }
-            .addOnFailureListener {
-                onResult("Unknown User")
+            .addOnFailureListener { exception ->
+                onFailure(exception)
             }
     }
+
 }

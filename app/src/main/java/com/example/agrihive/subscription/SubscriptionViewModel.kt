@@ -26,6 +26,10 @@ class SubscriptionViewModel : ViewModel() {
         _selectedPaymentMethod.value = method
     }
 
+    fun setPaymentSuccess(success: Boolean) {
+        _paymentSuccess.value = success
+    }
+
     fun processPayment() {
         val plan = _selectedPlan.value
         val paymentMethod = _selectedPaymentMethod.value
