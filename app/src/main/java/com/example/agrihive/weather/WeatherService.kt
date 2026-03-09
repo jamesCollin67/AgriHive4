@@ -29,10 +29,10 @@ data class WeatherData(
  */
 enum class RainfallWarning(val level: Int, val displayName: String, val message: String) {
     NONE(0, "No Warning", "No rainfall expected. Bees can forage normally."),
-    LOW(1, "Light Rain Expected", "Light rain may occur. Ensure hive entrances are clear."),
-    MODERATE(2, "Moderate Rain Warning", "Moderate rain expected. Consider providing supplemental feeding."),
-    HIGH(3, "Heavy Rain Alert", "Heavy rain expected! Prepare emergency feeding for your bees."),
-    SEVERE(4, "Severe Weather Alert", "Severe weather conditions! Take immediate action to protect your hives.")
+    LOW(1, "Light Rain Expected", "Light rain may occur. Ensure hive entrances are clear. Consider preparing white sugar water just in case."),
+    MODERATE(2, "Moderate Rain Warning", "Moderate rain expected. Prepare white sugar water (1:1 ratio) for your bees to prevent starvation!"),
+    HIGH(3, "Heavy Rain Alert", "Heavy rain expected! URGENT: Prepare white sugar water immediately and ensure hives are protected."),
+    SEVERE(4, "Severe Weather Alert", "Severe weather conditions! Take immediate action - prepare white sugar water and protect your hives!")
 }
 
 /**
@@ -303,17 +303,17 @@ class WeatherService {
         val baseAdvice = when (warning) {
             RainfallWarning.NONE -> "Weather conditions are ideal for bee activity. "
             RainfallWarning.LOW -> "Light rain may reduce foraging. "
-            RainfallWarning.MODERATE -> "Rain may prevent bees from foraging. "
-            RainfallWarning.HIGH -> "Heavy rain expected - bees will stay in hive. "
-            RainfallWarning.SEVERE -> "Severe weather conditions! "
+            RainfallWarning.MODERATE -> "Rain may prevent bees from foraging - they need feeding! "
+            RainfallWarning.HIGH -> "Heavy rain expected - bees will stay in hive and need food! "
+            RainfallWarning.SEVERE -> "Severe weather conditions - take action now! "
         }
         
         val feedingAdvice = when (warning) {
             RainfallWarning.NONE -> "No supplemental feeding needed."
-            RainfallWarning.LOW -> "Consider checking food stores."
-            RainfallWarning.MODERATE -> "Consider syrup or fondant."
-            RainfallWarning.HIGH -> "Provide emergency feeding immediately."
-            RainfallWarning.SEVERE -> "Take immediate action to protect hives and provide food."
+            RainfallWarning.LOW -> "Consider preparing white sugar water (1:1 ratio) just in case."
+            RainfallWarning.MODERATE -> "URGENT: Prepare white sugar water now! Mix 1 cup sugar with 1 cup water."
+            RainfallWarning.HIGH -> "URGENT: Prepare white sugar water immediately! Your bees will need it."
+            RainfallWarning.SEVERE -> "IMMEDIATE ACTION REQUIRED: Prepare white sugar water and protect hives!"
         }
         
         val temperatureAdvice = when {

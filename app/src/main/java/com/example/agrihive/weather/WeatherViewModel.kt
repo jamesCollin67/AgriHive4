@@ -1,5 +1,6 @@
 package com.example.agrihive.weather
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -31,10 +32,13 @@ class WeatherViewModel : ViewModel() {
     private val _beekeepingAdvice = MutableLiveData<String>()
     val beekeepingAdvice: LiveData<String> = _beekeepingAdvice
 
+    // Track previous warning to avoid duplicate notifications
+    private var previousWarning: RainfallWarning = RainfallWarning.NONE
+
     /**
      * Fetch current weather by coordinates
      */
-    fun fetchCurrentWeather(latitude: Double, longitude: Double) {
+    fun fetchCurrentWeather(latitude: Double, longitude: Double, context: Context? = null) {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
@@ -46,6 +50,15 @@ class WeatherViewModel : ViewModel() {
                 weather?.let {
                     _rainfallWarning.value = it.rainfallWarning
                     _beekeepingAdvice.value = weatherService.getBeekeepingAdvice(it)
+                    
+                    // Send notification if rain is expected and warning level increased
+                    context?.let { ctx ->
+                        if (it.rainfallWarning.level > RainfallWarning.NONE.level && 
+                            it.rainfallWarning.level > previousWarning.level) {
+                            RainAlertNotification.showRainNotification(ctx, it.rainfallWarning)
+                        }
+                        previousWarning = it.rainfallWarning
+                    }
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to fetch weather: ${e.message}"
@@ -59,7 +72,7 @@ class WeatherViewModel : ViewModel() {
     /**
      * Fetch current weather by city name
      */
-    fun fetchWeatherByCity(cityName: String) {
+    fun fetchWeatherByCity(cityName: String, context: Context? = null) {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
@@ -71,6 +84,13 @@ class WeatherViewModel : ViewModel() {
                 weather?.let {
                     _rainfallWarning.value = it.rainfallWarning
                     _beekeepingAdvice.value = weatherService.getBeekeepingAdvice(it)
+                    
+                    // Send notification if rain is expected
+                    context?.let { ctx ->
+                        if (it.rainfallWarning.level > RainfallWarning.NONE.level) {
+                            RainAlertNotification.showRainNotification(ctx, it.rainfallWarning)
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to fetch weather: ${e.message}"
@@ -82,15 +102,30 @@ class WeatherViewModel : ViewModel() {
     }
 
     /**
-     * Fetch weather forecast
+     * Fetch weather forecast and check for rain
      */
-    fun fetchForecast(latitude: Double, longitude: Double) {
+    fun fetchForecast(latitude: Double, longitude: Double, context: Context? = null) {
         viewModelScope.launch {
             _isLoading.value = true
             
             try {
                 val forecast = weatherService.getForecast(latitude, longitude)
                 _weatherForecast.value = forecast
+                
+                // Check forecast for rain and send notifications
+                context?.let { ctx ->
+                    for ((index, day) in forecast.withIndex()) {
+                        if (index == 0) continue // Skip today
+                        if (day.rainfallProbability >= 50) {
+                            RainAlertNotification.showRainForecastNotification(
+                                ctx, 
+                                day.rainfallProbability, 
+                                day.date
+                            )
+                            break // Only notify for first day with significant rain
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to fetch forecast: ${e.message}"
                 _weatherForecast.value = emptyList()

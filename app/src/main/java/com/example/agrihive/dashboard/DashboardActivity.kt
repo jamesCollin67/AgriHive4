@@ -27,6 +27,7 @@ import com.example.agrihive.hivestreams.SendReportActivity
 import com.example.agrihive.camera.CameraActivity
 import com.example.agrihive.utils.NetworkAlertDialog
 import com.example.agrihive.utils.NetworkUtils
+import com.example.agrihive.notification.NotificationActivity
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -71,6 +72,13 @@ class DashboardActivity : AppCompatActivity() {
                     swipeRefresh.isRefreshing = false
                 }
             }, 10000) // 10 second timeout
+        }
+
+        // Notification bell click listener
+        val notificationBell = findViewById<ImageView>(R.id.ivNotifications)
+        notificationBell.setOnClickListener {
+            val intent = Intent(this, NotificationActivity::class.java)
+            startActivity(intent)
         }
 
         // RecyclerView setup

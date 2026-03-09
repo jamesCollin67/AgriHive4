@@ -20,13 +20,20 @@ class MayaPaymentService : PaymentService {
     companion object {
         // Maya app package names (multiple options for different versions)
         val MAYA_PACKAGES = listOf(
-            "com.maya.Maya",
-            "com.paymaya.ui.android",
+            // Current Maya app
             "ph.com.maya",
+            // Legacy PayMaya names
+            "com.paymaya.ui.android",
+            "com.paymaya.login",
+            // Other known variations
+            "com.maya.Maya",
             "com.maya",
             "com.maya.wallet",
             "com.voyager.maya",
-            "com.maya.login"
+            "com.maya.login",
+            // Additional variations
+            "ph.com.maya.wallet",
+            "com.mayapay.wallet"
         )
         
         // Maya Deep Link scheme
@@ -46,8 +53,28 @@ class MayaPaymentService : PaymentService {
     }
 
     override fun isAppInstalled(context: Context): Boolean {
-        // Don't check for specific package - just try to open with implicit intent
-        // This is more reliable as Maya may have different package names
+        val packageManager = context.packageManager
+        
+        // Method 1: Check for known Maya package names
+        for (packageName in MAYA_PACKAGES) {
+            try {
+                packageManager.getPackageInfo(packageName, 0)
+                return true
+            } catch (e: PackageManager.NameNotFoundException) {
+                // Try next package
+            }
+        }
+        
+        // Method 2: Query all installed apps to find Maya
+        val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        for (appInfo in installedApps) {
+            val appName = appInfo.packageName.lowercase()
+            if (appName.contains("maya") || appName.contains("paymaya")) {
+                return true
+            }
+        }
+        
+        // Method 3: Try implicit intent as fallback
         return try {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("maya://pay")
@@ -66,6 +93,8 @@ class MayaPaymentService : PaymentService {
         // Try to find an installed Maya app
         var installedPackage: String? = null
         val packageManager = context.packageManager
+        
+        // Method 1: Check known package names
         for (packageName in MAYA_PACKAGES) {
             try {
                 packageManager.getPackageInfo(packageName, 0)
@@ -73,6 +102,18 @@ class MayaPaymentService : PaymentService {
                 break
             } catch (e: PackageManager.NameNotFoundException) {
                 // Try next package
+            }
+        }
+        
+        // Method 2: Query all installed apps if not found
+        if (installedPackage == null) {
+            val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+            for (appInfo in installedApps) {
+                val appName = appInfo.packageName.lowercase()
+                if (appName.contains("maya") || appName.contains("paymaya")) {
+                    installedPackage = appInfo.packageName
+                    break
+                }
             }
         }
 
