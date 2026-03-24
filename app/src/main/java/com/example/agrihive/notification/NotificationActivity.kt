@@ -1,5 +1,6 @@
 package com.example.agrihive.notification
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -9,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.agrihive.R
+import com.example.agrihive.dashboard.DashboardActivity
+import com.example.agrihive.settings.SettingsActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
  * Activity to display all app notifications
@@ -21,6 +25,7 @@ class NotificationActivity : AppCompatActivity() {
     private lateinit var emptyView: TextView
     private lateinit var backButton: ImageView
     private lateinit var clearAllButton: TextView
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +34,7 @@ class NotificationActivity : AppCompatActivity() {
         repository = NotificationRepository(this)
 
         initViews()
+        setupBottomNavigation()
         setupRecyclerView()
         loadNotifications()
     }
@@ -38,6 +44,7 @@ class NotificationActivity : AppCompatActivity() {
         emptyView = findViewById(R.id.empty_notifications_text)
         backButton = findViewById(R.id.back_button)
         clearAllButton = findViewById(R.id.clear_all_button)
+        bottomNavigationView = findViewById(R.id.bottom_navigation)
 
         backButton.setOnClickListener {
             finish()
@@ -47,6 +54,26 @@ class NotificationActivity : AppCompatActivity() {
             repository.clearAll()
             loadNotifications()
             Toast.makeText(this, "All notifications cleared", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupBottomNavigation() {
+        bottomNavigationView.selectedItemId = R.id.nav_alerts
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_apiaries -> {
+                    startActivity(Intent(this, DashboardActivity::class.java))
+                    finish()
+                    true
+                }
+                R.id.nav_alerts -> true
+                R.id.nav_settings -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                    finish()
+                    true
+                }
+                else -> false
+            }
         }
     }
 

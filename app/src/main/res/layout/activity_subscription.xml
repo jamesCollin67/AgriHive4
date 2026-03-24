@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F241F">
+
+    <!-- Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#FFFFFF" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="Choose a Plan"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_continue"
+        app:layout_constraintTop_toBottomOf="@id/header">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:text="Monitor your hives with real-time sensor data and AI insights."
+                android:textColor="#9CAF9F"
+                android:textSize="14sp" />
+
+            <!-- 1. STARTER PLAN -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                app:cardBackgroundColor="#1A3329"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2D4A3E"
+                app:strokeWidth="1.5dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="24dp">
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/icon1"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:cardBackgroundColor="#2D4A3E"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_logo_honeycomb" app:tint="#F4B400" />
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView android:id="@+id/t1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon1" android:fontFamily="sans-serif-black" android:text="Starter" android:textColor="#FFFFFF" android:textSize="20sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/t1" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon1" android:text="1-2 Apiaries" android:textColor="#9CAF9F" android:textSize="13sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:fontFamily="sans-serif-black" android:text="₱550" android:textColor="#F4B400" android:textSize="24sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_marginTop="28dp" android:text="/ 3 months" android:textColor="#6B8B6E" android:textSize="11sp" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/icon1" android:layout_marginTop="24dp" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawablePadding="12dp" android:text="Temperature monitoring" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Humidity monitoring" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Weight monitoring" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Harvest timing alerts" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
+                    </LinearLayout>
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:layout_alignParentBottom="true" android:layout_alignParentEnd="true" android:src="@drawable/bg_dot_inactive" app:tint="#F4B400" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2. PRO PLAN (MOST POPULAR) -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:cardBackgroundColor="#1A3329"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#66BB6A"
+                app:strokeWidth="2dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <!-- Badge -->
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:background="@drawable/bg_badge_popular" android:paddingHorizontal="14dp" android:paddingVertical="6dp" android:text="MOST POPULAR" android:textColor="#FFFFFF" android:textSize="10sp" android:textStyle="bold" />
+                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="24dp">
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/icon2"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            app:cardBackgroundColor="#2D4A3E"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp">
+                            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_star_outline" app:tint="#66BB6A" />
+                        </com.google.android.material.card.MaterialCardView>
+                        <TextView android:id="@+id/t2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon2" android:fontFamily="sans-serif-black" android:text="Pro" android:textColor="#FFFFFF" android:textSize="20sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/t2" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon2" android:text="3-5 Apiaries" android:textColor="#9CAF9F" android:textSize="13sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:fontFamily="sans-serif-black" android:text="₱750" android:textColor="#66BB6A" android:textSize="24sp" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_marginTop="28dp" android:text="/ 3 months" android:textColor="#6B8B6E" android:textSize="11sp" />
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/icon2" android:layout_marginTop="24dp" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawablePadding="12dp" android:text="All Starter features" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#66BB6A" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Multi-hive dashboard" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#66BB6A" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Advanced analytics" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#66BB6A" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Priority alerts" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#66BB6A" />
+                        </LinearLayout>
+                        <ImageView android:layout_width="28dp" android:layout_height="28dp" android:layout_alignParentBottom="true" android:layout_alignParentEnd="true" android:src="@drawable/bg_dot_active" app:tint="#66BB6A" />
+                    </RelativeLayout>
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 3. ENTERPRISE PLAN -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:cardBackgroundColor="#1A3329"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2D4A3E"
+                app:strokeWidth="1.5dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="24dp">
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/icon3"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:cardBackgroundColor="#2D4A3E"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_crown_outline" app:tint="#F4B400" />
+                    </com.google.android.material.card.MaterialCardView>
+                    <TextView android:id="@+id/t3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon3" android:fontFamily="sans-serif-black" android:text="Enterprise" android:textColor="#FFFFFF" android:textSize="20sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/t3" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon3" android:text="5+ Apiaries" android:textColor="#9CAF9F" android:textSize="13sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:fontFamily="sans-serif-black" android:text="₱999" android:textColor="#F4B400" android:textSize="24sp" />
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/icon3" android:layout_marginTop="24dp" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawablePadding="12dp" android:text="All Pro features" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Unlimited apiaries" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="AI disease detection" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Dedicated support" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
+                    </LinearLayout>
+                    <ImageView android:layout_width="28dp" android:layout_height="28dp" android:layout_alignParentBottom="true" android:layout_alignParentEnd="true" android:src="@drawable/bg_dot_inactive" app:tint="#F4B400" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <View android:layout_width="match_parent" android:layout_height="40dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom Action Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_continue"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_margin="20dp"
+        android:backgroundTint="#F4B400"
+        android:text="Continue with Pro — ₱750  →"
+        android:textAllCaps="false"
+        android:textColor="#0F241F"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="18dp"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,3 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ============================================ -->
+    <!-- AGRIHIVE - APP NAME -->
+    <!-- ============================================ -->
     <string name="app_name">AgriHive</string>
+    <string name="app_tagline">Smart Beehive Monitoring</string>
+    
+    <!-- ============================================ -->
+    <!-- ONBOARDING & AUTH -->
+    <!-- ============================================ -->
+    <string name="welcome_title">Welcome to AgriHive</string>
+    <string name="welcome_subtitle">Smart Beehive Monitoring & Management System</string>
+    <string name="get_started">Get Started</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_in_account">Sign in to your account</string>
+    <string name="create_account">Create your account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="send_reset_link">Send Password Reset Link</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="or_sign_with">or sign in with</string>
+    <string name="terms_agreement">I agree to the Terms & Privacy Policy</string>
+    
+    <!-- ============================================ -->
+    <!-- DASHBOARD -->
+    <!-- ============================================ -->
+    <string name="dashboard">Dashboard</string>
+    <string name="active_hives">Active Hives</string>
+    <string name="add_apiary">Add Apiary</string>
+    <string name="no_apiaries">No apiaries yet</string>
+    <string name="no_apiaries_message">Tap the + button to add your first apiary and start monitoring your beehives.</string>
+    <string name="hive_count">%d active hives</string>
+    <string name="hive_count_single">1 active hive</string>
+    <string name="last_update">Last update: %s</string>
+    <string name="swipe_to_refresh">Swipe down to refresh</string>
+    
+    <!-- ============================================ -->
+    <!-- SENSOR DATA -->
+    <!-- ============================================ -->
+    <string name="temperature">Temperature</string>
+    <string name="humidity">Humidity</string>
+    <string name="weight">Weight</string>
+    <string name="temperature_unit">%1$.1f°C</string>
+    <string name="humidity_unit">%1$d%%</string>
+    <string name="weight_unit">%1$.1f kg</string>
+    <string name="sensor_normal">Normal</string>
+    <string name="sensor_warning">Warning</string>
+    <string name="sensor_critical">Critical</string>
+    <string name="sensor_disconnected">Disconnected</string>
+    <string name="sensor_offline">Sensor Offline</string>
+    
+    <!-- ============================================ -->
+    <!-- ALERTS & WARNINGS -->
+    <!-- ============================================ -->
+    <string name="alert">Alert</string>
+    <string name="warning">Warning</string>
+    <string name="critical">Critical</string>
+    <string name="all_clear">All Clear</string>
+    <string name="temperature_high">High Temperature Alert</string>
+    <string name="temperature_high_message">Temperature has exceeded 36°C. Consider activating the cooling fan.</string>
+    <string name="temperature_low">Low Temperature Alert</string>
+    <string name="humidity_high">High Humidity Alert</string>
+    <string name="humidity_high_message">Humidity has exceeded 65%. This may cause honey to spoil.</string>
+    <string name="weight_reduction">Weight Reduction Alert</string>
+    <string name="weight_reduction_message">Significant weight loss detected. This may indicate swarming.</string>
+    <string name="harvest_ready">Harvest Ready</string>
+    <string name="harvest_ready_message">Your honey is ready for harvest!</string>
+    <string name="activate_fan">Activate Cooling Fan</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="view_details">View Details</string>
+    
+    <!-- ============================================ -->
+    <!-- APIARY -->
+    <!-- ============================================ -->
+    <string name="apiary">Apiary</string>
+    <string name="apiary_name">Apiary Name</string>
+    <string name="apiary_location">Location</string>
+    <string name="apiary_added">Apiary Added</string>
+    <string name="apiary_added_message">Your new apiary has been successfully added.</string>
+    <string name="edit_apiary">Edit Apiary</string>
+    <string name="delete_apiary">Delete Apiary</string>
+    <string name="delete_apiary_confirm">Are you sure you want to delete this apiary?</string>
+    <string name="devices">Devices</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    
+    <!-- ============================================ -->
+    <!-- HIVE STREAMS / DATA -->
+    <!-- ============================================ -->
+    <string name="hive_streams">Hive Data Streams</string>
+    <string name="live_data">Live Data</string>
+    <string name="historical_data">Historical Data</string>
+    <string name="hive_health">Hive Health Score</string>
+    <string name="status">Status</string>
+    <string name="healthy">Healthy</string>
+    <string name="needs_attention">Needs Attention</string>
+    <string name="honey_producing">Honey Producing</string>
+    <string name="honey_moisture">Honey Moisture</string>
+    <string name="ripe_honey">Ripe Honey</string>
+    <string name="expected_harvest">Expected Harvest</string>
+    
+    <!-- ============================================ -->
+    <!-- SUBSCRIPTION -->
+    <!-- ============================================ -->
+    <string name="subscription">Subscription</string>
+    <string name="subscription_plan">Subscription Plan</string>
+    <string name="select_plan">Select a Plan</string>
+    <string name="basic_plan">Basic Plan</string>
+    <string name="basic_plan_desc">1 Apiary, Basic sensors, Email support</string>
+    <string name="standard_plan">Standard Plan</string>
+    <string name="standard_plan_desc">3 Apiaries, Full sensors, Priority support</string>
+    <string name="premium_plan">Premium Plan</string>
+    <string name="premium_plan_desc">Unlimited apiaries, AI Scanner, 24/7 support</string>
+    <string name="price_per_month">₱%d/month</string>
+    <string name="current_plan">Current Plan</string>
+    <string name="renew_subscription">Renew Subscription</string>
+    <string name="upgrade_plan">Upgrade Plan</string>
+    <string name="cancel_subscription">Cancel Subscription</string>
+    <string name="subscription_expired">Subscription Expired</string>
+    <string name="subscription_expired_message">Your subscription has expired. Please renew to continue.</string>
+    
+    <!-- ============================================ -->
+    <!-- PAYMENT -->
+    <!-- ============================================ -->
+    <string name="payment_method">Payment Method</string>
+    <string name="select_payment">Select Payment Method</string>
+    <string name="payment_details">Payment Details</string>
+    <string name="gcash">GCash</string>
+    <string name="paymaya">PayMaya</string>
+    <string name="paypal">PayPal</string>
+    <string name="bdo_online">BDO Online Banking</string>
+    <string name="total">Total</string>
+    <string name="pay_now">Pay Now</string>
+    <string name="payment_successful">Payment Successful</string>
+    <string name="payment_successful_message">Your payment has been processed successfully.</string>
+    <string name="payment_failed">Payment Failed</string>
+    <string name="payment_failed_message">There was an error processing your payment. Please try again.</string>
+    <string name="processing">Processing...</string>
+    <string name="receipt">Receipt</string>
+    <string name="download_receipt">Download Receipt</string>
+    
+    <!-- ============================================ -->
+    <!-- AI DISEASE SCANNER -->
+    <!-- ============================================ -->
+    <string name="ai_scanner">AI Disease Scanner</string>
+    <string name="scan_hive">Scan Hive</string>
+    <string name="capture_image">Capture Image</string>
+    <string name="retake">Retake</string>
+    <string name="analyzing">Analyzing...</string>
+    <string name="processing_image">Processing Image</string>
+    <string name="diagnosis_result">Diagnosis Result</string>
+    <string name="disease_name">Disease Name</string>
+    <string name="symptoms">Symptoms</string>
+    <string name="treatment">Treatment</string>
+    <string name="treatment_recommendations">Treatment Recommendations</string>
+    <string name="save_treatment">Save Treatment</string>
+    <string name="saved_treatments">Saved Treatments</string>
+    <string name="treatment_saved">Treatment Saved</string>
+    <string name="rate_treatment">Rate This Treatment</string>
+    <string name="how_effective">How effective was this treatment?</string>
+    <string name="very_effective">Very Effective</string>
+    <string name="effective">Effective</string>
+    <string name="neutral">Neutral</string>
+    <string name="not_effective">Not Effective</string>
+    <string name="submit_rating">Submit Rating</string>
+    
+    <!-- ============================================ -->
+    <!-- REPORTING -->
+    <!-- ============================================ -->
+    <string name="report_issue">Report Issue</string>
+    <string name="send_report">Send Report</string>
+    <string name="capture_issue">Capture Issue</string>
+    <string name="describe_issue">Describe the issue...</string>
+    <string name="confirm_report">Confirm Report</string>
+    <string name="report_sent">Report Sent</string>
+    <string name="report_sent_message">Your report has been submitted. We will review it shortly.</string>
+    <string name="report_details">Report Details</string>
+    <string name="submit">Submit</string>
+    
+    <!-- ============================================ -->
+    <!-- NOTIFICATIONS -->
+    <!-- ============================================ -->
+    <string name="notifications">Notifications</string>
+    <string name="no_notifications">No Notifications</string>
+    <string name="no_notifications_message">You\'re all caught up! No new notifications.</string>
+    <string name="mark_all_read">Mark All as Read</string>
+    <string name="clear_all">Clear All</string>
+    <string name="notification_today">Today</string>
+    <string name="notification_yesterday">Yesterday</string>
+    <string name="notification_earlier">Earlier</string>
+    
+    <!-- ============================================ -->
+    <!-- PROFILE -->
+    <!-- ============================================ -->
+    <string name="profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="email_address">Email Address</string>
+    <string name="apiary_owned">Apiary Owned</string>
+    <string name="farm">Farm</string>
+    <string name="location">Location</string>
+    <string name="phone">Phone</string>
+    <string name="bio">Bio</string>
+    <string name="change_photo">Change Photo</string>
+    <string name="profile_updated">Profile Updated</string>
+    <string name="profile_updated_message">Your profile has been updated successfully.</string>
+    
+    <!-- ============================================ -->
+    <!-- SETTINGS -->
+    <!-- ============================================ -->
+    <string name="settings">Settings</string>
+    <string name="notifications_settings">Notifications</string>
+    <string name="device_controls">Device Controls</string>
+    <string name="cloud_sync">Cloud Sync</string>
+    <string name="activity_log">Activity Log</string>
+    <string name="change_password">Change Password</string>
+    <string name="logout">Logout</string>
+    <string name="logout_confirm">Logout Confirmation</string>
+    <string name="logout_confirm_message">Are you sure you want to logout?</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="language">Language</string>
+    <string name="about">About</string>
+    <string name="help_support">Help & Support</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="version">Version %s</string>
+    
+    <!-- ============================================ -->
+    <!-- DEVICE CONTROL -->
+    <!-- ============================================ -->
+    <string name="cooling_fan">Cooling Fan</string>
+    <string name="fan_activated">Fan Activated</string>
+    <string name="fan_activated_message">Cooling fan has been activated for 20 seconds.</string>
+    <string name="activate">Activate</string>
+    <string name="deactivate">Deactivate</string>
+    <string name="turn_on">Turn On</string>
+    <string name="turn_off">Turn Off</string>
+    <string name="auto_mode">Auto Mode</string>
+    <string name="manual_mode">Manual Mode</string>
+    
+    <!-- ============================================ -->
+    <!-- ERRORS -->
+    <!-- ============================================ -->
+    <string name="error">Error</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="try_again">Try Again</string>
+    <string name="no_internet">No Internet Connection</string>
+    <string name="no_internet_message">Please check your internet connection and try again.</string>
+    <string name="connection_timeout">Connection Timeout</string>
+    <string name="server_error">Server Error</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="close">Close</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    
+    <!-- ============================================ -->
+    <!-- LOADING & EMPTY STATES -->
+    <!-- ============================================ -->
+    <string name="loading">Loading...</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="fetching_data">Fetching data...</string>
+    <string name="no_data">No Data</string>
+    <string name="no_data_message">There\'s no data available to display.</string>
+    <string name="pull_to_refresh">Pull to refresh</string>
+    
+    <!-- ============================================ -->
+    <!-- VALIDATION MESSAGES -->
+    <!-- ============================================ -->
+    <string name="field_required">This field is required</string>
+    <string name="invalid_email">Invalid email address</string>
+    <string name="password_short">Password must be at least 8 characters</string>
+    <string name="password_mismatch">Passwords do not match</string>
+    <string name="terms_required">Please accept the terms and conditions</string>
+    
+    <!-- ============================================ -->
+    <!-- NAVIGATION -->
+    <!-- ============================================ -->
+    <string name="nav_dashboard">Home</string>
+    <string name="nav_scanner">Scanner</string>
+    <string name="nav_notifications">Alerts</string>
+    <string name="nav_profile">Profile</string>
 </resources>

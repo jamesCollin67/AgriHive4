@@ -1,0 +1,823 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F241F">
+
+    <!-- Header Toolbar -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#FFFFFF" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_apiary_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-black"
+                android:text="Hfugg"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/view_live_status"
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:background="@drawable/bg_green_circle" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="Live"
+                    android:textColor="#9CAF9F"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btn_camera"
+            android:layout_width="44dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="16dp"
+            app:cardBackgroundColor="#1AFFFFFF"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="#F4B400"
+            app:strokeWidth="1dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_camera"
+                app:tint="#F4B400" />
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Tab Selection -->
+    <LinearLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_login_input"
+        android:backgroundTint="#1A3329"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_live_readings"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Live Readings"
+            android:textAllCaps="false"
+            android:textColor="#F4B400"
+            android:textSize="14sp"
+            app:backgroundTint="#1AFFFFFF"
+            app:cornerRadius="12dp"
+            app:elevation="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_analytics"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Weight Analytics"
+            android:textAllCaps="false"
+            android:textColor="#9CAF9F"
+            android:textSize="14sp"
+            app:backgroundTint="@android:color/transparent"
+            app:cornerRadius="12dp"
+            app:elevation="0dp" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/content_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tab_layout">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Live Readings Layout -->
+            <LinearLayout
+                android:id="@+id/layout_live_readings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="visible">
+
+                <!-- Sensor Grid -->
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:rowCount="2">
+
+                    <!-- Temp -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_temp"
+                        android:layout_width="0dp"
+                        android:layout_height="140dp"
+                        android:layout_rowWeight="1"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="6dp"
+                        app:cardBackgroundColor="#1A3329"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="#2D4A3E"
+                        app:strokeWidth="1dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_temperature"
+                                app:tint="#66BB6A"
+                                android:alpha="0.4"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:orientation="horizontal"
+                                android:gravity="bottom">
+                                <TextView
+                                    android:id="@+id/tv_temp_value"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="33.9"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="28sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="4dp"
+                                    android:text="°C"
+                                    android:textColor="#9CAF9F"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Temperature"
+                                android:textColor="#9CAF9F"
+                                android:textSize="12sp" />
+                            <TextView
+                                android:id="@+id/tv_temp_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Normal"
+                                android:textColor="#66BB6A"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Humidity -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_humidity"
+                        android:layout_width="0dp"
+                        android:layout_height="140dp"
+                        android:layout_rowWeight="1"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="6dp"
+                        app:cardBackgroundColor="#1A3329"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="#2D4A3E"
+                        app:strokeWidth="1dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_humidity_droplet"
+                                app:tint="#66BB6A"
+                                android:alpha="0.4"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:orientation="horizontal"
+                                android:gravity="bottom">
+                                <TextView
+                                    android:id="@+id/tv_humidity_value"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="62.2"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="28sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="4dp"
+                                    android:text="%"
+                                    android:textColor="#9CAF9F"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Humidity"
+                                android:textColor="#9CAF9F"
+                                android:textSize="12sp" />
+                            <TextView
+                                android:id="@+id/tv_humidity_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Normal"
+                                android:textColor="#66BB6A"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Honey Moisture -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_moisture"
+                        android:layout_width="0dp"
+                        android:layout_height="140dp"
+                        android:layout_rowWeight="1"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="6dp"
+                        app:cardBackgroundColor="#1A3329"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="#3E3400"
+                        app:strokeWidth="1dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_ai"
+                                app:tint="#F4B400"
+                                android:alpha="0.4"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:orientation="horizontal"
+                                android:gravity="bottom">
+                                <TextView
+                                    android:id="@+id/tv_moisture_value"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="21.9"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="28sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="4dp"
+                                    android:text="%"
+                                    android:textColor="#9CAF9F"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Honey Moisture"
+                                android:textColor="#9CAF9F"
+                                android:textSize="12sp" />
+                            <TextView
+                                android:id="@+id/tv_moisture_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:background="@drawable/bg_login_input"
+                                android:backgroundTint="#26F4B400"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="2dp"
+                                android:text="Warning"
+                                android:textColor="#F4B400"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Weight -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_weight"
+                        android:layout_width="0dp"
+                        android:layout_height="140dp"
+                        android:layout_rowWeight="1"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="6dp"
+                        app:cardBackgroundColor="#1A3329"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="#2D4A3E"
+                        app:strokeWidth="1dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical"
+                            android:padding="16dp">
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_weight_box"
+                                app:tint="#66BB6A"
+                                android:alpha="0.4"/>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:orientation="horizontal"
+                                android:gravity="bottom">
+                                <TextView
+                                    android:id="@+id/tv_weight_value"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="28.9"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="28sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginBottom="4dp"
+                                    android:text="kg"
+                                    android:textColor="#9CAF9F"
+                                    android:textSize="14sp" />
+                            </LinearLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Hive Weight"
+                                android:textColor="#9CAF9F"
+                                android:textSize="12sp" />
+                            <TextView
+                                android:id="@+id/tv_weight_status"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Normal"
+                                android:textColor="#66BB6A"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </GridLayout>
+
+                <!-- Hive Info Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_hive_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="6dp"
+                    android:layout_marginTop="12dp"
+                    app:cardBackgroundColor="#1A3329"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#2D4A3E"
+                    app:strokeWidth="1dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-black"
+                            android:text="Hive Info"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp" />
+                        <TextView
+                            android:id="@+id/tv_location_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:drawableStart="@drawable/ic_location"
+                            android:drawablePadding="12dp"
+                            android:drawableTint="#6B8B6E"
+                            android:text="Ycchc"
+                            android:textColor="#9CAF9F"
+                            android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/tv_node_id_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:drawableStart="@drawable/ic_settings"
+                            android:drawablePadding="12dp"
+                            android:drawableTint="#6B8B6E"
+                            android:text="Node ID: Hcc"
+                            android:textColor="#9CAF9F"
+                            android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/tv_last_updated_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:drawableStart="@drawable/ic_clock"
+                            android:drawablePadding="12dp"
+                            android:drawableTint="#6B8B6E"
+                            android:text="Last updated: 23:09:40"
+                            android:textColor="#9CAF9F"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Weight Analytics Layout -->
+            <LinearLayout
+                android:id="@+id/layout_weight_analytics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <!-- Weight Trend Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="6dp"
+                    app:cardBackgroundColor="#1A3329"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#2D4A3E"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_trending_up"
+                                app:tint="#F4B400" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:fontFamily="sans-serif-black"
+                                android:text="Weight Trend"
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+
+                        <!-- Graph Placeholder -->
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp"
+                            android:layout_marginTop="16dp">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_gravity="bottom"
+                                android:background="#2D4A3E" />
+
+                            <!-- Simplified line representation -->
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="fitXY"
+                                android:alpha="0.6"
+                                android:src="@drawable/bg_honey_gradient" />
+                        </FrameLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+                            <TextView
+                                android:id="@+id/tv_min_weight"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="15.1kg"
+                                android:textColor="#9CAF9F"
+                                android:textSize="12sp" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Last 14 days"
+                                android:textColor="#9CAF9F"
+                                android:textSize="12sp" />
+                            <TextView
+                                android:id="@+id/tv_max_weight"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:text="17.9kg"
+                                android:textColor="#9CAF9F"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="16dp"
+                            android:background="#2D4A3E" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/tv_analytics_current_weight"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="17.8kg"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="18sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Current Weight"
+                                    android:textColor="#9CAF9F"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/tv_trend_status"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="Growing"
+                                    android:textColor="#66BB6A"
+                                    android:textSize="18sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Trend Status"
+                                    android:textColor="#9CAF9F"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/tv_harvest_status"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif-black"
+                                    android:text="Wait"
+                                    android:textColor="#FFFFFF"
+                                    android:textSize="18sp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Harvest Status"
+                                    android:textColor="#9CAF9F"
+                                    android:textSize="11sp" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- 30-Day Summary Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="6dp"
+                    android:layout_marginTop="12dp"
+                    app:cardBackgroundColor="#1A3329"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="#2D4A3E"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_summary"
+                                app:tint="#66BB6A" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:fontFamily="sans-serif-black"
+                                android:text="30-Day Summary"
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:orientation="horizontal">
+
+                            <!-- Total Gain -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="4dp"
+                                android:layout_weight="1"
+                                app:cardBackgroundColor="#1AFFFFFF"
+                                app:cardCornerRadius="12dp"
+                                app:cardElevation="0dp">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="12dp">
+                                    <TextView
+                                        android:id="@+id/tv_total_gain"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="sans-serif-black"
+                                        android:text="+2.7kg"
+                                        android:textColor="#66BB6A"
+                                        android:textSize="16sp" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Total Gain"
+                                        android:textColor="#9CAF9F"
+                                        android:textSize="10sp" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Avg Gain -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="4dp"
+                                android:layout_weight="1"
+                                app:cardBackgroundColor="#1AFFFFFF"
+                                app:cardCornerRadius="12dp"
+                                app:cardElevation="0dp">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="12dp">
+                                    <TextView
+                                        android:id="@+id/tv_avg_gain"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="sans-serif-black"
+                                        android:text="0.09kg/day"
+                                        android:textColor="#66BB6A"
+                                        android:textSize="14sp" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Avg Daily Gain"
+                                        android:textColor="#9CAF9F"
+                                        android:textSize="10sp" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                            <!-- Peak Weight -->
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="4dp"
+                                android:layout_weight="1"
+                                app:cardBackgroundColor="#1AFFFFFF"
+                                app:cardCornerRadius="12dp"
+                                app:cardElevation="0dp">
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="12dp">
+                                    <TextView
+                                        android:id="@+id/tv_peak_weight"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:fontFamily="sans-serif-black"
+                                        android:text="17.9kg"
+                                        android:textColor="#66BB6A"
+                                        android:textSize="16sp" />
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Peak Weight"
+                                        android:textColor="#9CAF9F"
+                                        android:textSize="10sp" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </FrameLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

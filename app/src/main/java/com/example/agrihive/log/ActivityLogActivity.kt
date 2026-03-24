@@ -1,59 +1,45 @@
 package com.example.agrihive.log
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.agrihive.R
+import com.example.agrihive.dashboard.DashboardActivity
+import com.example.agrihive.databinding.ActivityActivityLogBinding
 
+/**
+ * Activity Log Page — Timestamped chronological feed of user and automated actions.
+ */
 class ActivityLogActivity : AppCompatActivity() {
 
-    private val viewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
+    private lateinit var binding: ActivityActivityLogBinding
+    private lateinit var viewModel: ActivityLogViewModel
     private lateinit var adapter: ActivityLogAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_log)
+        binding = ActivityActivityLogBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Initialize repository with app context for local storage
-        ActivityLogRepository.init(applicationContext)
+        viewModel = ViewModelProvider(this)[ActivityLogViewModel::class.java]
+        adapter = ActivityLogAdapter()
+        
+        binding.rvActivityLog.layoutManager = LinearLayoutManager(this)
+        binding.rvActivityLog.adapter = adapter
 
-        setupViews()
-        observeViewModel()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        // Load fresh data when activity opens - this ensures each user sees only their own activity
-        viewModel.loadFromFirebase()
-    }
-
-    private fun setupViews() {
-        // Back button
-        findViewById<View>(R.id.btnBack).setOnClickListener {
+        binding.btnBack.setOnClickListener {
+            startActivity(Intent(this, DashboardActivity::class.java))
             finish()
         }
 
-        // RecyclerView setup
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerActivityLog)
-        adapter = ActivityLogAdapter()
-
-        recyclerView.apply {
-            this.adapter = this@ActivityLogActivity.adapter
-            layoutManager = LinearLayoutManager(this@ActivityLogActivity)
-        }
-    }
-
-    private fun observeViewModel() {
         viewModel.activityLogs.observe(this) { logs ->
             adapter.submitList(logs)
-            // Show/hide empty state
-            findViewById<View>(R.id.tvEmpty)?.visibility = if (logs.isEmpty()) View.VISIBLE else View.GONE
+            // Note: The static UI has hardcoded entries. In a production app, 
+            // the RecyclerView would replace those or be used instead.
         }
-        
-        viewModel.isLoading.observe(this) { isLoading ->
-            findViewById<View>(R.id.progressBar)?.visibility = if (isLoading && adapter.itemCount == 0) View.VISIBLE else View.GONE
-        }
+
+        viewModel.loadFromFirebase()
     }
 }

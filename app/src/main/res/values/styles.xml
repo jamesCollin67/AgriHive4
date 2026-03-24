@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Login dark theme input -->
+    <style name="Widget.AgriHive.LoginInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/login_input_bg</item>
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxStrokeColor">@color/login_input_border</item>
+        <item name="boxCornerRadiusTopStart">14dp</item>
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="hintTextColor">@color/login_text_hint</item>
+    </style>
     <style name="SettingsRowStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">72dp</item>

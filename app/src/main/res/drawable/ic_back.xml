@@ -12,7 +12,7 @@
             L10 8
             M6 12
             L10 16"
-        android:strokeColor="#000000"
+        android:strokeColor="#FFFFFF"
         android:strokeWidth="1.5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"

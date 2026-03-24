@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_apiaries"
+        android:icon="@drawable/ic_logo_honeycomb"
+        android:title="Apiaries" />
+    
+    <item
+        android:id="@+id/nav_alerts"
+        android:icon="@drawable/ic_bell"
+        android:title="Alerts" />
+    
+    <item
+        android:id="@+id/nav_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Settings" />
+</menu>

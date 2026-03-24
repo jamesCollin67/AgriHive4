@@ -1,65 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="#0A1815"
+    tools:context=".notification.NotificationActivity">
 
-    <!-- Header -->
-    <RelativeLayout
-        android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@color/yellow_primary"
-        android:paddingHorizontal="16dp">
-
-        <ImageView
-            android:id="@+id/back_button"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_back"
-            android:contentDescription="Back"
-            android:tint="@color/white" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Notifications"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/clear_all_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:text="Clear All"
-            android:textColor="@color/white"
-            android:textSize="14sp" />
-
-    </RelativeLayout>
-
-    <!-- Notifications List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/notifications_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/header"
-        android:clipToPadding="false"
-        android:paddingBottom="16dp" />
-
-    <!-- Empty State -->
+    <!-- Top Area -->
     <TextView
-        android:id="@+id/empty_notifications_text"
+        android:id="@+id/tvAlertsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="No notifications yet"
-        android:textColor="@color/gray_text"
-        android:textSize="16sp"
-        android:visibility="gone" />
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:text="Alerts"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/tvUnreadCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="1 unread"
+        android:textColor="#9CAF9F"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@id/tvAlertsTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvAlertsTitle" />
+
+    <!-- Notification Bell Icon with Badge -->
+    <FrameLayout
+        android:id="@+id/flBell"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@id/tvUnreadCount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvAlertsTitle">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_notifications"
+            app:tint="#F4B400" />
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_gravity="end|top"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:background="@drawable/bg_red_circle" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|top"
+            android:text="1"
+            android:textColor="#FFFFFF"
+            android:textSize="8sp"
+            android:textStyle="bold"
+            android:layout_marginTop="1dp"
+            android:layout_marginEnd="4.5dp"/>
+    </FrameLayout>
+
+    <!-- Scrollable List -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintTop_toBottomOf="@id/tvUnreadCount">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp">
+
+            <!-- Item 1: Ucuci - Temp Alert -->
+            <include layout="@layout/item_notification_v2" />
+
+            <!-- Item 2: Ucuci - Weight Alert -->
+            <include layout="@layout/item_notification_v2" />
+
+            <!-- Item 3: Ffufu - Temp Alert -->
+            <include layout="@layout/item_notification_v2" />
+
+            <!-- Item 4: Ffufu - Weight Alert -->
+            <include layout="@layout/item_notification_v2" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Navigation Bar -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="#0F241F"
+        app:elevation="0dp"
+        app:itemActiveIndicatorStyle="@null"
+        app:itemIconSize="28dp"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemRippleColor="@android:color/transparent"
+        app:itemTextColor="@color/nav_item_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

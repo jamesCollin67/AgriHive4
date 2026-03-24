@@ -1,73 +1,78 @@
 package com.example.agrihive.forgot
 
+import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 
+/**
+ * ViewModel for Forgot Password functionality
+ * MVVM Architecture - handles password reset link request via Firebase Auth
+ */
 class ForgotPasswordViewModel : ViewModel() {
 
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    // LiveData for status messages
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?> = _errorMessage
-
-    private val _successMessage = MutableLiveData<String?>()
-    val successMessage: LiveData<String?> = _successMessage
-
-    // Navigation LiveData
-    private val _navigateToLogin = MutableLiveData<Boolean>()
-    val navigateToLogin: LiveData<Boolean> = _navigateToLogin
-
-    // Loading state
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    // Send password reset link using Firebase Auth
-    fun sendVerificationCode(email: String) {
+    private val _resetSuccess = MutableLiveData<Boolean>()
+    val resetSuccess: LiveData<Boolean> = _resetSuccess
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    /**
+     * Sends a password reset link to the user's email
+     * @param email User's email address
+     */
+    fun sendResetLink(email: String) {
+        // Validate email
         if (email.isBlank()) {
-            _errorMessage.value = "Email cannot be empty."
+            _errorMessage.value = "Please enter your email address"
             return
         }
 
-        // Simple email validation
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _errorMessage.value = "Please enter a valid email."
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _errorMessage.value = "Please enter a valid email address"
             return
         }
 
-        // Show loading
         _isLoading.value = true
 
         // Send password reset email via Firebase
-        firebaseAuth.sendPasswordResetEmail(email)
+        auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
                 _isLoading.value = false
                 if (task.isSuccessful) {
-                    // Firebase sends the password reset email automatically
-                    _successMessage.value = "Password reset link sent to $email. Please check your email inbox (and spam folder)."
+                    _resetSuccess.value = true
                 } else {
-                    // Handle error - could be invalid email, user not found, etc.
-                    val errorMsg = task.exception?.message ?: "Failed to send password reset email. Please try again."
+                    // Handle specific Firebase auth errors
+                    val errorMsg = when (task.exception?.message) {
+                        null -> "Failed to send reset link"
+                        else -> task.exception?.message
+                    }
                     _errorMessage.value = errorMsg
                 }
             }
+            .addOnFailureListener { exception ->
+                _isLoading.value = false
+                _errorMessage.value = exception.message ?: "An error occurred"
+            }
     }
 
-    fun doneError() {
+    /**
+     * Clears the error message
+     */
+    fun clearError() {
         _errorMessage.value = null
     }
 
-    fun doneSuccess() {
-        _successMessage.value = null
-    }
-
-    fun navigateBackToLogin() {
-        _navigateToLogin.value = true
-    }
-
-    fun doneNavigating() {
-        _navigateToLogin.value = false
+    /**
+     * Resets the success state
+     */
+    fun resetSuccessState() {
+        _resetSuccess.value = false
     }
 }

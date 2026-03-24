@@ -1,223 +1,246 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/swipeRefresh"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#0F241F">
 
+    <!-- Custom Toolbar -->
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="24dp">
+        android:layout_height="64dp"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/backBtn"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:contentDescription="Back"
-        android:src="@drawable/ic_back"
-        app:layout_constraintBottom_toBottomOf="@id/titleHeader"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/titleHeader"
-        app:tint="#000000" />
+        <ImageView
+            android:id="@+id/btn_close"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#FFFFFF" />
 
-    <TextView
-        android:id="@+id/titleHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Your Apiary"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="Add Apiary"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:id="@+id/labelName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Name"
-        android:textStyle="bold"
-        android:textColor="#333333"
-        app:layout_constraintTop_toBottomOf="@id/titleHeader"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/inputName"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/edit_text_outline"
-        android:paddingStart="16dp"
-        android:text="Apiary 1"
-        android:textColor="#333333"
-        app:layout_constraintTop_toBottomOf="@id/labelName" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/mainSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:checked="true"
-        app:thumbTint="#FFFFFF"
-        app:trackTint="#4CAF50"
-        app:layout_constraintTop_toBottomOf="@id/inputName"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="24dp"
+            android:paddingBottom="40dp">
 
-    <TextView
-        android:id="@+id/labelTemp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Temperature"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/inputTemp"
-        app:layout_constraintTop_toTopOf="@id/inputTemp"
-        app:layout_constraintStart_toStartOf="parent" />
+            <!-- Circular Header Icon -->
+            <FrameLayout
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_circle"
+                android:backgroundTint="#0AFFFFFF">
 
-    <EditText
-        android:id="@+id/inputTemp"
-        android:layout_width="160dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/edit_text_outline"
-        android:gravity="center"
-        android:text="32°C – 36°C"
-        app:layout_constraintTop_toBottomOf="@id/mainSwitch"
-        app:layout_constraintEnd_toEndOf="parent" />
+                <ImageView
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_logo_honeycomb"
+                    app:tint="#F4B400" />
+            </FrameLayout>
 
-    <TextView
-        android:id="@+id/labelHum"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Humidity"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/inputHum"
-        app:layout_constraintTop_toTopOf="@id/inputHum"
-        app:layout_constraintStart_toStartOf="parent" />
+            <!-- Apiary Name -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Apiary Name"
+                android:textColor="#9CAF9F"
+                android:textSize="14sp" />
 
-    <EditText
-        android:id="@+id/inputHum"
-        android:layout_width="160dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/edit_text_outline"
-        android:gravity="center"
-        android:text="50% - 65%"
-        app:layout_constraintTop_toBottomOf="@id/inputTemp"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_login_input"
+                android:backgroundTint="#1A3329"
+                android:paddingHorizontal="16dp">
 
-    <TextView
-        android:id="@+id/labelWeight"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Estimated Weight"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/inputWeight"
-        app:layout_constraintTop_toTopOf="@id/inputWeight"
-        app:layout_constraintStart_toStartOf="parent" />
+                <ImageView
+                    android:id="@+id/ic_name"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_saved"
+                    app:tint="#6B8B6E" />
 
-    <EditText
-        android:id="@+id/inputWeight"
-        android:layout_width="160dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/edit_text_outline"
-        android:gravity="center"
-        android:text="35kg - 45kg"
-        app:layout_constraintTop_toBottomOf="@id/inputHum"
-        app:layout_constraintEnd_toEndOf="parent" />
+                <EditText
+                    android:id="@+id/et_apiary_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="12dp"
+                    android:layout_toEndOf="@id/ic_name"
+                    android:background="@android:color/transparent"
+                    android:fontFamily="sans-serif"
+                    android:hint="e.g. Mountain Hive A"
+                    android:inputType="textCapWords"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#6B8B6E"
+                    android:textSize="16sp" />
+            </RelativeLayout>
 
-    <TextView
-        android:id="@+id/labelDevices"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Devices"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/inputWeight"
-        app:layout_constraintStart_toStartOf="parent" />
+            <!-- Location -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Location"
+                android:textColor="#9CAF9F"
+                android:textSize="14sp" />
 
-    <View
-        android:id="@+id/div1"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
-        android:background="#EEEEEE"
-        app:layout_constraintTop_toBottomOf="@id/labelDevices" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_login_input"
+                android:backgroundTint="#1A3329"
+                android:paddingHorizontal="16dp">
 
-    <TextView
-        android:id="@+id/dev1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="SHT40"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/div1"
-        app:layout_constraintStart_toStartOf="parent" />
+                <ImageView
+                    android:id="@+id/ic_location"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_location_filled"
+                    app:tint="#6B8B6E" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="Disconnected"
-        android:textColor="#828282"
-        app:layout_constraintTop_toBottomOf="@id/div1"
-        app:layout_constraintEnd_toEndOf="parent" />
+                <EditText
+                    android:id="@+id/et_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="12dp"
+                    android:layout_toEndOf="@id/ic_location"
+                    android:background="@android:color/transparent"
+                    android:fontFamily="sans-serif"
+                    android:hint="e.g. Bukidnon, Philippines"
+                    android:inputType="textPostalAddress"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#6B8B6E"
+                    android:textSize="16sp" />
+            </RelativeLayout>
 
-    <View
-        android:id="@+id/div2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#EEEEEE"
-        app:layout_constraintTop_toBottomOf="@id/dev1" />
+            <!-- ESP32 Node ID -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="ESP32 Node ID"
+                android:textColor="#9CAF9F"
+                android:textSize="14sp" />
 
-    <TextView
-        android:id="@+id/dev2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="HX711"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/div2"
-        app:layout_constraintStart_toStartOf="parent" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_login_input"
+                android:backgroundTint="#1A3329"
+                android:paddingHorizontal="16dp">
 
-    <TextView
-        android:id="@+id/statusHx711"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:text="Disconnected"
-        android:textColor="#828282"
-        app:layout_constraintTop_toBottomOf="@id/div2"
-        app:layout_constraintEnd_toEndOf="parent" />
+                <ImageView
+                    android:id="@+id/ic_node"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_settings"
+                    app:tint="#6B8B6E" />
 
+                <EditText
+                    android:id="@+id/et_node_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="12dp"
+                    android:layout_toEndOf="@id/ic_node"
+                    android:background="@android:color/transparent"
+                    android:fontFamily="sans-serif"
+                    android:hint="e.g. NODE-001"
+                    android:inputType="textCapCharacters"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#6B8B6E"
+                    android:textSize="16sp" />
+            </RelativeLayout>
 
-    <android.widget.Button
-        android:id="@+id/btnCancel"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/button_cancel"
-        android:text="CANCEL"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent" />
+            <!-- Info Box -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="#1A3329"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2D4A3E"
+                app:strokeWidth="1dp">
 
-    <android.widget.Button
-        android:id="@+id/btnAdd"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/button_add"
-        android:text="ADD"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/btnCancel" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginTop="2dp"
+                        android:src="@drawable/ic_alert"
+                        app:tint="#F4B400" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:fontFamily="sans-serif"
+                        android:lineSpacingExtra="4dp"
+                        android:text="The ESP32 Node ID links this apiary to your physical sensor device. You can find it on your device label or the AgriHive setup guide."
+                        android:textColor="#9CAF9F"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Submit Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="40dp"
+                android:text="+ Add Apiary"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:backgroundTint="#F4B400"
+                app:cornerRadius="16dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -6,9 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.agrihive"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.agrihive"
@@ -67,7 +65,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage")  // ADD THIS LINE
+    implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-messaging")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     implementation("androidx.cardview:cardview:1.0.0")
@@ -92,4 +91,8 @@ dependencies {
     
     // WorkManager for background weather checks
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    // TensorFlow Lite for AI disease detection (Varroa, DWV, chalkbrood, nosema)
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
 }

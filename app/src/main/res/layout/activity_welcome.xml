@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/login_bg">
+
+    <!-- Decorative Top Background -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_splash_wave"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#1A3329" />
+
+    <!-- Hero Section -->
+    <LinearLayout
+        android:id="@+id/ll_hero"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="80dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            app:cardBackgroundColor="#1A3329"
+            app:cardCornerRadius="32dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#2D4A3E"
+            app:strokeWidth="1.5dp">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="28dp"
+                android:src="@drawable/ic_logo_honeycomb"
+                app:tint="@color/honey_primary" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="sans-serif-black"
+            android:text="AgriHive"
+            android:textColor="#FFFFFF"
+            android:textSize="48sp"
+            android:letterSpacing="-0.02" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Join our Bee-utiful Community!"
+            android:textColor="#9CAF9F"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Content Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="48dp"
+        app:cardBackgroundColor="#1A3329"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toBottomOf="@id/ll_hero"
+        app:strokeColor="#2D4A3E"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="32dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_register"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:backgroundTint="@color/honey_primary"
+                android:fontFamily="sans-serif-black"
+                android:text="Create Account"
+                android:textAllCaps="false"
+                android:textColor="#0F241F"
+                android:textSize="18sp"
+                app:cornerRadius="18dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_login"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="64dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="sans-serif-black"
+                android:text="Sign In"
+                android:textAllCaps="false"
+                android:textColor="@color/honey_primary"
+                android:textSize="18sp"
+                app:cornerRadius="18dp"
+                app:strokeColor="@color/honey_primary"
+                app:strokeWidth="1.5dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:text="Smart Beekeeping Starts Here"
+                android:textColor="#6B8B6E"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Terms Footer -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Terms &amp; Privacy Policy"
+        android:textColor="#6B8B6E"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

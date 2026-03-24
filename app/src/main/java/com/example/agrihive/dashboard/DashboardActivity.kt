@@ -1,372 +1,140 @@
 package com.example.agrihive.dashboard
 
-import ApiaryAdapter
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.widget.TextView
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.agrihive.R
 import com.example.agrihive.addapiary.AddApiaryActivity
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.view.View
-import com.example.agrihive.profile.ProfileActivity
-import com.example.agrihive.settings.SettingsActivity
-import com.example.agrihive.sensorsubscription.SensorSubscriptionActivity
-import com.example.agrihive.subscription.SubscriptionActivity
-import com.example.agrihive.hivestreams.SendReportActivity
 import com.example.agrihive.camera.CameraActivity
-import com.example.agrihive.utils.NetworkAlertDialog
-import com.example.agrihive.utils.NetworkUtils
+import com.example.agrihive.databinding.ActivityDashboardBinding
+import com.example.agrihive.hivestreams.HiveStreamsActivity
 import com.example.agrihive.notification.NotificationActivity
+import com.example.agrihive.settings.SettingsActivity
 
+/**
+ * Dashboard Activity - Main screen showing apiary list and stats
+ * MVVM Architecture with Firebase backend
+ * Design matches the provided image with dark theme and gold accents
+ */
 class DashboardActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityDashboardBinding
+    private lateinit var adapter: ApiaryAdapter
     private val viewModel: DashboardViewModel by viewModels()
-    private lateinit var apiaryAdapter: ApiaryAdapter
-    private lateinit var prefs: SharedPreferences
-    private lateinit var swipeRefresh: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_dashboard_page)
-
-        // Check internet connection and show message if offline
-        if (!NetworkUtils.isNetworkAvailable(this)) {
-            showNoInternetMessage()
-        }
-
-        prefs = getSharedPreferences("AgriHivePrefs", MODE_PRIVATE)
-
-        // Show subscription dialog on login (when coming from login screen) - only once per session
-        val fromLogin = intent.getBooleanExtra("FROM_LOGIN", false)
-        val subscriptionShownThisSession = prefs.getBoolean("subscription_dialog_shown_this_login", false)
         
-        if (fromLogin && !subscriptionShownThisSession) {
-            showSubscriptionDialog()
-            prefs.edit().putBoolean("subscription_dialog_shown_this_login", true).apply()
-        }
+        // Initialize binding
+        binding = ActivityDashboardBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Set up SwipeRefreshLayout with yellow color
-        swipeRefresh = findViewById<SwipeRefreshLayout>(R.id.swipeRefresh)
-        swipeRefresh.setColorSchemeResources(
-            R.color.yellow_primary
-        )
-        swipeRefresh.setProgressBackgroundColorSchemeColor(
-            resources.getColor(android.R.color.white, theme)
-        )
-        swipeRefresh.setOnRefreshListener {
-            viewModel.fetchApiaries()
-            // Ensure refresh stops after a timeout if no observer update
-            swipeRefresh.postDelayed({
-                if (swipeRefresh.isRefreshing) {
-                    swipeRefresh.isRefreshing = false
-                }
-            }, 10000) // 10 second timeout
-        }
+        // Setup RecyclerView
+        setupRecyclerView()
 
-        // Notification bell click listener
-        val notificationBell = findViewById<ImageView>(R.id.ivNotifications)
-        notificationBell.setOnClickListener {
-            val intent = Intent(this, NotificationActivity::class.java)
-            startActivity(intent)
-        }
-
-        // RecyclerView setup
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerApiaries)
-
-        apiaryAdapter = ApiaryAdapter { apiary ->
-
-            val intent = Intent(this, com.example.agrihive.hivestreams.HiveStreamsActivity::class.java)
-            intent.putExtra("APIARY_ID", apiary.id)
-            intent.putExtra("APIARY_NAME", apiary.name)
-            startActivity(intent)
-        }
-
-        recyclerView.apply {
-            adapter = apiaryAdapter
-            layoutManager = LinearLayoutManager(this@DashboardActivity)
-        }
-
-
-        // Observe apiary list
-        viewModel.apiaryList.observe(this) { list ->
-
-            apiaryAdapter.submitList(list)
-
-            findViewById<TextView>(R.id.tvActiveHives).text =
-                "${list.count { it.isActive }} active hives"
-
-            findViewById<TextView>(R.id.tvEmpty).isVisible = list.isEmpty()
-            
-            // Stop refresh animation
-            swipeRefresh.isRefreshing = false
-        }
-
-
-        // Add Apiary button
-        findViewById<android.widget.Button>(R.id.btnAddApiary).setOnClickListener {
-            viewModel.onAddApiaryClicked()
-        }
-
-        // Setup bottom navigation with highlighting
+        // Setup click listeners
+        setupClickListeners()
+        
+        // Setup bottom navigation
         setupBottomNavigation()
 
-        // Navigation to Add Apiary
-        viewModel.navigateToAddApiary.observe(this) { navigate ->
-            if (navigate) {
-                startActivity(Intent(this, AddApiaryActivity::class.java))
-                viewModel.doneNavigatingAddApiary()
+        // Observe ViewModel
+        observeViewModel()
+
+        // Load data from Firebase
+        viewModel.loadApiaries()
+    }
+
+    private fun setupRecyclerView() {
+        adapter = ApiaryAdapter(
+            onApiaryClick = { apiary ->
+                val intent = Intent(this, HiveStreamsActivity::class.java).apply {
+                    putExtra("APIARY_ID", apiary.id)
+                    putExtra("APIARY_NAME", apiary.name)
+                }
+                startActivity(intent)
             }
+        )
+        binding.rvApiaries.layoutManager = LinearLayoutManager(this)
+        binding.rvApiaries.adapter = adapter
+    }
+
+    private fun setupClickListeners() {
+        // Add Apiary button (Empty State)
+        binding.btnAddApiary.setOnClickListener {
+            startActivity(Intent(this, AddApiaryActivity::class.java))
         }
 
-        // Subscription popup - show every time user logs in
-        viewModel.checkSubscription()
-        viewModel.showSubscription.observe(this) { show ->
-            if (show) {
-                showSubscriptionDialog()
-                viewModel.doneShowingSubscription()
-            }
+        // Add Apiary button (Top FAB)
+        binding.btnAddTop.setOnClickListener {
+            startActivity(Intent(this, AddApiaryActivity::class.java))
         }
     }
 
     private fun setupBottomNavigation() {
-        // Get the bottom navigation layout
-        val footerNav = findViewById<View>(R.id.footerNav)
-        
-        // Get ImageViews for icon color change
-        val navHome = footerNav?.findViewById<ImageView>(R.id.navHome)
-        val navSearch = footerNav?.findViewById<ImageView>(R.id.navSearch)
-        val navProfile = footerNav?.findViewById<ImageView>(R.id.navProfile)
-        val navSettings = footerNav?.findViewById<ImageView>(R.id.navHistory)
-        
-        // Get text views for color change
-        val tvHome = footerNav?.findViewById<TextView>(R.id.tvHome)
-        val tvSearch = footerNav?.findViewById<TextView>(R.id.tvSearch)
-        val tvProfile = footerNav?.findViewById<TextView>(R.id.tvProfile)
-        val tvSettings = footerNav?.findViewById<TextView>(R.id.tvHistory)
-        
-        // Colors
-        val activeColor = getColor(R.color.nav_active)
-        val inactiveColor = getColor(R.color.nav_inactive)
-        
-        // Helper function to update selected state
-        fun updateSelection(selectedId: Int) {
-            // Reset all to inactive (gray)
-            navHome?.setColorFilter(inactiveColor)
-            navSearch?.setColorFilter(inactiveColor)
-            navProfile?.setColorFilter(inactiveColor)
-            navSettings?.setColorFilter(inactiveColor)
-            
-            tvHome?.setTextColor(inactiveColor)
-            tvSearch?.setTextColor(inactiveColor)
-            tvProfile?.setTextColor(inactiveColor)
-            tvSettings?.setTextColor(inactiveColor)
-            
-            // Highlight selected one (yellow)
-            when (selectedId) {
-                R.id.navHomeContainer -> {
-                    navHome?.setColorFilter(activeColor)
-                    tvHome?.setTextColor(activeColor)
+        binding.bottomNavigation.selectedItemId = R.id.nav_apiaries
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_apiaries -> true
+                R.id.nav_alerts -> {
+                    startActivity(Intent(this, NotificationActivity::class.java))
+                    true
                 }
-                R.id.navSearchContainer -> {
-                    navSearch?.setColorFilter(activeColor)
-                    tvSearch?.setTextColor(activeColor)
+                R.id.nav_settings -> {
+                    startActivity(Intent(this, SettingsActivity::class.java))
+                    true
                 }
-                R.id.navProfileContainer -> {
-                    navProfile?.setColorFilter(activeColor)
-                    tvProfile?.setTextColor(activeColor)
-                }
-                R.id.navHistoryContainer -> {
-                    navSettings?.setColorFilter(activeColor)
-                    tvSettings?.setTextColor(activeColor)
-                }
+                else -> false
             }
-        }
-        
-        // Set Home as selected by default
-        updateSelection(R.id.navHomeContainer)
-        
-        // Home - Already in Dashboard
-        footerNav?.findViewById<View>(R.id.navHomeContainer)?.setOnClickListener {
-            updateSelection(R.id.navHomeContainer)
-        }
-        
-        // Search/History navigation
-        footerNav?.findViewById<View>(R.id.navSearchContainer)?.setOnClickListener {
-            updateSelection(R.id.navSearchContainer)
-            Toast.makeText(this, "History coming soon!", Toast.LENGTH_SHORT).show()
-        }
-        
-        // Scan/Camera button
-        footerNav?.findViewById<View>(R.id.navScanContainer)?.setOnClickListener {
-            startActivity(Intent(this, CameraActivity::class.java))
-        }
-        
-        // Profile navigation
-        footerNav?.findViewById<View>(R.id.navProfileContainer)?.setOnClickListener {
-            updateSelection(R.id.navProfileContainer)
-            startActivity(Intent(this, ProfileActivity::class.java))
-            finish()
-        }
-        
-        // Settings navigation
-        footerNav?.findViewById<View>(R.id.navHistoryContainer)?.setOnClickListener {
-            updateSelection(R.id.navHistoryContainer)
-            startActivity(Intent(this, SettingsActivity::class.java))
-            finish()
         }
     }
 
-    private fun showSubscriptionDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.activity_subscription_card, null)
+    private fun observeViewModel() {
+        // Observe user name for greeting (e.g., "Hello, Tfgf")
+        viewModel.userName.observe(this) { name ->
+            binding.tvGreeting.text = "Hello, $name"
+        }
 
-        val dialog = AlertDialog.Builder(this, android.R.style.Theme_Translucent_NoTitleBar)
-            .setView(dialogView)
-            .setCancelable(false)
-            .create()
+        // Observe Statistics for the header cards
+        viewModel.totalApiaries.observe(this) { count ->
+            binding.tvTotalCount.text = count.toString()
+        }
 
-        dialog.window?.apply {
-            setBackgroundDrawable(null)
-            setLayout(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT)
-            setDimAmount(0.7f)
+        viewModel.onlineCount.observe(this) { count ->
+            binding.tvOnlineCount.text = count.toString()
+        }
+
+        viewModel.alertsCount.observe(this) { count ->
+            binding.tvAlertsCount.text = count.toString()
+        }
+
+        viewModel.harvestReadyCount.observe(this) { count ->
+            binding.tvHarvestCount.text = count.toString()
+        }
+
+        // Observe apiaries list and toggle empty state visibility
+        viewModel.apiaries.observe(this) { apiaries ->
+            adapter.submitList(apiaries)
             
-            val params = attributes
-            params?.apply {
-                width = android.view.ViewGroup.LayoutParams.MATCH_PARENT
-                height = android.view.ViewGroup.LayoutParams.MATCH_PARENT
-                gravity = android.view.Gravity.CENTER
+            if (apiaries.isEmpty()) {
+                binding.layoutEmptyState.visibility = View.VISIBLE
+                binding.rvApiaries.visibility = View.GONE
+            } else {
+                binding.layoutEmptyState.visibility = View.GONE
+                binding.rvApiaries.visibility = View.VISIBLE
             }
-            attributes = params
-            
-            decorView.systemUiVisibility = (
-                android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-            )
         }
 
-        dialogView.findViewById<TextView>(R.id.btnDismiss).setOnClickListener {
-            dialog.dismiss()
-        }
-
-        // Add click listeners to quarterly pricing options
-        dialogView.findViewById<TextView>(R.id.plan1Quarterly)?.setOnClickListener {
-            dialog.dismiss()
-            val intent = Intent(this, SubscriptionActivity::class.java)
-            intent.putExtra("PLAN_NAME", "1-2 Apiaries")
-            intent.putExtra("PLAN_PRICE", 550.00)
-            intent.putExtra("BILLING_TYPE", "3 months")
-            startActivity(intent)
-        }
-
-        dialogView.findViewById<TextView>(R.id.plan1Monthly)?.setOnClickListener {
-            dialog.dismiss()
-            val intent = Intent(this, SubscriptionActivity::class.java)
-            intent.putExtra("PLAN_NAME", "1-2 Apiaries")
-            intent.putExtra("PLAN_PRICE", 183.00)
-            intent.putExtra("BILLING_TYPE", "Monthly payment")
-            startActivity(intent)
-        }
-
-        dialogView.findViewById<TextView>(R.id.plan2Quarterly)?.setOnClickListener {
-            dialog.dismiss()
-            val intent = Intent(this, SubscriptionActivity::class.java)
-            intent.putExtra("PLAN_NAME", "3-5 Apiaries")
-            intent.putExtra("PLAN_PRICE", 750.00)
-            intent.putExtra("BILLING_TYPE", "3 months")
-            startActivity(intent)
-        }
-
-        dialogView.findViewById<TextView>(R.id.plan2Monthly)?.setOnClickListener {
-            dialog.dismiss()
-            val intent = Intent(this, SubscriptionActivity::class.java)
-            intent.putExtra("PLAN_NAME", "3-5 Apiaries")
-            intent.putExtra("PLAN_PRICE", 250.00)
-            intent.putExtra("BILLING_TYPE", "Monthly payment")
-            startActivity(intent)
-        }
-
-        dialogView.findViewById<TextView>(R.id.plan3Quarterly)?.setOnClickListener {
-            dialog.dismiss()
-            val intent = Intent(this, SubscriptionActivity::class.java)
-            intent.putExtra("PLAN_NAME", "5+ Apiaries")
-            intent.putExtra("PLAN_PRICE", 999.00)
-            intent.putExtra("BILLING_TYPE", "3 months")
-            startActivity(intent)
-        }
-
-        dialogView.findViewById<TextView>(R.id.plan3Monthly)?.setOnClickListener {
-            dialog.dismiss()
-            val intent = Intent(this, SubscriptionActivity::class.java)
-            intent.putExtra("PLAN_NAME", "5+ Apiaries")
-            intent.putExtra("PLAN_PRICE", 333.00)
-            intent.putExtra("BILLING_TYPE", "Monthly payment")
-            startActivity(intent)
-        }
-
-        // Legacy click listeners for plan containers (fallback to monthly)
-        val plan1Container = dialogView.findViewById<LinearLayout>(R.id.plan1Container)
-        val plan2Container = dialogView.findViewById<LinearLayout>(R.id.plan2Container)
-        val plan3Container = dialogView.findViewById<LinearLayout>(R.id.plan3Container)
-
-        plan1Container?.setOnClickListener {
-            dialog.dismiss()
-            val intent = Intent(this, SubscriptionActivity::class.java)
-            intent.putExtra("PLAN_NAME", "1-2 Apiaries")
-            intent.putExtra("PLAN_PRICE", 183.00)
-            intent.putExtra("BILLING_TYPE", "Monthly payment")
-            startActivity(intent)
-        }
-
-        plan2Container?.setOnClickListener {
-            dialog.dismiss()
-            val intent = Intent(this, SubscriptionActivity::class.java)
-            intent.putExtra("PLAN_NAME", "3-5 Apiaries")
-            intent.putExtra("PLAN_PRICE", 250.00)
-            intent.putExtra("BILLING_TYPE", "Monthly payment")
-            startActivity(intent)
-        }
-
-        plan3Container?.setOnClickListener {
-            dialog.dismiss()
-            val intent = Intent(this, SubscriptionActivity::class.java)
-            intent.putExtra("PLAN_NAME", "5+ Apiaries")
-            intent.putExtra("PLAN_PRICE", 333.00)
-            intent.putExtra("BILLING_TYPE", "Monthly payment")
-            startActivity(intent)
-        }
-
-        dialog.show()
-    }
-
-    private fun showNoInternetMessage() {
-        // Show toast notification
-        Toast.makeText(this, "No internet connection. Some features may not work.", Toast.LENGTH_LONG).show()
-        
-        // Show dialog for user to try again
-        NetworkAlertDialog.show(
-            context = this,
-            onTryAgain = {
-                // Check internet again
-                if (NetworkUtils.isNetworkAvailable(this)) {
-                    // Refresh data
-                    viewModel.fetchApiaries()
-                } else {
-                    showNoInternetMessage()
-                }
-            },
-            onCancel = {
-                // Do nothing, stay on current screen
+        // Observe errors from Firebase
+        viewModel.errorMessage.observe(this) { error ->
+            error?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
             }
-        )
+        }
     }
 }

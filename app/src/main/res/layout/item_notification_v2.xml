@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/bg_stat_card"
+    android:padding="16dp">
+
+    <!-- Icon Background -->
+    <View
+        android:id="@+id/ivIconBg"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_stepper"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_temperature"
+        app:layout_constraintBottom_toBottomOf="@id/ivIconBg"
+        app:layout_constraintEnd_toEndOf="@id/ivIconBg"
+        app:layout_constraintStart_toStartOf="@id/ivIconBg"
+        app:layout_constraintTop_toTopOf="@id/ivIconBg"
+        app:tint="#EF5350" />
+
+    <!-- Title and Content -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Ucuci"
+        android:textColor="#F4B400"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/unreadDot"
+        app:layout_constraintStart_toEndOf="@id/ivIconBg"
+        app:layout_constraintTop_toTopOf="@id/ivIconBg" />
+
+    <TextView
+        android:id="@+id/tvContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Hive temperature above 38°C — check ventilation"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@id/unreadDot"
+        app:layout_constraintStart_toStartOf="@id/tvTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+
+    <TextView
+        android:id="@+id/tvTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="2h ago"
+        android:textColor="#9CAF9F"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="@id/tvTitle"
+        app:layout_constraintTop_toBottomOf="@id/tvContent" />
+
+    <!-- Unread Indicator Dot -->
+    <View
+        android:id="@+id/unreadDot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@drawable/bg_red_circle"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvTitle" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

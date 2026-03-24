@@ -1,29 +1,23 @@
 package com.example.agrihive.settings
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.data.UserSessionManager
 import com.example.agrihive.device.DeviceControlActivity
+import com.example.agrihive.editprofile.EditProfileActivity
 import com.example.agrihive.hivestreams.SendReportActivity
-import com.example.agrihive.camera.CameraActivity
 import com.example.agrihive.log.ActivityLogActivity
-import com.example.agrihive.log.ActivityLogRepository
 import com.example.agrihive.log.ActivityLogViewModel
-import com.example.agrihive.profile.ProfileActivity
+import com.example.agrihive.notification.NotificationActivity
 import com.example.agrihive.sensorsubscription.SensorSubscriptionActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 
 class SettingsActivity : AppCompatActivity() {
@@ -32,180 +26,101 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var sessionManager: UserSessionManager
     private lateinit var auth: FirebaseAuth
 
-    // UI elements
-    private lateinit var btnBack: ImageView
-    private lateinit var footerNav: View
-
-    private lateinit var rowLogout: LinearLayout
-    private lateinit var switchNotifications: SwitchCompat
-    private lateinit var switchCloudSync: SwitchCompat
-
-    private lateinit var rowDeviceControls: LinearLayout
-    private lateinit var rowActivityLog: LinearLayout
-    private lateinit var rowChangePassword: LinearLayout
-    private lateinit var rowSubscription: LinearLayout
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings_page)
+        setContentView(R.layout.activity_settings)
 
-        // Initialize session manager and auth
         sessionManager = UserSessionManager(this)
         auth = FirebaseAuth.getInstance()
 
-        // Initialize repository with app context for local storage
-        com.example.agrihive.log.ActivityLogRepository.init(applicationContext)
+        setupNavigation()
+        setupBottomNavigation()
 
-        initViews()
-        setupUI()
-        setupObservers()
-        setupBottomNavigationHighlight()
-    }
-
-    private fun initViews() {
-        btnBack = findViewById(R.id.btnBack)
-        footerNav = findViewById(R.id.footerNav)
-
-        rowLogout = findViewById(R.id.rowLogout)
-        switchNotifications = findViewById(R.id.switchNotifications)
-        switchCloudSync = findViewById(R.id.switchCloudSync)
-
-        rowDeviceControls = findViewById(R.id.rowDeviceControls)
-        rowActivityLog = findViewById(R.id.rowActivityLog)
-        rowChangePassword = findViewById(R.id.rowChangePassword)
-        rowSubscription = findViewById(R.id.rowSubscription)
-    }
-
-    private fun setupUI() {
-        // Back button
-        btnBack.setOnClickListener {
-            val intent = Intent(this, DashboardActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-
-        // Bottom navigation click listeners
-        // Home
-        footerNav.findViewById<View>(R.id.navHomeContainer)?.setOnClickListener {
-            val intent = Intent(this, DashboardActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-
-        // History - placeholder
-        footerNav.findViewById<View>(R.id.navSearchContainer)?.setOnClickListener {
-            // Highlight History (yellow) and show toast
-            val navSearch = footerNav.findViewById<ImageView>(R.id.navSearch)
-            val tvSearch = footerNav.findViewById<TextView>(R.id.tvSearch)
-            val activeColor = getColor(R.color.nav_active)
-            val inactiveColor = getColor(R.color.nav_inactive)
-            
-            // Reset all to inactive first
-            footerNav.findViewById<ImageView>(R.id.navHome)?.setColorFilter(inactiveColor)
-            footerNav.findViewById<ImageView>(R.id.navProfile)?.setColorFilter(inactiveColor)
-            footerNav.findViewById<ImageView>(R.id.navHistory)?.setColorFilter(inactiveColor)
-            footerNav.findViewById<TextView>(R.id.tvHome)?.setTextColor(inactiveColor)
-            footerNav.findViewById<TextView>(R.id.tvProfile)?.setTextColor(inactiveColor)
-            footerNav.findViewById<TextView>(R.id.tvHistory)?.setTextColor(inactiveColor)
-            
-            // Highlight History (yellow)
-            navSearch?.setColorFilter(activeColor)
-            tvSearch?.setTextColor(activeColor)
-            
-            Toast.makeText(this, "History coming soon!", Toast.LENGTH_SHORT).show()
-        }
-
-        // Camera - navigate to CameraActivity
-        footerNav.findViewById<View>(R.id.navScanContainer)?.setOnClickListener {
-            startActivity(Intent(this, CameraActivity::class.java))
-        }
-
-        // Profile
-        footerNav.findViewById<View>(R.id.navProfileContainer)?.setOnClickListener {
-            val intent = Intent(this, ProfileActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-
-        // Settings - Already in Settings page
-        footerNav.findViewById<View>(R.id.navHistoryContainer)?.setOnClickListener {
-            // Already in Settings - do nothing
-        }
-
-        // Logout
-        rowLogout.setOnClickListener {
-            showLogoutDialog()
-        }
-
-        // Switches
-        switchNotifications.setOnCheckedChangeListener { _, isChecked ->
+        findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_notifications).setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleNotifications(isChecked)
         }
-
-        switchCloudSync.setOnCheckedChangeListener { _, isChecked ->
+        findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_sync).setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleCloudSync(isChecked)
         }
 
-        // Other rows
-        rowDeviceControls.setOnClickListener {
-            val intent = Intent(this, DeviceControlActivity::class.java)
-            startActivity(intent)
+        setupObservers()
+    }
+
+    private fun setupNavigation() {
+        // Activity Log
+        findViewById<View>(R.id.btn_activity_log).setOnClickListener {
+            startActivity(Intent(this, ActivityLogActivity::class.java))
         }
 
-        rowActivityLog.setOnClickListener {
-            val intent = Intent(this, ActivityLogActivity::class.java)
-            startActivity(intent)
+        // Saved Treatments
+        findViewById<View>(R.id.btn_saved_treatments).setOnClickListener {
+            // Check if activity exists in manifest or project, if not show toast or route to placeholder
+            try {
+                val intent = Intent(this, Class.forName("com.example.agrihive.settings.SavedTreatmentsActivity"))
+                startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Saved Treatments coming soon", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        rowChangePassword.setOnClickListener {
-            val intent = Intent(this, ChangePasswordActivity::class.java)
-            startActivity(intent)
+        // Device Controls
+        findViewById<View>(R.id.btn_device_controls).setOnClickListener {
+            startActivity(Intent(this, DeviceControlActivity::class.java))
         }
 
-        rowSubscription.setOnClickListener {
-            val intent = Intent(this, SensorSubscriptionActivity::class.java)
-            startActivity(intent)
+        // Subscription
+        findViewById<View>(R.id.btn_subscription).setOnClickListener {
+            startActivity(Intent(this, SensorSubscriptionActivity::class.java))
+        }
+
+        // Report an Issue
+        findViewById<View>(R.id.btn_report_issue).setOnClickListener {
+            startActivity(Intent(this, SendReportActivity::class.java))
+        }
+
+        // Edit Profile
+        findViewById<View>(R.id.btn_edit_profile).setOnClickListener {
+            startActivity(Intent(this, EditProfileActivity::class.java))
+        }
+
+        // Change Password
+        findViewById<View>(R.id.btn_change_password).setOnClickListener {
+            startActivity(Intent(this, ChangePasswordActivity::class.java))
+        }
+
+        // Logout
+        findViewById<View>(R.id.btn_logout).setOnClickListener {
+            showLogoutDialog()
         }
     }
 
-    private fun setupBottomNavigationHighlight() {
-        // Highlight Settings when on Settings page
-        val navSettings = footerNav.findViewById<ImageView>(R.id.navHistory)
-        val navHome = footerNav.findViewById<ImageView>(R.id.navHome)
-        val navSearch = footerNav.findViewById<ImageView>(R.id.navSearch)
-        val navProfile = footerNav.findViewById<ImageView>(R.id.navProfile)
-        
-        val tvSettings = footerNav.findViewById<TextView>(R.id.tvHistory)
-        val tvHome = footerNav.findViewById<TextView>(R.id.tvHome)
-        val tvSearch = footerNav.findViewById<TextView>(R.id.tvSearch)
-        val tvProfile = footerNav.findViewById<TextView>(R.id.tvProfile)
-        
-        val activeColor = getColor(R.color.nav_active)
-        val inactiveColor = getColor(R.color.nav_inactive)
-        
-        // Set Settings as selected (yellow)
-        navSettings?.setColorFilter(activeColor)
-        tvSettings?.setTextColor(activeColor)
-        
-        // Reset others to inactive (gray)
-        navHome?.setColorFilter(inactiveColor)
-        navSearch?.setColorFilter(inactiveColor)
-        navProfile?.setColorFilter(inactiveColor)
-        
-        tvHome?.setTextColor(inactiveColor)
-        tvSearch?.setTextColor(inactiveColor)
-        tvProfile?.setTextColor(inactiveColor)
+    private fun setupBottomNavigation() {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav.selectedItemId = R.id.nav_settings
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_apiaries -> {
+                    startActivity(Intent(this, DashboardActivity::class.java))
+                    finish()
+                    true
+                }
+                R.id.nav_alerts -> {
+                    startActivity(Intent(this, NotificationActivity::class.java))
+                    finish()
+                    true
+                }
+                R.id.nav_settings -> true
+                else -> false
+            }
+        }
     }
 
     private fun setupObservers() {
         viewModel.notificationsEnabled.observe(this) { enabled ->
-            if (switchNotifications.isChecked != enabled)
-                switchNotifications.isChecked = enabled
+            findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_notifications).isChecked = enabled
         }
-
         viewModel.cloudSyncEnabled.observe(this) { enabled ->
-            if (switchCloudSync.isChecked != enabled)
-                switchCloudSync.isChecked = enabled
+            findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_sync).isChecked = enabled
         }
     }
 
@@ -217,28 +132,11 @@ class SettingsActivity : AppCompatActivity() {
             .setMessage("Are you sure you want to log out?")
             .setPositiveButton("Log out") { dialog, _ ->
                 dialog.dismiss()
-
-                // Sign out from Firebase Auth
                 auth.signOut()
-
-                // Clear user session data from SharedPreferences
                 sessionManager.clearUserData()
-
-                // Reset ActivityLogViewModel state for fresh start on next login
-                // This ensures logs are reloaded properly when user logs back in
-                // Use resetUserState to keep local logs while resetting in-memory state
                 ActivityLogViewModel.getInstance().resetUserState()
-
-                // NOTE: We do NOT clear ActivityLog local storage here
-                // because user wants logs to persist after logout
-                // When same user logs back in, their logs will be loaded from local storage
-
-                // Reset subscription dialog flag so it shows on next login
                 prefs.edit().putBoolean("subscription_dialog_shown_this_login", false).apply()
 
-                Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
-
-                // Navigate to Login page and clear activity stack
                 val intent = Intent(this, com.example.agrihive.login.LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)

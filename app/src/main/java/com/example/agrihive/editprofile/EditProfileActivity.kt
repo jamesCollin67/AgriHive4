@@ -1,228 +1,78 @@
 package com.example.agrihive.editprofile
 
-import android.app.Activity
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.Glide
-import com.example.agrihive.R
 import com.example.agrihive.data.UserSessionManager
 import com.example.agrihive.databinding.ActivityEditProfileBinding
-import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.profile.ProfileActivity
-import com.example.agrihive.utils.NetworkUtils
-import java.io.File
-import java.io.FileOutputStream
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
+/**
+ * Edit Profile Page — Editable fields for name, email, apiaries, farm, location. (Spec)
+ */
 class EditProfileActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEditProfileBinding
-    private val viewModel: EditProfileViewModel by viewModels()
-    private val activityLogViewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
     private lateinit var sessionManager: UserSessionManager
-
-    private val imagePickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val imageUri = result.data?.data
-            imageUri?.let {
-                // Convert content URI to a persistent file URI
-                val fileUri = getPersistentUri(it)
-                if (fileUri != null) {
-                    binding.profilePic.setImageURI(fileUri)
-                    viewModel.setSelectedPhotoUri(fileUri)
-                } else {
-                    // Fallback to original URI
-                    binding.profilePic.setImageURI(it)
-                    viewModel.setSelectedPhotoUri(it)
-                }
-            }
-        }
-    }
-
-    // Convert content:// URI to a file URI that Firebase can access
-    private fun getPersistentUri(contentUri: Uri): Uri? {
-        return try {
-            // Try to take persistable permission
-            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            contentResolver.takePersistableUriPermission(contentUri, takeFlags)
-            contentUri
-        } catch (e: SecurityException) {
-            // If we can't take persistent permission, try to copy the file
-            try {
-                val inputStream = contentResolver.openInputStream(contentUri) ?: return null
-                val tempFile = File(cacheDir, "profile_${System.currentTimeMillis()}.jpg")
-                val outputStream = FileOutputStream(tempFile)
-                inputStream.use { input ->
-                    outputStream.use { output ->
-                        input.copyTo(output)
-                    }
-                }
-                Uri.fromFile(tempFile)
-            } catch (e: Exception) {
-                null
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Initialize session manager
         sessionManager = UserSessionManager(this)
 
-        setupObservers()
-        setupClickListeners()
+        binding.toolbar.setNavigationOnClickListener { finish() }
+
+        loadProfile()
+        binding.btnUpdate.setOnClickListener { updateProfile() }
     }
 
-    private fun setupObservers() {
-        // Observe user data
-        viewModel.user.observe(this) { user ->
-            binding.etFirstName.setText(user.firstName)
-            binding.etLastName.setText(user.lastName)
-            binding.etEmail.setText(user.email)
-            binding.etFarm.setText(user.farm)
-            binding.etLocation.setText(user.location)
-
-            // Load profile photo if available
-            if (user.photoUrl.isNotEmpty()) {
-                Glide.with(this)
-                    .load(user.photoUrl)
-                    .placeholder(R.drawable.avatar_placeholder)
-                    .circleCrop()
-                    .into(binding.profilePic)
+    private fun loadProfile() {
+        val uid = auth.currentUser?.uid ?: return
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { doc ->
+                val fn = doc.getString("firstName") ?: sessionManager.getFirstName()
+                val ln = doc.getString("lastName") ?: sessionManager.getLastName()
+                val email = doc.getString("email") ?: sessionManager.getEmail()
+                val farm = doc.getString("farm") ?: sessionManager.getFarm()
+                val location = doc.getString("location") ?: sessionManager.getLocation()
+                binding.tilName.editText?.setText("$fn $ln".trim().ifEmpty { "Full Name" })
+                binding.tilEmail.editText?.setText(email)
+                binding.tilFarmName.editText?.setText(farm)
+                binding.tilLocation.editText?.setText(location)
             }
-        }
-
-        // Observe apiary count
-        viewModel.apiaryCount.observe(this) { count ->
-            binding.etApiaryOwned.setText("$count")
-        }
-
-        // Observe loading state
-        viewModel.isLoading.observe(this) { isLoading ->
-            binding.btnUpdateProfile.isEnabled = !isLoading
-            binding.btnUpdateProfile.text = if (isLoading) "UPDATING..." else "UPDATE PROFILE"
-        }
-
-        // Observe update success
-        viewModel.updateSuccess.observe(this) { success ->
-            if (success) {
-                Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                
-                // Log the profile update activity
-                activityLogViewModel.logProfileUpdated("Profile Information")
-                
-                setResult(RESULT_OK)
-                navigateToProfile()
-            }
-        }
-
-        // Observe error message
-        viewModel.errorMessage.observe(this) { error ->
-            error?.let {
-                // Save to local storage even if Firebase update fails (offline)
-                saveToLocalStorage()
-                
-                Toast.makeText(this, "Profile saved locally. Will sync when online.", Toast.LENGTH_SHORT).show()
-                viewModel.clearError()
-                
-                // Navigate to profile anyway
-                navigateToProfile()
-            }
-        }
     }
 
-    private fun setupClickListeners() {
-        // Back button - navigate to Profile
-        binding.btnBack.setOnClickListener {
-            navigateToProfile()
+    private fun updateProfile() {
+        val fullName = binding.tilName.editText?.text?.toString()?.trim() ?: ""
+        val parts = fullName.split(" ", limit = 2)
+        val fn = parts.getOrElse(0) { "" }
+        val ln = parts.getOrElse(1) { "" }
+        val email = binding.tilEmail.editText?.text?.toString()?.trim() ?: ""
+        val farm = binding.tilFarmName.editText?.text?.toString()?.trim() ?: ""
+        val location = binding.tilLocation.editText?.text?.toString()?.trim() ?: ""
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("users").document(uid).update(
+            mapOf(
+                "firstName" to fn,
+                "lastName" to ln,
+                "email" to email,
+                "farm" to farm,
+                "location" to location
+            )
+        ).addOnSuccessListener {
+            sessionManager.saveUserData(firstName = fn, lastName = ln, email = email, farm = farm, location = location)
+            Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show()
+            setResult(RESULT_OK)
+            finish()
+        }.addOnFailureListener {
+            Toast.makeText(this, it.message ?: "Update failed", Toast.LENGTH_SHORT).show()
         }
-
-        // Change photo button
-        binding.btnChangePhoto.setOnClickListener {
-            openImagePicker()
-        }
-
-        // Update profile button
-        binding.btnUpdateProfile.setOnClickListener {
-            val firstName = binding.etFirstName.text.toString().trim()
-            val lastName = binding.etLastName.text.toString().trim()
-            val farm = binding.etFarm.text.toString().trim()
-            val location = binding.etLocation.text.toString().trim()
-
-            if (validateInputs(firstName, lastName)) {
-                // Check internet connection first
-                if (!NetworkUtils.isNetworkAvailable(this)) {
-                    // Save locally even when offline
-                    saveToLocalStorage()
-                    Toast.makeText(this, "Profile saved locally. Will sync when online.", Toast.LENGTH_SHORT).show()
-                    navigateToProfile()
-                } else {
-                    viewModel.updateProfile(firstName, lastName, farm, location)
-                }
-            }
-        }
-    }
-
-    private fun openImagePicker() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        imagePickerLauncher.launch(intent)
-    }
-
-    private fun validateInputs(firstName: String, lastName: String): Boolean {
-        if (firstName.isEmpty()) {
-            binding.etFirstName.error = "First name is required"
-            binding.etFirstName.requestFocus()
-            return false
-        }
-
-        if (lastName.isEmpty()) {
-            binding.etLastName.error = "Last name is required"
-            binding.etLastName.requestFocus()
-            return false
-        }
-
-        return true
-    }
-
-    private fun navigateToProfile() {
-        // Save updated user data to SharedPreferences for immediate display on Profile
-        saveToLocalStorage()
-        
-        val intent = Intent(this, ProfileActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-        // Pass updated user data back to Profile
-        intent.putExtra("updated_firstName", binding.etFirstName.text.toString().trim())
-        intent.putExtra("updated_lastName", binding.etLastName.text.toString().trim())
-        intent.putExtra("updated_farm", binding.etFarm.text.toString().trim())
-        intent.putExtra("updated_location", binding.etLocation.text.toString().trim())
-        startActivity(intent)
-        finish()
-    }
-    
-    // Save user data to local storage (SharedPreferences)
-    private fun saveToLocalStorage() {
-        sessionManager.saveUserData(
-            firstName = binding.etFirstName.text.toString().trim(),
-            lastName = binding.etLastName.text.toString().trim(),
-            email = binding.etEmail.text.toString().trim(),
-            farm = binding.etFarm.text.toString().trim(),
-            location = binding.etLocation.text.toString().trim()
-        )
-    }
-
-    // Handle hardware back button press
-    override fun onBackPressed() {
-        navigateToProfile()
-        super.onBackPressed()
     }
 }

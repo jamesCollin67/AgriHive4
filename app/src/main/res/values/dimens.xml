@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- AgriHive Design System - Spacing & Layout -->
+    
+    <!-- SPACING (16dp-24dp as per spec) -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+    <dimen name="spacing_xxl">48dp</dimen>
+    
+    <!-- CORNER RADIUS (12-16dp) -->
+    <dimen name="radius_sm">8dp</dimen>
+    <dimen name="radius_md">12dp</dimen>
+    <dimen name="radius_lg">16dp</dimen>
+    <dimen name="radius_xl">24dp</dimen>
+    
+    <!-- CARD -->
+    <dimen name="card_elevation">4dp</dimen>
+    <dimen name="card_elevation_hover">8dp</dimen>
+    <dimen name="card_padding">20dp</dimen>
+    
+    <!-- BUTTON -->
+    <dimen name="button_height">56dp</dimen>
+    <dimen name="button_height_lg">64dp</dimen>
+    
+    <!-- INPUT -->
+    <dimen name="input_height">56dp</dimen>
+    
+    <!-- ICONS -->
+    <dimen name="icon_sm">20dp</dimen>
+    <dimen name="icon_md">24dp</dimen>
+    <dimen name="icon_lg">32dp</dimen>
+    <dimen name="icon_xl">48dp</dimen>
+</resources>

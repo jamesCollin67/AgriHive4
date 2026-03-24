@@ -2,14 +2,11 @@ package com.example.agrihive.login
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.agrihive.R
-import com.example.agrihive.databinding.ActivityLoginPageBinding
+import com.example.agrihive.databinding.ActivityLoginBinding
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.forgot.ForgotPasswordActivity
 import com.example.agrihive.log.ActivityLogRepository
@@ -19,57 +16,35 @@ import com.example.agrihive.register.RegisterActivity
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityLoginPageBinding
+    private lateinit var binding: ActivityLoginBinding
     private val viewModel: LoginViewModel by viewModels()
     private val activityLogViewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
-    private var isPasswordVisible = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginPageBinding.inflate(layoutInflater)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize repository with app context for local storage
         ActivityLogRepository.init(applicationContext)
 
-        // Sign in button
-        binding.btnSignIn.setOnClickListener {
+        binding.switchRemember.isChecked = getSharedPreferences("AgriHivePrefs", MODE_PRIVATE)
+            .getBoolean("remember_me", false)
+
+        binding.btnLogin.setOnClickListener {
             val email = binding.emailInput.text.toString()
             val password = binding.passwordInput.text.toString()
             viewModel.login(email, password)
         }
 
-        // Set initial password toggle drawable
-        binding.passwordInput.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye, 0)
-
-        // Password visibility toggle - only when touching the eye icon
-        binding.passwordInput.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-                // Check if touch was on the drawable (right side)
-                val drawableEnd = binding.passwordInput.compoundDrawables[2]
-                if (drawableEnd != null) {
-                    val touchX = event.rawX
-                    val drawableRight = binding.passwordInput.right - binding.passwordInput.paddingRight
-                    val drawableLeft = drawableRight - drawableEnd.bounds.width()
-                    
-                    if (touchX >= drawableLeft && touchX <= drawableRight) {
-                        togglePasswordVisibility()
-                        true
-                    } else {
-                        false
-                    }
-                } else {
-                    false
-                }
-            } else {
-                false
-            }
+        binding.switchRemember.setOnCheckedChangeListener { _, isChecked ->
+            getSharedPreferences("AgriHivePrefs", MODE_PRIVATE).edit()
+                .putBoolean("remember_me", isChecked).apply()
         }
 
         // Observe loading state
         viewModel.isLoading.observe(this) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-            binding.btnSignIn.isEnabled = !isLoading
+            binding.btnLogin.isEnabled = !isLoading
             binding.emailInput.isEnabled = !isLoading
             binding.passwordInput.isEnabled = !isLoading
         }
@@ -103,7 +78,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         // Navigate to RegisterActivity
-        binding.signUp.setOnClickListener {
+        binding.tvRegisterLink.setOnClickListener {
             viewModel.onSignUpClicked()
         }
         viewModel.navigateToRegister.observe(this) { navigate ->
@@ -113,8 +88,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        // Navigate to ForgotPasswordActivity
-        binding.forgotPassword.setOnClickListener {
+        binding.tvForgotPassword.setOnClickListener {
             viewModel.onForgotPasswordClicked()
         }
         viewModel.navigateToForgotPassword.observe(this) { navigate ->
@@ -123,50 +97,5 @@ class LoginActivity : AppCompatActivity() {
                 viewModel.doneNavigatingForgotPassword()
             }
         }
-
-        // Optional: back button
-        binding.btnBack.setOnClickListener {
-            finish() // go back to previous activity
-        }
-
-        // Facebook login button
-        binding.facebook.setOnClickListener {
-            Toast.makeText(this, "Opening Facebook...", Toast.LENGTH_SHORT).show()
-            openUrl("https://www.facebook.com/login")
-        }
-
-        // Google login button
-        binding.google.setOnClickListener {
-            Toast.makeText(this, "Opening Google...", Toast.LENGTH_SHORT).show()
-            openUrl("https://accounts.google.com/signin")
-        }
-    }
-
-    // Helper function to open URLs
-    private fun openUrl(url: String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(this, "Unable to open browser: ${e.message}", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun togglePasswordVisibility() {
-        val editText = binding.passwordInput
-        if (isPasswordVisible) {
-            // Hide password
-            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye, 0)
-            isPasswordVisible = false
-        } else {
-            // Show password
-            editText.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-            editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0)
-            isPasswordVisible = true
-        }
-        // Move cursor to end
-        editText.setSelection(editText.text?.length ?: 0)
     }
 }

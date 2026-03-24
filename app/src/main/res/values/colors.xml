@@ -1,28 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary Yellow - Bee theme color -->
-    <color name="yellow_primary">#E5C75A</color>
+    <!-- ============================================ -->
+    <!-- AGRIHIVE COLOR SYSTEM - Production Ready -->
+    <!-- ============================================ -->
     
-    <!-- FAB Yellow -->
-    <color name="fab_yellow">#E5C75A</color>
+    <!-- PRIMARY: Honey Gold (Design Spec) -->
+    <color name="honey_primary">#F4B400</color>
+    <color name="honey_primary_dark">#D99B00</color>
+    <color name="honey_primary_light">#FFD54F</color>
+    <color name="honey_primary_variant">#C79100</color>
+    <color name="honey_primary_bg">#FFF8E1</color>
+    <color name="cream_background">#FFF8E1</color>
+
+    <!-- SECONDARY: Dark Brown -->
+    <color name="brown_dark">#4E342E</color>
+    <color name="brown_medium">#6D4C41</color>
+    <color name="brown_light">#8D6E63</color>
+    <color name="brown_variant">#3E2723</color>
     
-    <!-- Navigation colors -->
-    <color name="nav_active">#E5C75A</color>
-    <color name="nav_inactive">#888888</color>
+    <!-- BACKGROUND - Soft Cream, white cards -->
+    <color name="background_white">#FFFFFF</color>
+    <color name="background_light">#FFF8E1</color>
+    <color name="background_gray">#FAFAFA</color>
+    <color name="surface_card">#FFFFFF</color>
     
-    <!-- Error/Alert colors -->
-    <color name="error_red">#FF0000</color>
+    <!-- DARK MODE -->
+    <color name="background_dark">#121212</color>
+    <color name="surface_dark">#1E1E1E</color>
+    <color name="card_dark">#2D2D2D</color>
+    <color name="background_light_dark">#1A1A1A</color>
     
-    <!-- Standard Android colors -->
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- STATUS COLORS - Leaf Green accent, Soft Red error (Design Spec) -->
+    <color name="status_success">#66BB6A</color>
+    <color name="status_success_light">#81C784</color>
+    <color name="status_success_bg">#E8F5E9</color>
     
-    <!-- Additional colors -->
-    <color name="gray_text">#757575</color>
-    <color name="light_gray">#E0E0E0</color>
+    <color name="status_warning">#FF9800</color>
+    <color name="status_warning_light">#FFB74D</color>
+    <color name="status_warning_bg">#FFF3E0</color>
+    
+    <color name="status_error">#EF5350</color>
+    <color name="status_error_light">#E57373</color>
+    <color name="status_error_bg">#FFEBEE</color>
+    
+    <!-- ACCENT: Leaf Green -->
+    <color name="accent_leaf_green">#66BB6A</color>
+    
+    <color name="status_info">#2196F3</color>
+    <color name="status_info_light">#64B5F6</color>
+    <color name="status_info_bg">#E3F2FD</color>
+    
+    <!-- TEXT COLORS -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="text_disabled">#BDBDBD</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_dark">#FFFFFF</color>
+    <color name="text_on_primary_dark">#212121</color>
+    
+    <!-- TEXT DARK MODE -->
+    <color name="text_primary_dark">#FFFFFF</color>
+    <color name="text_secondary_dark">#B0B0B0</color>
+    <color name="text_hint_dark">#808080</color>
+    
+    <!-- DIVIDER & BORDERS -->
+    <color name="divider">#E0E0E0</color>
+    <color name="divider_dark">#424242</color>
+    <color name="border">#E0E0E0</color>
+    <color name="ripple">#1A000000</color>
+    
+    <!-- SENSOR COLORS -->
+    <color name="sensor_temp_normal">#4CAF50</color>
+    <color name="sensor_temp_warning">#FF9800</color>
+    <color name="sensor_temp_critical">#F44336</color>
+    
+    <color name="sensor_humidity_normal">#4CAF50</color>
+    <color name="sensor_humidity_warning">#FF9800</color>
+    <color name="sensor_humidity_critical">#F44336</color>
+    
+    <color name="sensor_weight_normal">#4CAF50</color>
+    <color name="sensor_weight_warning">#FF9800</color>
+    <color name="sensor_weight_critical">#F44336</color>
+    
+    <!-- BUTTON COLORS -->
+    <color name="button_primary">#F4B400</color>
+    <color name="button_primary_pressed">#D99B00</color>
+    <color name="button_secondary">#4E342E</color>
+    <color name="button_danger">#F44336</color>
+    <color name="button_success">#4CAF50</color>
+    
+    <!-- NAVIGATION -->
+    <color name="nav_selected">#F4B400</color>
+    <color name="nav_unselected">#9E9E9E</color>
+    <color name="nav_background">#FFFFFF</color>
+    <color name="nav_background_dark">#1E1E1E</color>
+    
+    <!-- SHADOW -->
+    <color name="shadow">#1A000000</color>
+    <color name="elevation">#F5F5F5</color>
+    
+    <!-- NOTIFICATION BADGE -->
+    <color name="badge_error">#F44336</color>
+    <color name="badge_warning">#FF9800</color>
+    
+    <!-- TRANSPARENT -->
+    <color name="transparent">#00000000</color>
+    <color name="scrim">#80000000</color>
+
+    <!-- LOGIN DARK THEME - Forest green nature-inspired -->
+    <color name="login_bg">#0F241F</color>
+    <color name="login_input_bg">#1A3329</color>
+    <color name="login_input_border">#2D4A3E</color>
+    <color name="login_text_primary">#FFFFFF</color>
+    <color name="login_text_secondary">#9CAF9F</color>
+    <color name="login_text_hint">#6B8B6E</color>
+    <color name="login_accent">#F4B400</color>
+    <color name="login_orange">#FF8C00</color>
 </resources>

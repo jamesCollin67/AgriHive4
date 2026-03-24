@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0F241F">
+
+    <!-- Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="12dp"
+            android:src="@drawable/ic_back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#FFFFFF" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="Payment"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_pay"
+        app:layout_constraintTop_toBottomOf="@id/header">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="16dp">
+
+            <!-- Order Summary Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#1A3329"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2D4A3E"
+                app:strokeWidth="1dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ORDER SUMMARY"
+                        android:textColor="#6B8B6E"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp">
+                        <TextView
+                            android:id="@+id/tv_plan_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-black"
+                            android:text="AgriHive Pro Plan"
+                            android:textColor="#FFFFFF"
+                            android:textSize="18sp" />
+                        <TextView
+                            android:id="@+id/tv_plan_price"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:fontFamily="sans-serif-black"
+                            android:text="₱750"
+                            android:textColor="#F4B400"
+                            android:textSize="18sp" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Valid for 3 months"
+                            android:textColor="#9CAF9F"
+                            android:textSize="13sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:text="incl. all features"
+                            android:textColor="#9CAF9F"
+                            android:textSize="13sp" />
+                    </RelativeLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="20dp"
+                        android:background="#2D4A3E" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-black"
+                            android:text="Total"
+                            android:textColor="#FFFFFF"
+                            android:textSize="20sp" />
+                        <TextView
+                            android:id="@+id/tv_total_price"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:fontFamily="sans-serif-black"
+                            android:text="₱750"
+                            android:textColor="#F4B400"
+                            android:textSize="24sp" />
+                    </RelativeLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="SELECT PAYMENT METHOD"
+                android:textColor="#6B8B6E"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <!-- GCash -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_gcash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="#1A3329"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2196F3"
+                app:strokeWidth="1.5dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
+                    <ImageView
+                        android:id="@+id/iv_gcash"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_phone"
+                        app:tint="#2196F3" />
+                    <TextView
+                        android:id="@+id/t_gcash"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/iv_gcash"
+                        android:fontFamily="sans-serif-black"
+                        android:text="GCash"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/t_gcash"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/iv_gcash"
+                        android:text="Pay via GCash mobile wallet"
+                        android:textColor="#9CAF9F"
+                        android:textSize="12sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/bg_dot_active"
+                        app:tint="#2196F3" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- PayMaya -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_paymaya"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="#1A3329"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2D4A3E"
+                app:strokeWidth="1dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
+                    <ImageView
+                        android:id="@+id/iv_paymaya"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_phone"
+                        app:tint="#FF9800" />
+                    <TextView
+                        android:id="@+id/t_paymaya"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/iv_paymaya"
+                        android:fontFamily="sans-serif-black"
+                        android:text="PayMaya"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/t_paymaya"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/iv_paymaya"
+                        android:text="Pay via PayMaya digital wallet"
+                        android:textColor="#9CAF9F"
+                        android:textSize="12sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/bg_dot_inactive"
+                        app:tint="#FF9800" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- BDO -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_bdo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="#1A3329"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2D4A3E"
+                app:strokeWidth="1dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
+                    <ImageView
+                        android:id="@+id/iv_bdo"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_back"
+                        app:tint="#EF5350" />
+                    <TextView
+                        android:id="@+id/t_bdo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/iv_bdo"
+                        android:fontFamily="sans-serif-black"
+                        android:text="BDO Online Banking"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/t_bdo"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/iv_bdo"
+                        android:text="Pay via BDO internet banking"
+                        android:textColor="#9CAF9F"
+                        android:textSize="12sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/bg_dot_inactive"
+                        app:tint="#EF5350" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- PayPal -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_paypal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="#1A3329"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#2D4A3E"
+                app:strokeWidth="1dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
+                    <ImageView
+                        android:id="@+id/iv_paypal"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_cloud"
+                        app:tint="#2196F3" />
+                    <TextView
+                        android:id="@+id/t_paypal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/iv_paypal"
+                        android:fontFamily="sans-serif-black"
+                        android:text="PayPal"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/t_paypal"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@id/iv_paypal"
+                        android:text="Secure payment via PayPal"
+                        android:textColor="#9CAF9F"
+                        android:textSize="12sp" />
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/bg_dot_inactive"
+                        app:tint="#2196F3" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="32dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_shield"
+                    app:tint="#6B8B6E" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="All transactions are encrypted and secured"
+                    android:textColor="#6B8B6E"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="40dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Bottom Action Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_pay"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_margin="20dp"
+        android:backgroundTint="#F4B400"
+        android:text="Pay ₱750 via GCash"
+        android:textAllCaps="false"
+        android:textColor="#0F241F"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="18dp"
+        app:icon="@drawable/ic_lock"
+        app:iconGravity="textStart"
+        app:iconTint="#0F241F"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

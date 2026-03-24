@@ -2,37 +2,32 @@ package com.example.agrihive.landing
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.example.agrihive.R
+import com.example.agrihive.databinding.ActivityWelcomeBinding
 import com.example.agrihive.login.LoginActivity
-import com.example.agrihive.databinding.ActivityLandingPageBinding
+import com.example.agrihive.register.RegisterActivity
 
+/**
+ * Welcome Page — Bee-themed landing screen with "Join our Bee-utiful Community!" tagline,
+ * Login and Register buttons.
+ */
 class LandingActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityLandingPageBinding
-    private val viewModel: LandingViewModel by viewModels()
+    private lateinit var binding: ActivityWelcomeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // ViewBinding
-        binding = ActivityLandingPageBinding.inflate(layoutInflater)
+        binding = ActivityWelcomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Button click
-        binding.btnGetStarted.setOnClickListener {
-            viewModel.onGetStartedClicked()
+        // Route to activity_register
+        binding.btnRegister.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
 
-        // Observe navigation LiveData
-        viewModel.navigateToLogin.observe(this) { navigate ->
-            if (navigate) {
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finish() // close LandingActivity
-                viewModel.doneNavigating() // reset state
-            }
+        // Route to activity_login
+        binding.btnLogin.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
         }
     }
 }

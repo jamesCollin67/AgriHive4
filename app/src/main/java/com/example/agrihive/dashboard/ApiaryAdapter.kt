@@ -1,45 +1,47 @@
+package com.example.agrihive.dashboard
+
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.agrihive.R
 import com.example.agrihive.addapiary.Apiary
+import com.example.agrihive.databinding.ItemApiaryCardBinding
 
 class ApiaryAdapter(
-    private val onItemClick: (Apiary) -> Unit
-) : ListAdapter<Apiary, ApiaryAdapter.ApiaryViewHolder>(DIFF) {
+    private val onApiaryClick: (Apiary) -> Unit
+) : ListAdapter<Apiary, ApiaryAdapter.ViewHolder>(DiffCallback()) {
 
-    companion object {
-        private val DIFF = object : DiffUtil.ItemCallback<Apiary>() {
-            override fun areItemsTheSame(oldItem: Apiary, newItem: Apiary) =
-                oldItem.id == newItem.id
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = ItemApiaryCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding, onApiaryClick)
+    }
 
-            override fun areContentsTheSame(oldItem: Apiary, newItem: Apiary) =
-                oldItem == newItem
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    class ViewHolder(
+        private val binding: ItemApiaryCardBinding,
+        private val onApiaryClick: (Apiary) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(apiary: Apiary) {
+            binding.tvApiaryName.text = apiary.name
+            binding.tvStatusText.text = if (apiary.isConnected) "Connected" else "Disconnected"
+            binding.ivStatus.setImageResource(
+                if (apiary.isConnected) R.drawable.bg_green_circle else R.drawable.bg_red_circle
+            )
+            binding.tvTemp.text = "%.1f°C".format(apiary.temperature)
+            binding.tvHumidity.text = "%.0f%%".format(apiary.humidity)
+            binding.tvWeight.text = "%.1f kg".format(apiary.weight)
+            binding.btnViewDetails.setOnClickListener { onApiaryClick(apiary) }
+            binding.root.setOnClickListener { onApiaryClick(apiary) }
         }
     }
 
-    inner class ApiaryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val name: TextView = view.findViewById(R.id.tvApiaryName)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApiaryViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_apiary, parent, false)
-
-        return ApiaryViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ApiaryViewHolder, position: Int) {
-        val apiary = getItem(position)
-        holder.name.text = apiary.name
-
-        // ✅ CLICK LISTENER
-        holder.itemView.setOnClickListener {
-            onItemClick(apiary)
-        }
+    private class DiffCallback : DiffUtil.ItemCallback<Apiary>() {
+        override fun areItemsTheSame(a: Apiary, b: Apiary) = a.id == b.id
+        override fun areContentsTheSame(a: Apiary, b: Apiary) = a == b
     }
 }

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/login_bg"
+    tools:context=".splash.SplashActivity">
+
+    <!-- Decorative Wave/Background Element -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg_splash_wave"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#1A3329" />
+
+    <!-- Main Logo with Shadow Effect -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_logo"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        app:cardBackgroundColor="#1A3329"
+        app:cardCornerRadius="80dp"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@id/tvAppName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:strokeColor="#2D4A3E"
+        app:strokeWidth="2dp">
+
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="AgriHive Logo"
+            android:padding="36dp"
+            android:src="@drawable/ic_logo_honeycomb"
+            app:tint="@color/honey_primary" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- App Name with Premium Typography -->
+    <TextView
+        android:id="@+id/tvAppName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="sans-serif-black"
+        android:letterSpacing="0.05"
+        android:text="@string/app_name"
+        android:textColor="#FFFFFF"
+        android:textSize="42sp"
+        app:layout_constraintBottom_toTopOf="@id/tvTagline"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/card_logo" />
+
+    <!-- Tagline with Subtler Color -->
+    <TextView
+        android:id="@+id/tvTagline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:alpha="0.7"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.1"
+        android:text="@string/app_tagline"
+        android:textColor="#9CAF9F"
+        android:textSize="14sp"
+        android:textAllCaps="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvAppName" />
+
+    <!-- Modern Linear Progress -->
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressBar"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:indeterminate="true"
+        app:indicatorColor="@color/honey_primary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:trackColor="#1A3329"
+        app:trackCornerRadius="4dp"
+        app:trackThickness="4dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

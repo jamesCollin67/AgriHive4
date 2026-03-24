@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="#FFC300" android:state_selected="true" />
-    <item android:color="#757575" />
-    <item android:color="#4CAF50" android:state_checked="true" />
-    <item android:color="#CCCCCC" android:state_checked="false" />
+    <!-- Selected state - Honey Gold -->
+    <item android:color="#F4B400" android:state_checked="true" />
+    <!-- Default state - Muted Green/Gray (matching the greeting text) -->
+    <item android:color="#6B8B6E" />
 </selector>

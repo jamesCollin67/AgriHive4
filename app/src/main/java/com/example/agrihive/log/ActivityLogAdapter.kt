@@ -27,19 +27,15 @@ class ActivityLogAdapter : ListAdapter<ActivityLogItem, ActivityLogAdapter.LogVi
     }
 
     class LogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val tvTimeAgo: TextView = itemView.findViewById(R.id.tvTimeAgo)
-        private val tvTime: TextView = itemView.findViewById(R.id.tvTime)
+        private val tvTimestamp: TextView = itemView.findViewById(R.id.tvTimestamp)
+        private val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
         private val tvDescription: TextView = itemView.findViewById(R.id.tvDescription)
 
         fun bind(item: ActivityLogItem) {
+            tvTitle.text = item.title
             tvDescription.text = item.description
-
-            // Format date label (Today, Yesterday, or date)
-            tvTimeAgo.text = getDateLabel(item.timestamp)
-
-            // Format exact time
             val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
-            tvTime.text = timeFormat.format(item.timestamp)
+            tvTimestamp.text = "${getDateLabel(item.timestamp)} ${timeFormat.format(item.timestamp)}"
         }
 
         private fun getDateLabel(date: Date): String {

@@ -4,17 +4,23 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.agrihive.data.UserSessionManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.regex.Pattern
 
+/**
+ * ViewModel for User Registration
+ * MVVM Architecture - handles user registration with Firebase Auth and Firestore
+ */
 class RegisterViewModel(application: Application) : AndroidViewModel(application) {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val sessionManager: UserSessionManager = UserSessionManager(application)
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
     private val _registerSuccess = MutableLiveData<Boolean>()
     val registerSuccess: LiveData<Boolean> = _registerSuccess
@@ -25,6 +31,15 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     private val _navigateToLogin = MutableLiveData<Boolean>()
     val navigateToLogin: LiveData<Boolean> = _navigateToLogin
 
+    /**
+     * Registers a new user with Firebase Auth
+     * @param firstName User's first name
+     * @param lastName User's last name
+     * @param email User's email address
+     * @param password User's password
+     * @param confirmPassword Password confirmation
+     * @param termsAccepted Whether terms and conditions are accepted
+     */
     fun register(
         firstName: String,
         lastName: String,
@@ -33,8 +48,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         confirmPassword: String,
         termsAccepted: Boolean
     ) {
-
-        // VALIDATION
+        // Validation - Check empty fields
         if (firstName.isBlank() || lastName.isBlank() ||
             email.isBlank() || password.isBlank() || confirmPassword.isBlank()
         ) {
@@ -42,16 +56,19 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
             return
         }
 
+        // Validation - Check terms acceptance
         if (!termsAccepted) {
             _registerError.value = "You must accept the terms and policy."
             return
         }
 
+        // Validation - Check email format
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             _registerError.value = "Please enter a valid email."
             return
         }
 
+        // Validation - Check password strength
         val passwordPattern =
             "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#\$%^&+=!]).{8,}\$"
 
@@ -61,19 +78,28 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
             return
         }
 
+        // Validation - Check password match
         if (password != confirmPassword) {
             _registerError.value = "Passwords do not match."
             return
         }
 
-        // FIREBASE AUTH
+        // Set loading state
+        _isLoading.value = true
+
+        // Firebase Authentication - Create user with email and password
         firebaseAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
 
                 if (task.isSuccessful) {
+                    // Get the newly created user's UID
+                    val uid = firebaseAuth.currentUser?.uid ?: run {
+                        _isLoading.value = false
+                        _registerError.value = "Failed to get user ID"
+                        return@addOnCompleteListener
+                    }
 
-                    val uid = firebaseAuth.currentUser?.uid ?: return@addOnCompleteListener
-
+                    // Create user data map for Firestore
                     val user = hashMapOf(
                         "uid" to uid,
                         "firstName" to firstName,
@@ -81,43 +107,67 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                         "email" to email,
                         "farm" to "",
                         "location" to "",
-                        "apiaries" to 0
+                        "apiaries" to 0,
+                        "createdAt" to System.currentTimeMillis()
                     )
 
+                    // Save user data to Firestore
                     firestore.collection("users")
                         .document(uid)
                         .set(user)
                         .addOnSuccessListener {
-                            // Save user data to local session for immediate profile display
+                            // Save user session locally for immediate access
                             sessionManager.saveUserData(
                                 firstName = firstName,
                                 lastName = lastName,
                                 email = email
                             )
 
+                            // Send email verification
                             firebaseAuth.currentUser?.sendEmailVerification()
 
+                            // Sign out user until they verify email
                             firebaseAuth.signOut()
 
+                            _isLoading.value = false
                             _registerSuccess.value = true
                             _navigateToLogin.value = true
                         }
-                        .addOnFailureListener {
-                            _registerError.value =
-                                it.message ?: "Failed to save user data."
+                        .addOnFailureListener { exception ->
+                            _isLoading.value = false
+                            _registerError.value = exception.message ?: "Failed to save user data."
                         }
 
                 } else {
-                    _registerError.value =
-                        task.exception?.message ?: "Registration failed."
+                    _isLoading.value = false
+                    // Handle specific Firebase auth errors
+                    val errorMessage = when {
+                        task.exception?.message?.contains("email address is already in use") == true ->
+                            "This email is already registered"
+                        task.exception?.message?.contains("weak password") == true ->
+                            "Password is too weak"
+                        else ->
+                            task.exception?.message ?: "Registration failed"
+                    }
+                    _registerError.value = errorMessage
                 }
+            }
+            .addOnFailureListener { exception ->
+                _isLoading.value = false
+                _registerError.value = exception.message ?: "An error occurred"
             }
     }
 
+    /**
+     * Clears the error state after handling
+     */
     fun doneError() {
         _registerError.value = null
     }
 
+    /**
+     * Clears the navigation state after handling
+     */
     fun doneNavigating() {
         _navigateToLogin.value = false
     }
