@@ -10,6 +10,6 @@ class CaptureIssueActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(com.example.agrihive.R.layout.activity_capture_issue)
+        setContentView(com.example.agrihive.R.layout.activity_ai_scanner)
     }
 }

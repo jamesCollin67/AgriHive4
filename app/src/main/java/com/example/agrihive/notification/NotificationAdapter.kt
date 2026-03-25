@@ -22,7 +22,7 @@ class NotificationAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_notification, parent, false)
+            .inflate(R.layout.item_notification_v2, parent, false)
         return NotificationViewHolder(view)
     }
 
@@ -38,12 +38,11 @@ class NotificationAdapter(
     }
 
     inner class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val iconView: ImageView = itemView.findViewById(R.id.notification_icon)
-        private val titleView: TextView = itemView.findViewById(R.id.notification_title)
-        private val messageView: TextView = itemView.findViewById(R.id.notification_message)
-        private val timeView: TextView = itemView.findViewById(R.id.notification_time)
-        private val unreadIndicator: View = itemView.findViewById(R.id.unread_indicator)
-        private val deleteButton: ImageView = itemView.findViewById(R.id.delete_button)
+        private val iconView: ImageView = itemView.findViewById(R.id.ivIcon)
+        private val titleView: TextView = itemView.findViewById(R.id.tvTitle)
+        private val messageView: TextView = itemView.findViewById(R.id.tvContent)
+        private val timeView: TextView = itemView.findViewById(R.id.tvTime)
+        private val unreadIndicator: View = itemView.findViewById(R.id.unreadDot)
 
         fun bind(notification: NotificationItem) {
             titleView.text = notification.title
@@ -64,7 +63,10 @@ class NotificationAdapter(
 
             // Click listeners
             itemView.setOnClickListener { onItemClick(notification) }
-            deleteButton.setOnClickListener { onDeleteClick(notification) }
+            itemView.setOnLongClickListener {
+                onDeleteClick(notification)
+                true
+            }
         }
 
         private fun formatTime(timestamp: Long): String {

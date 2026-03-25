@@ -3,8 +3,10 @@ package com.example.agrihive.addapiary
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import android.os.Handler
+import android.os.Looper
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 
 class AddApiaryViewModel : ViewModel() {
 
@@ -16,6 +18,8 @@ class AddApiaryViewModel : ViewModel() {
 
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
+    private val timeoutHandler = Handler(Looper.getMainLooper())
+    private var saveTimedOut = false
 
     fun saveApiary(name: String, location: String, nodeId: String) {
         if (name.isBlank() || location.isBlank() || nodeId.isBlank()) {
@@ -29,12 +33,19 @@ class AddApiaryViewModel : ViewModel() {
         }
 
         _isLoading.value = true
-        val database = FirebaseDatabase.getInstance().reference
-        val apiaryId = database.child("apiaries").push().key ?: run {
+        _saveSuccess.value = false
+        saveTimedOut = false
+        val firestore = FirebaseFirestore.getInstance()
+
+        // Avoid "Saving..." hanging forever when backend never replies.
+        val timeoutRunnable = Runnable {
+            saveTimedOut = true
             _isLoading.value = false
-            _errorMessage.value = "Database error"
-            return
+            _errorMessage.value = "Save timed out. Check your internet and Firestore rules."
         }
+        timeoutHandler.postDelayed(timeoutRunnable, 15000)
+
+        val apiaryId = firestore.collection("apiaries").document().id
 
         val apiaryData = mapOf(
             "id" to apiaryId,
@@ -49,18 +60,36 @@ class AddApiaryViewModel : ViewModel() {
             "lastUpdate" to System.currentTimeMillis()
         )
 
-        database.child("apiaries").child(apiaryId).setValue(apiaryData)
+        firestore.collection("apiaries").document(apiaryId).set(apiaryData)
             .addOnSuccessListener {
-                _isLoading.value = false
-                _saveSuccess.value = true
+                if (!saveTimedOut) {
+                    timeoutHandler.removeCallbacks(timeoutRunnable)
+                    _isLoading.value = false
+                    _saveSuccess.value = true
+                }
             }
-            .addOnFailureListener {
-                _isLoading.value = false
-                _errorMessage.value = it.message ?: "Failed to save apiary"
+            .addOnFailureListener { exception ->
+                if (!saveTimedOut) {
+                    timeoutHandler.removeCallbacks(timeoutRunnable)
+                    _isLoading.value = false
+                    _errorMessage.value = exception.message ?: "Failed to save apiary"
+                }
+            }
+            .addOnCanceledListener {
+                if (!saveTimedOut) {
+                    timeoutHandler.removeCallbacks(timeoutRunnable)
+                    _isLoading.value = false
+                    _errorMessage.value = "Save cancelled. Please try again."
+                }
             }
     }
 
     fun clearError() {
         _errorMessage.value = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        timeoutHandler.removeCallbacksAndMessages(null)
     }
 }

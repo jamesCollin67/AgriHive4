@@ -68,127 +68,85 @@
             </FrameLayout>
 
             <!-- Apiary Name -->
-            <TextView
-                android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_apiary_name"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Apiary Name"
-                android:textColor="#9CAF9F"
-                android:textSize="14sp" />
+                android:hint="Apiary Name"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxStrokeColor="@color/login_input_border"
+                app:hintTextColor="@color/login_text_hint">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_login_input"
-                android:backgroundTint="#1A3329"
-                android:paddingHorizontal="16dp">
-
-                <ImageView
-                    android:id="@+id/ic_name"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_saved"
-                    app:tint="#6B8B6E" />
-
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_apiary_name"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="12dp"
-                    android:layout_toEndOf="@id/ic_name"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="sans-serif"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_saved"
+                    android:drawablePadding="16dp"
+                    android:drawableTint="@color/login_text_secondary"
                     android:hint="e.g. Mountain Hive A"
                     android:inputType="textCapWords"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#6B8B6E"
-                    android:textSize="16sp" />
-            </RelativeLayout>
+                    android:textColor="#FFFFFF" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Location -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Location"
-                android:textColor="#9CAF9F"
-                android:textSize="14sp" />
-
-            <RelativeLayout
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_location"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_login_input"
-                android:backgroundTint="#1A3329"
-                android:paddingHorizontal="16dp">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:hint="Location"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxStrokeColor="@color/login_input_border"
+                app:hintTextColor="@color/login_text_hint">
 
-                <ImageView
-                    android:id="@+id/ic_location"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_location_filled"
-                    app:tint="#6B8B6E" />
-
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_location"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="12dp"
-                    android:layout_toEndOf="@id/ic_location"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="sans-serif"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_location_filled"
+                    android:drawablePadding="16dp"
+                    android:drawableTint="@color/login_text_secondary"
                     android:hint="e.g. Bukidnon, Philippines"
                     android:inputType="textPostalAddress"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#6B8B6E"
-                    android:textSize="16sp" />
-            </RelativeLayout>
+                    android:textColor="#FFFFFF" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- ESP32 Node ID -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="ESP32 Node ID"
-                android:textColor="#9CAF9F"
-                android:textSize="14sp" />
-
-            <RelativeLayout
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_node_id"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_login_input"
-                android:backgroundTint="#1A3329"
-                android:paddingHorizontal="16dp">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:hint="ESP32 Node ID"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxStrokeColor="@color/login_input_border"
+                app:hintTextColor="@color/login_text_hint">
 
-                <ImageView
-                    android:id="@+id/ic_node"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:src="@drawable/ic_settings"
-                    app:tint="#6B8B6E" />
-
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_node_id"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="12dp"
-                    android:layout_toEndOf="@id/ic_node"
-                    android:background="@android:color/transparent"
-                    android:fontFamily="sans-serif"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_settings"
+                    android:drawablePadding="16dp"
+                    android:drawableTint="@color/login_text_secondary"
                     android:hint="e.g. NODE-001"
                     android:inputType="textCapCharacters"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#6B8B6E"
-                    android:textSize="16sp" />
-            </RelativeLayout>
+                    android:textColor="#FFFFFF" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Info Box -->
             <com.google.android.material.card.MaterialCardView

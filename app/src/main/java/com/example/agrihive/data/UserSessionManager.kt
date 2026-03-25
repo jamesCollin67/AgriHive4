@@ -22,24 +22,28 @@ class UserSessionManager(context: Context) {
         private const val KEY_UID = "uid"
     }
 
+    /**
+     * Saves user data to SharedPreferences.
+     * Only non-null parameters will be updated, preserving existing data for others.
+     */
     fun saveUserData(
-        firstName: String = "",
-        lastName: String = "",
-        email: String = "",
-        farm: String = "",
-        location: String = "",
-        apiaries: Int = 0,
-        uid: String = ""
+        firstName: String? = null,
+        lastName: String? = null,
+        email: String? = null,
+        farm: String? = null,
+        location: String? = null,
+        apiaries: Int? = null,
+        uid: String? = null
     ) {
-        prefs.edit()
-            .putString(KEY_FIRST_NAME, firstName)
-            .putString(KEY_LAST_NAME, lastName)
-            .putString(KEY_EMAIL, email)
-            .putString(KEY_FARM, farm)
-            .putString(KEY_LOCATION, location)
-            .putInt(KEY_APIARIES, apiaries)
-            .putString(KEY_UID, uid)
-            .apply()
+        val editor = prefs.edit()
+        firstName?.let { editor.putString(KEY_FIRST_NAME, it) }
+        lastName?.let { editor.putString(KEY_LAST_NAME, it) }
+        email?.let { editor.putString(KEY_EMAIL, it) }
+        farm?.let { editor.putString(KEY_FARM, it) }
+        location?.let { editor.putString(KEY_LOCATION, it) }
+        apiaries?.let { editor.putInt(KEY_APIARIES, it) }
+        uid?.let { editor.putString(KEY_UID, it) }
+        editor.apply()
     }
 
     fun getFirstName(): String = prefs.getString(KEY_FIRST_NAME, "") ?: ""
@@ -51,7 +55,8 @@ class UserSessionManager(context: Context) {
     fun getUid(): String = prefs.getString(KEY_UID, "") ?: ""
 
     fun hasUserData(): Boolean {
-        return getEmail().isNotEmpty() || getFirstName().isNotEmpty()
+        // UID and Email are the most reliable indicators of a valid session
+        return getUid().isNotEmpty() && getEmail().isNotEmpty()
     }
 
     fun clearUserData() {

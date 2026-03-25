@@ -28,14 +28,12 @@ class ApiaryAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(apiary: Apiary) {
             binding.tvApiaryName.text = apiary.name
-            binding.tvStatusText.text = if (apiary.isConnected) "Connected" else "Disconnected"
-            binding.ivStatus.setImageResource(
+            binding.ivStatus.setBackgroundResource(
                 if (apiary.isConnected) R.drawable.bg_green_circle else R.drawable.bg_red_circle
             )
             binding.tvTemp.text = "%.1f°C".format(apiary.temperature)
             binding.tvHumidity.text = "%.0f%%".format(apiary.humidity)
             binding.tvWeight.text = "%.1f kg".format(apiary.weight)
-            binding.btnViewDetails.setOnClickListener { onApiaryClick(apiary) }
             binding.root.setOnClickListener { onApiaryClick(apiary) }
         }
     }

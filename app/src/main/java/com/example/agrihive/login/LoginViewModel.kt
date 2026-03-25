@@ -1,15 +1,20 @@
 package com.example.agrihive.login
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import com.example.agrihive.data.UserSessionManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.firestore.FirebaseFirestore
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val sessionManager = UserSessionManager(application)
 
     // LiveData for loading state
     private val _isLoading = MutableLiveData<Boolean>()
@@ -44,13 +49,17 @@ class LoginViewModel : ViewModel() {
 
         firebaseAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
-                // Hide loading indicator
-                _isLoading.value = false
-                
                 if (task.isSuccessful) {
-                    _loginSuccess.value = true
-                    _navigateToDashboard.value = true
+                    val uid = firebaseAuth.currentUser?.uid
+                    if (uid != null) {
+                        fetchAndSaveUserData(uid)
+                    } else {
+                        _isLoading.value = false
+                        _loginSuccess.value = true
+                        _navigateToDashboard.value = true
+                    }
                 } else {
+                    _isLoading.value = false
                     val exception = task.exception
                     val errorMessage = when (exception) {
                         is FirebaseAuthInvalidUserException -> "No account found with this email."
@@ -59,6 +68,38 @@ class LoginViewModel : ViewModel() {
                     }
                     _loginError.value = errorMessage
                 }
+            }
+    }
+
+    private fun fetchAndSaveUserData(uid: String) {
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val firstName = document.getString("firstName") ?: ""
+                    val lastName = document.getString("lastName") ?: ""
+                    val email = document.getString("email") ?: ""
+                    val farm = document.getString("farm") ?: ""
+                    val location = document.getString("location") ?: ""
+                    val apiaries = document.getLong("apiaries")?.toInt() ?: 0
+                    
+                    sessionManager.saveUserData(
+                        firstName = firstName,
+                        lastName = lastName,
+                        email = email,
+                        farm = farm,
+                        location = location,
+                        apiaries = apiaries,
+                        uid = uid
+                    )
+                }
+                _isLoading.value = false
+                _loginSuccess.value = true
+                _navigateToDashboard.value = true
+            }
+            .addOnFailureListener {
+                _isLoading.value = false
+                _loginSuccess.value = true // Still navigate to dashboard even if fetch fails
+                _navigateToDashboard.value = true
             }
     }
 

@@ -31,8 +31,8 @@ class LoginActivity : AppCompatActivity() {
             .getBoolean("remember_me", false)
 
         binding.btnLogin.setOnClickListener {
-            val email = binding.emailInput.text.toString()
-            val password = binding.passwordInput.text.toString()
+            val email = binding.emailInput.text?.toString() ?: ""
+            val password = binding.passwordInput.text?.toString() ?: ""
             viewModel.login(email, password)
         }
 
@@ -40,6 +40,9 @@ class LoginActivity : AppCompatActivity() {
             getSharedPreferences("AgriHivePrefs", MODE_PRIVATE).edit()
                 .putBoolean("remember_me", isChecked).apply()
         }
+
+        // Note: Password visibility toggle is now handled automatically by TextInputLayout
+        // in the activity_login.xml using app:endIconMode="password_toggle"
 
         // Observe loading state
         viewModel.isLoading.observe(this) { isLoading ->

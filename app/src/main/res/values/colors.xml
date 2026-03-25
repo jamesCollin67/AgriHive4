@@ -86,6 +86,8 @@
     <!-- BUTTON COLORS -->
     <color name="button_primary">#F4B400</color>
     <color name="button_primary_pressed">#D99B00</color>
+    <color name="yellow_primary">#F4B400</color>
+    <color name="fab_yellow">#F4B400</color>
     <color name="button_secondary">#4E342E</color>
     <color name="button_danger">#F44336</color>
     <color name="button_success">#4CAF50</color>
@@ -117,4 +119,5 @@
     <color name="login_text_hint">#6B8B6E</color>
     <color name="login_accent">#F4B400</color>
     <color name="login_orange">#FF8C00</color>
+    <color name="white_10_percent">#1AFFFFFF</color>
 </resources>

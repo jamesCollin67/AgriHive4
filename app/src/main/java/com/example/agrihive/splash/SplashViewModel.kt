@@ -27,15 +27,9 @@ class SplashViewModel : ViewModel() {
                 _progress.value = progressValue
             }
 
-            // Check if user is logged in
-            val isLoggedIn = firebaseAuth.currentUser != null
-
-            // Navigate based on login status
-            if (isLoggedIn) {
-                _navigate.value = "dashboard"
-            } else {
-                _navigate.value = "landing"
-            }
+            // Always go to landing/welcome screen first as requested
+            // This allows user to login or register
+            _navigate.value = "landing"
         }
     }
 

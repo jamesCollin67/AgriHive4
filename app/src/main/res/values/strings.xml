@@ -10,7 +10,7 @@
     <!-- ONBOARDING & AUTH -->
     <!-- ============================================ -->
     <string name="welcome_title">Welcome to AgriHive</string>
-    <string name="welcome_subtitle">Smart Beehive Monitoring & Management System</string>
+    <string name="welcome_subtitle">Smart Beehive Monitoring &amp; Management System</string>
     <string name="get_started">Get Started</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
@@ -27,7 +27,7 @@
     <string name="dont_have_account">Don\'t have an account?</string>
     <string name="already_have_account">Already have an account?</string>
     <string name="or_sign_with">or sign in with</string>
-    <string name="terms_agreement">I agree to the Terms & Privacy Policy</string>
+    <string name="terms_agreement">I agree to the Terms &amp; Privacy Policy</string>
     
     <!-- ============================================ -->
     <!-- DASHBOARD -->
@@ -228,7 +228,7 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="language">Language</string>
     <string name="about">About</string>
-    <string name="help_support">Help & Support</string>
+    <string name="help_support">Help &amp; Support</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="terms_of_service">Terms of Service</string>
     <string name="version">Version %s</string>

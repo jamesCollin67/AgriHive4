@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#0A1815"
     android:fillViewport="true"
-    tools:context=".device.DeviceControlsActivity">
+    tools:context=".device.DeviceControlActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -301,13 +301,16 @@
                 app:layout_constraintTop_toTopOf="@id/bgIconDelay">
 
                 <TextView
+                    android:id="@+id/btn_delay_minus"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="@drawable/bg_stepper"
                     android:gravity="center"
                     android:text="–"
                     android:textColor="#FFFFFF"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    android:clickable="true"
+                    android:focusable="true"/>
 
                 <TextView
                     android:id="@+id/tvDelayValue"
@@ -320,13 +323,16 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/btn_delay_plus"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="@drawable/bg_stepper"
                     android:gravity="center"
                     android:text="+"
                     android:textColor="#FFFFFF"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    android:clickable="true"
+                    android:focusable="true"/>
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 

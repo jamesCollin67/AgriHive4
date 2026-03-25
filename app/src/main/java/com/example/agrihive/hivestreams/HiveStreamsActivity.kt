@@ -1,5 +1,6 @@
 package com.example.agrihive.hivestreams
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -40,12 +41,18 @@ class HiveStreamsActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
         binding.tvApiaryName.text = apiaryName
         
+        // Fix: Route to AI Scanner UI
+        binding.btnCamera.setOnClickListener {
+            val intent = Intent(this, AiScannerActivity::class.java)
+            startActivity(intent)
+        }
+        
         // Tab Selection Logic
         binding.btnLiveReadings.setOnClickListener {
             showLiveReadings()
         }
 
-        binding.btn_analytics.setOnClickListener {
+        binding.btnAnalytics.setOnClickListener {
             showWeightAnalytics()
         }
     }
@@ -55,11 +62,11 @@ class HiveStreamsActivity : AppCompatActivity() {
         binding.layoutWeightAnalytics.visibility = View.GONE
         
         // Update Tab Styles
-        binding.btnLiveReadings.setBackgroundColor(ContextCompat.getColor(this, R.color.white_10_percent)) // Custom if exists, or just use #1AFFFFFF
-        binding.btnLiveReadings.setTextColor(ContextCompat.getColor(this, R.color.login_accent)) // #F4B400
+        binding.btnLiveReadings.setBackgroundColor(ContextCompat.getColor(this, R.color.white_10_percent))
+        binding.btnLiveReadings.setTextColor(ContextCompat.getColor(this, R.color.login_accent))
         
-        binding.btn_analytics.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent))
-        binding.btn_analytics.setTextColor(ContextCompat.getColor(this, R.color.text_secondary)) // #9CAF9F
+        binding.btnAnalytics.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent))
+        binding.btnAnalytics.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
     }
 
     private fun showWeightAnalytics() {
@@ -67,8 +74,8 @@ class HiveStreamsActivity : AppCompatActivity() {
         binding.layoutWeightAnalytics.visibility = View.VISIBLE
         
         // Update Tab Styles
-        binding.btn_analytics.setBackgroundColor(ContextCompat.getColor(this, R.color.white_10_percent))
-        binding.btn_analytics.setTextColor(ContextCompat.getColor(this, R.color.login_accent))
+        binding.btnAnalytics.setBackgroundColor(ContextCompat.getColor(this, R.color.white_10_percent))
+        binding.btnAnalytics.setTextColor(ContextCompat.getColor(this, R.color.login_accent))
         
         binding.btnLiveReadings.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent))
         binding.btnLiveReadings.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
@@ -140,7 +147,6 @@ class HiveStreamsActivity : AppCompatActivity() {
         
         binding.tvMoistureStatus.text = "Warning"
         binding.cardMoisture.strokeWidth = 2
-        // Using common color resource if available, fallback to hardcoded if necessary
         binding.cardMoisture.strokeColor = ContextCompat.getColor(this, android.R.color.holo_orange_light)
     }
 

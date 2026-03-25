@@ -1,5 +1,6 @@
 package com.example.agrihive.camera
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.example.agrihive.databinding.ActivityAiScannerBinding
+import com.example.agrihive.hivestreams.ScanResultActivity
 import java.io.File
 
 class CameraActivity : AppCompatActivity() {
@@ -54,15 +56,19 @@ class CameraActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         viewModel.isLoading.observe(this) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.progressSpinner.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.btnTakePhoto.isEnabled = !isLoading
             binding.btnGallery.isEnabled = !isLoading
         }
 
         viewModel.scanResult.observe(this) { result ->
             result?.let {
-                Toast.makeText(this, "Scan Result: $it", Toast.LENGTH_LONG).show()
-                // You could navigate to a result detail screen here
+                val intent = Intent(this, ScanResultActivity::class.java).apply {
+                    putExtra(ScanResultActivity.EXTRA_DISEASE, it)
+                    putExtra(ScanResultActivity.EXTRA_HEALTH_SCORE, 92) // Example score
+                }
+                startActivity(intent)
+                finish()
             }
         }
 

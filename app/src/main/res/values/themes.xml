@@ -4,10 +4,11 @@
     <style name="Theme.AgriHive.Splash" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/honey_primary</item>
         <item name="colorOnPrimary">@color/text_on_primary</item>
-        <item name="android:windowBackground">@color/honey_primary</item>
-        <item name="android:statusBarColor">@color/honey_primary_dark</item>
-        <item name="android:navigationBarColor">@color/brown_dark</item>
-        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowBackground">@color/login_bg</item>
+        <item name="android:statusBarColor">@color/login_bg</item>
+        <item name="android:navigationBarColor">@color/login_bg</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <!-- Base application theme - Clean, minimal, premium (Grab/GCash style) -->
@@ -27,6 +28,7 @@
         <item name="android:windowBackground">@color/cream_background</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <!-- Login screen - Dark forest green theme -->
@@ -36,5 +38,14 @@
         <item name="android:statusBarColor">@color/login_bg</item>
         <item name="android:navigationBarColor">@color/login_bg</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <!-- Fix MaterialCardView default stroke behavior -->
+        <item name="materialCardViewStyle">@style/Widget.AgriHive.CardView</item>
+    </style>
+
+    <style name="Widget.AgriHive.CardView" parent="Widget.Material3.CardView.Filled">
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="cardElevation">0dp</item>
     </style>
 </resources>

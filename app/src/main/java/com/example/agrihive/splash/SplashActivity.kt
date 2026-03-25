@@ -64,7 +64,17 @@ class SplashActivity : AppCompatActivity() {
         viewModel.navigate.observe(this) { destination ->
             destination?.let {
                 val intent = when (it) {
-                    "dashboard" -> Intent(this, DashboardActivity::class.java)
+                    "dashboard" -> {
+                        val prefs = getSharedPreferences("AgriHivePrefs", MODE_PRIVATE)
+                        val rememberMe = prefs.getBoolean("remember_me", false)
+                        if (rememberMe) {
+                            Intent(this, DashboardActivity::class.java)
+                        } else if (!prefs.getBoolean("onboarding_complete", false)) {
+                            Intent(this, OnboardingActivity::class.java)
+                        } else {
+                            Intent(this, LandingActivity::class.java)
+                        }
+                    }
                     "landing" -> {
                         val prefs = getSharedPreferences("AgriHivePrefs", MODE_PRIVATE)
                         if (!prefs.getBoolean("onboarding_complete", false)) {

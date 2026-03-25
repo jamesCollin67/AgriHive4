@@ -3,6 +3,7 @@ package com.example.agrihive.hivestreams
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.databinding.ActivitySendReportBinding
 
@@ -12,6 +13,7 @@ import com.example.agrihive.databinding.ActivitySendReportBinding
 class SendReportActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySendReportBinding
+    private val viewModel: SendReportViewModel by viewModels()
 
     companion object {
         const val EXTRA_APIARY_ID = "apiary_id"
@@ -23,20 +25,40 @@ class SendReportActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnBack.setOnClickListener { finish() }
+        observeViewModel()
 
-        binding.cardCamera?.setOnClickListener {
-            startActivity(Intent(this, CaptureIssueActivity::class.java))
+        binding.btnCaptureAttachment.setOnClickListener {
+            viewModel.onCaptureAttachmentClicked()
         }
 
-        binding.btnSubmit.setOnClickListener {
-            val description = binding.tilDescription.editText?.text?.toString()?.trim() ?: ""
-            if (description.isBlank()) {
-                Toast.makeText(this, "Please describe the issue", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+        binding.btnSubmitReport.setOnClickListener {
+            val description = binding.etIssueDescription.text?.toString()?.trim() ?: ""
+            viewModel.onSubmitClicked(description)
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.errorMessage.observe(this) { message ->
+            message?.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                viewModel.doneError()
             }
-            Toast.makeText(this, "Report submitted. Thanks for your feedback!", Toast.LENGTH_LONG).show()
-            startActivity(Intent(this, ReportSentActivity::class.java))
-            finish()
+        }
+
+        viewModel.navigateToCapture.observe(this) { shouldNavigate ->
+            if (shouldNavigate) {
+                startActivity(Intent(this, CaptureIssueActivity::class.java))
+                viewModel.doneCaptureNavigation()
+            }
+        }
+
+        viewModel.navigateToReportSent.observe(this) { shouldNavigate ->
+            if (shouldNavigate) {
+                Toast.makeText(this, "Report submitted. Thanks for your feedback!", Toast.LENGTH_LONG).show()
+                startActivity(Intent(this, ReportSentActivity::class.java))
+                finish()
+                viewModel.doneReportSentNavigation()
+            }
         }
     }
 }

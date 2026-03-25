@@ -1,12 +1,10 @@
 package com.example.agrihive.log
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.databinding.ActivityActivityLogBinding
 
 /**
@@ -20,26 +18,50 @@ class ActivityLogActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Ensure Repository is initialized in case we came here from a notification or deep link
+        ActivityLogRepository.init(applicationContext)
+        
         binding = ActivityActivityLogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = ViewModelProvider(this)[ActivityLogViewModel::class.java]
+        viewModel = ActivityLogViewModel.getInstance()
         adapter = ActivityLogAdapter()
         
-        binding.rvActivityLog.layoutManager = LinearLayoutManager(this)
-        binding.rvActivityLog.adapter = adapter
+        setupRecyclerView()
+        setupObservers()
 
         binding.btnBack.setOnClickListener {
-            startActivity(Intent(this, DashboardActivity::class.java))
             finish()
         }
 
+        // Trigger load
+        viewModel.loadFromFirebase()
+    }
+
+    private fun setupRecyclerView() {
+        binding.rvActivityLog.apply {
+            layoutManager = LinearLayoutManager(this@ActivityLogActivity)
+            adapter = this@ActivityLogActivity.adapter
+            setHasFixedSize(true)
+        }
+    }
+
+    private fun setupObservers() {
         viewModel.activityLogs.observe(this) { logs ->
             adapter.submitList(logs)
-            // Note: The static UI has hardcoded entries. In a production app, 
-            // the RecyclerView would replace those or be used instead.
+            binding.emptyState.visibility = if (logs.isNullOrEmpty()) View.VISIBLE else View.GONE
         }
 
-        viewModel.loadFromFirebase()
+        viewModel.errorMessage.observe(this) { error ->
+            error?.let {
+                Toast.makeText(this, "Error: $it", Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
+            }
+        }
+        
+        viewModel.isLoading.observe(this) { isLoading ->
+            // You could add a progress bar here if one exists in your XML
+        }
     }
 }

@@ -1,23 +1,24 @@
 package com.example.agrihive.dashboard
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.agrihive.addapiary.Apiary
+import com.example.agrihive.data.UserSessionManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 
 /**
  * ViewModel for Dashboard - MVVM Architecture
  * Handles loading apiaries and calculating statistics from Firebase Realtime Database
  */
-class DashboardViewModel : ViewModel() {
+class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val firebaseDatabase: FirebaseDatabase = FirebaseDatabase.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val sessionManager = UserSessionManager(application)
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -44,7 +45,7 @@ class DashboardViewModel : ViewModel() {
     private val _harvestReadyCount = MutableLiveData<Int>(0)
     val harvestReadyCount: LiveData<Int> = _harvestReadyCount
 
-    private var apiaryListener: ValueEventListener? = null
+    private var apiaryListener: ListenerRegistration? = null
 
     init {
         loadUserName()
@@ -54,19 +55,34 @@ class DashboardViewModel : ViewModel() {
     private fun loadUserName() {
         val uid = firebaseAuth.currentUser?.uid ?: return
         
-        firebaseDatabase.reference
-            .child("users")
-            .child(uid)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val firstName = snapshot.child("firstName").getValue(String::class.java) ?: "Tfgf"
+        // Initial load from session manager for instant display
+        if (sessionManager.hasUserData()) {
+            _userName.value = sessionManager.getFirstName()
+        } else {
+            _userName.value = "User"
+        }
+        
+        // Fetch user data from Firestore to ensure latest data and sync session
+        firestore.collection("users")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val firstName = document.getString("firstName") ?: "User"
+                    val lastName = document.getString("lastName") ?: ""
+                    val email = document.getString("email") ?: ""
+                    
                     _userName.value = firstName
+                    
+                    // Update session manager
+                    sessionManager.saveUserData(
+                        firstName = firstName,
+                        lastName = lastName,
+                        email = email,
+                        uid = uid
+                    )
                 }
-
-                override fun onCancelled(error: DatabaseError) {
-                    _userName.value = "Tfgf"
-                }
-            })
+            }
     }
 
     fun loadApiaries() {
@@ -76,40 +92,36 @@ class DashboardViewModel : ViewModel() {
         }
 
         _isLoading.value = true
-
-        apiaryListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
+        apiaryListener?.remove()
+        apiaryListener = firestore.collection("apiaries")
+            .whereEqualTo("ownerId", uid)
+            .addSnapshotListener { snapshot, error ->
                 _isLoading.value = false
-                val list = snapshot.children.mapNotNull { child ->
-                    child.getValue(ApiaryDto::class.java)?.let { dto ->
-                        Apiary(
-                            id = child.key ?: "",
-                            name = dto.name ?: "",
-                            ownerId = dto.ownerId ?: "",
-                            temperature = dto.temperature ?: 0.0,
-                            humidity = dto.humidity ?: 0.0,
-                            weight = dto.weight ?: 0.0,
-                            isConnected = dto.isConnected ?: false,
-                            lastUpdate = dto.lastUpdate ?: 0L
-                        )
-                    }
+                if (error != null) {
+                    _errorMessage.value = error.message ?: "Failed to load apiaries"
+                    return@addSnapshotListener
                 }
-                
+
+                val list = snapshot?.documents?.map { doc ->
+                    Apiary(
+                        id = doc.getString("id") ?: doc.id,
+                        name = doc.getString("name") ?: "",
+                        location = doc.getString("location") ?: "",
+                        nodeId = doc.getString("nodeId") ?: "",
+                        ownerId = doc.getString("ownerId") ?: "",
+                        temperature = doc.getDouble("temperature") ?: 0.0,
+                        humidity = doc.getDouble("humidity") ?: 0.0,
+                        moisture = doc.getDouble("moisture") ?: 0.0,
+                        weight = doc.getDouble("weight") ?: 0.0,
+                        isConnected = doc.getBoolean("isConnected") ?: false,
+                        alertsCount = (doc.getLong("alertsCount") ?: 0L).toInt(),
+                        lastUpdate = doc.getLong("lastUpdate") ?: 0L
+                    )
+                } ?: emptyList()
+
                 _apiaries.value = list
                 calculateStats(list)
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                _isLoading.value = false
-                _errorMessage.value = error.message
-            }
-        }
-
-        firebaseDatabase.reference
-            .child("apiaries")
-            .orderByChild("ownerId")
-            .equalTo(uid)
-            .addValueEventListener(apiaryListener!!)
     }
 
     private fun calculateStats(list: List<Apiary>) {
@@ -131,7 +143,7 @@ class DashboardViewModel : ViewModel() {
             hour < 12 -> "Hello"
             hour < 17 -> "Hello"
             else -> "Hello"
-        } // Keeping it simple like in the image "Hello, Tfgf"
+        }
     }
 
     /**
@@ -143,20 +155,6 @@ class DashboardViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        apiaryListener?.let { listener ->
-            firebaseDatabase.reference
-                .child("apiaries")
-                .removeEventListener(listener)
-        }
+        apiaryListener?.remove()
     }
-
-    private data class ApiaryDto(
-        val name: String? = null,
-        val ownerId: String? = null,
-        val temperature: Double? = null,
-        val humidity: Double? = null,
-        val weight: Double? = null,
-        val isConnected: Boolean? = null,
-        val lastUpdate: Long? = null
-    )
 }

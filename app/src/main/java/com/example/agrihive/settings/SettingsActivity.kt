@@ -3,7 +3,7 @@ package com.example.agrihive.settings
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -19,12 +19,14 @@ import com.example.agrihive.notification.NotificationActivity
 import com.example.agrihive.sensorsubscription.SensorSubscriptionActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SettingsActivity : AppCompatActivity() {
 
     private val viewModel: SettingsViewModel by viewModels()
     private lateinit var sessionManager: UserSessionManager
     private lateinit var auth: FirebaseAuth
+    private val firestore = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +37,11 @@ class SettingsActivity : AppCompatActivity() {
 
         setupNavigation()
         setupBottomNavigation()
+        
+        // Initial load from session manager
+        displayCachedProfile()
+        // Refresh from server
+        loadUserProfile()
 
         findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_notifications).setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleNotifications(isChecked)
@@ -46,49 +53,78 @@ class SettingsActivity : AppCompatActivity() {
         setupObservers()
     }
 
+    private fun displayCachedProfile() {
+        if (sessionManager.hasUserData()) {
+            val name = "${sessionManager.getFirstName()} ${sessionManager.getLastName()}".trim()
+            val email = sessionManager.getEmail()
+            
+            findViewById<TextView>(R.id.tv_settings_user_name).text = if (name.isNotEmpty()) name else "User"
+            findViewById<TextView>(R.id.tv_settings_user_email).text = if (email.isNotEmpty()) email else "email@example.com"
+        }
+    }
+
+    private fun loadUserProfile() {
+        val uid = auth.currentUser?.uid ?: return
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val firstName = document.getString("firstName") ?: ""
+                    val lastName = document.getString("lastName") ?: ""
+                    val email = document.getString("email") ?: ""
+                    val farm = document.getString("farm") ?: ""
+                    val location = document.getString("location") ?: ""
+                    val apiaries = document.getLong("apiaries")?.toInt() ?: 0
+                    
+                    findViewById<TextView>(R.id.tv_settings_user_name).text = "$firstName $lastName".trim()
+                    findViewById<TextView>(R.id.tv_settings_user_email).text = email
+                    
+                    // Sync session manager
+                    sessionManager.saveUserData(
+                        firstName = firstName,
+                        lastName = lastName,
+                        email = email,
+                        farm = farm,
+                        location = location,
+                        apiaries = apiaries,
+                        uid = uid
+                    )
+                }
+            }
+    }
+
     private fun setupNavigation() {
-        // Activity Log
+        findViewById<View>(R.id.card_profile).setOnClickListener {
+            startActivity(Intent(this, EditProfileActivity::class.java))
+        }
+
         findViewById<View>(R.id.btn_activity_log).setOnClickListener {
             startActivity(Intent(this, ActivityLogActivity::class.java))
         }
 
-        // Saved Treatments
         findViewById<View>(R.id.btn_saved_treatments).setOnClickListener {
-            // Check if activity exists in manifest or project, if not show toast or route to placeholder
-            try {
-                val intent = Intent(this, Class.forName("com.example.agrihive.settings.SavedTreatmentsActivity"))
-                startActivity(intent)
-            } catch (e: Exception) {
-                Toast.makeText(this, "Saved Treatments coming soon", Toast.LENGTH_SHORT).show()
-            }
+            startActivity(Intent(this, com.example.agrihive.hivestreams.SavedTreatmentsActivity::class.java))
         }
 
-        // Device Controls
         findViewById<View>(R.id.btn_device_controls).setOnClickListener {
             startActivity(Intent(this, DeviceControlActivity::class.java))
         }
 
-        // Subscription
         findViewById<View>(R.id.btn_subscription).setOnClickListener {
             startActivity(Intent(this, SensorSubscriptionActivity::class.java))
         }
 
-        // Report an Issue
         findViewById<View>(R.id.btn_report_issue).setOnClickListener {
             startActivity(Intent(this, SendReportActivity::class.java))
         }
 
-        // Edit Profile
         findViewById<View>(R.id.btn_edit_profile).setOnClickListener {
             startActivity(Intent(this, EditProfileActivity::class.java))
         }
 
-        // Change Password
         findViewById<View>(R.id.btn_change_password).setOnClickListener {
             startActivity(Intent(this, ChangePasswordActivity::class.java))
         }
 
-        // Logout
         findViewById<View>(R.id.btn_logout).setOnClickListener {
             showLogoutDialog()
         }
@@ -146,5 +182,12 @@ class SettingsActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
             .show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh profile info when returning from Edit Profile
+        displayCachedProfile()
+        loadUserProfile()
     }
 }

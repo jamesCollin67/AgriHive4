@@ -3,9 +3,7 @@ package com.example.agrihive.notification
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,11 +18,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class NotificationActivity : AppCompatActivity() {
 
     private lateinit var repository: NotificationRepository
-    private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: NotificationAdapter
-    private lateinit var emptyView: TextView
-    private lateinit var backButton: ImageView
-    private lateinit var clearAllButton: TextView
+    
+    private lateinit var rvNotifications: RecyclerView
+    private lateinit var emptyState: TextView
+    private lateinit var tvUnreadCount: TextView
+    private lateinit var tvBadgeCount: TextView
+    private lateinit var unreadBadge: View
+    private lateinit var backButton: View
     private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,26 +35,58 @@ class NotificationActivity : AppCompatActivity() {
         repository = NotificationRepository(this)
 
         initViews()
-        setupBottomNavigation()
         setupRecyclerView()
+        setupBottomNavigation()
         loadNotifications()
     }
 
     private fun initViews() {
-        recyclerView = findViewById(R.id.notifications_recycler_view)
-        emptyView = findViewById(R.id.empty_notifications_text)
-        backButton = findViewById(R.id.back_button)
-        clearAllButton = findViewById(R.id.clear_all_button)
+        rvNotifications = findViewById(R.id.rvNotifications)
+        emptyState = findViewById(R.id.emptyState)
+        tvUnreadCount = findViewById(R.id.tvUnreadCount)
+        tvBadgeCount = findViewById(R.id.tvBadgeCount)
+        unreadBadge = findViewById(R.id.unreadBadge)
+        backButton = findViewById(R.id.flBell)
         bottomNavigationView = findViewById(R.id.bottom_navigation)
+        
+        backButton.setOnClickListener { finish() }
+    }
 
-        backButton.setOnClickListener {
-            finish()
-        }
+    private fun setupRecyclerView() {
+        adapter = NotificationAdapter(
+            notifications = emptyList(),
+            onItemClick = { notification ->
+                repository.markAsRead(notification.id)
+                loadNotifications()
+                // Handle navigation based on notification type if needed
+            },
+            onDeleteClick = { notification ->
+                repository.deleteNotification(notification.id)
+                loadNotifications()
+            }
+        )
+        
+        rvNotifications.layoutManager = LinearLayoutManager(this)
+        rvNotifications.adapter = adapter
+    }
 
-        clearAllButton.setOnClickListener {
-            repository.clearAll()
-            loadNotifications()
-            Toast.makeText(this, "All notifications cleared", Toast.LENGTH_SHORT).show()
+    private fun loadNotifications() {
+        val notifications = repository.getAllNotifications()
+        adapter.updateNotifications(notifications)
+        
+        val unreadCount = repository.getUnreadCount()
+        
+        // Update UI components
+        emptyState.visibility = if (notifications.isEmpty()) View.VISIBLE else View.GONE
+        tvUnreadCount.text = if (unreadCount == 1) "1 unread" else "$unreadCount unread"
+        
+        if (unreadCount > 0) {
+            tvBadgeCount.text = unreadCount.toString()
+            tvBadgeCount.visibility = View.VISIBLE
+            unreadBadge.visibility = View.VISIBLE
+        } else {
+            tvBadgeCount.visibility = View.GONE
+            unreadBadge.visibility = View.GONE
         }
     }
 
@@ -77,35 +110,8 @@ class NotificationActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupRecyclerView() {
-        adapter = NotificationAdapter(
-            notifications = emptyList(),
-            onItemClick = { notification ->
-                repository.markAsRead(notification.id)
-                loadNotifications()
-            },
-            onDeleteClick = { notification ->
-                repository.deleteNotification(notification.id)
-                loadNotifications()
-            }
-        )
-
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
-    }
-
-    private fun loadNotifications() {
-        val notifications = repository.getAllNotifications()
-        
-        if (notifications.isEmpty()) {
-            recyclerView.visibility = View.GONE
-            emptyView.visibility = View.VISIBLE
-            clearAllButton.visibility = View.GONE
-        } else {
-            recyclerView.visibility = View.VISIBLE
-            emptyView.visibility = View.GONE
-            clearAllButton.visibility = View.VISIBLE
-            adapter.updateNotifications(notifications)
-        }
+    override fun onResume() {
+        super.onResume()
+        loadNotifications()
     }
 }

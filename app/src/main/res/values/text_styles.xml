@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- AgriHive Typography: Bold titles, Medium labels, Regular descriptions -->
+    <style name="TextAppearance.AgriHive" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
     
     <!-- HEADINGS - Bold -->
     <style name="TextAppearance.AgriHive.Headline1">

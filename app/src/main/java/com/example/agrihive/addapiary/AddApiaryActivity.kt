@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.databinding.ActivityAddApiaryBinding
+import com.example.agrihive.utils.NetworkUtils
 
 class AddApiaryActivity : AppCompatActivity() {
 
@@ -29,6 +30,11 @@ class AddApiaryActivity : AppCompatActivity() {
             val name = binding.etApiaryName.text.toString().trim()
             val location = binding.etLocation.text.toString().trim()
             val nodeId = binding.etNodeId.text.toString().trim()
+
+            if (!NetworkUtils.isNetworkAvailable(this)) {
+                Toast.makeText(this, "No internet connection. Please connect and try again.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             viewModel.saveApiary(name, location, nodeId)
         }

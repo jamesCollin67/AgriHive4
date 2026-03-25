@@ -28,14 +28,17 @@ class RegisterActivity : AppCompatActivity() {
             finish()
         }
 
+        // Note: Password visibility toggle is now handled automatically by TextInputLayout
+        // in the activity_register.xml using app:endIconMode="password_toggle"
+
         // Sign Up button click
         binding.btnRegister.setOnClickListener {
             viewModel.register(
-                binding.firstName.text.toString().trim(),
-                binding.lastName.text.toString().trim(),
-                binding.email.text.toString().trim(),
-                binding.password.text.toString(),
-                binding.confirmPassword.text.toString(),
+                binding.firstName.text?.toString()?.trim() ?: "",
+                binding.lastName.text?.toString()?.trim() ?: "",
+                binding.email.text?.toString()?.trim() ?: "",
+                binding.password.text?.toString() ?: "",
+                binding.confirmPassword.text?.toString() ?: "",
                 binding.terms.isChecked
             )
         }

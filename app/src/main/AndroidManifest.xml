@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Network permissions for payment API calls -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
-    <!-- Location permissions for weather API -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-    <!-- Notification permission for rain alerts (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    
-    <!-- Wake lock for background work -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+        <intent>
+            <action android:name="com.android.camera.action.CROP" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="true"
@@ -31,7 +35,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AgriHive">
 
-        <!-- Splash Screen Activity -->
         <activity
             android:name=".splash.SplashActivity"
             android:exported="true"
@@ -42,185 +45,67 @@
             </intent-filter>
         </activity>
 
-
-        <!-- Main Activity -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-
-        <!-- Onboarding - 3 swipeable intro screens -->
-        <activity
-            android:name=".onboarding.OnboardingActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-
-        <!-- Landing Activity (Welcome / Auth) -->
-        <activity
-            android:name=".landing.LandingActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
+        <activity android:name=".MainActivity" android:exported="false" />
+        <activity android:name=".onboarding.OnboardingActivity" android:exported="false" />
+        <activity android:name=".landing.LandingActivity" android:exported="false" />
 
         <activity
             android:name=".login.LoginActivity"
-            android:exported="true"
-            android:label="@string/app_name"
+            android:exported="false"
             android:theme="@style/Theme.AgriHive.Login" />
 
-        <activity
-            android:name=".register.RegisterActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-        <activity
-            android:name=".forgot.ForgotPasswordActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-        <activity
-            android:name=".forgot.ResetPasswordActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-        <activity
-            android:name=".dashboard.DashboardActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-        <activity
-            android:name=".profile.ProfileActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-        <activity
-            android:name=".addapiary.AddApiaryActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-        <activity
-            android:name=".hivestreams.HiveStreamsActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-        <activity
-            android:name=".editprofile.EditProfileActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-        <activity
-            android:name=".settings.SettingsActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-        <activity
-            android:name=".settings.ChangePasswordActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
+        <activity android:name=".register.RegisterActivity" android:exported="false" />
+        <activity android:name=".forgot.ForgotPasswordActivity" android:exported="false" />
+        <activity android:name=".forgot.ResetPasswordActivity" android:exported="false" />
+        <activity android:name=".dashboard.DashboardActivity" android:exported="false" />
+        <activity android:name=".profile.ProfileActivity" android:exported="false" />
+        <activity android:name=".addapiary.AddApiaryActivity" android:exported="false" />
+        <activity android:name=".hivestreams.HiveStreamsActivity" android:exported="false" />
+        <activity android:name=".editprofile.EditProfileActivity" android:exported="false" />
+        <activity android:name=".settings.SettingsActivity" android:exported="false" />
+        <activity android:name=".settings.ChangePasswordActivity" android:exported="false" />
+        <activity android:name=".device.DeviceControlActivity" android:exported="false" />
+        <activity android:name=".log.ActivityLogActivity" android:exported="false" />
 
-        <!-- Device Control Activity -->
-        <activity
-            android:name=".device.DeviceControlActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-
-        <!-- Activity Log -->
-        <activity
-            android:name=".log.ActivityLogActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-
-        <!-- Sensor Subscription (Pricing) -->
         <activity
             android:name=".sensorsubscription.SensorSubscriptionActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
+            android:exported="false"
+            android:theme="@style/Theme.AgriHive.Login" />
 
-        <!-- Subscription Checkout -->
+        <activity android:name=".payment.PaymentSuccessActivity" android:exported="false" />
+
         <activity
             android:name=".subscription.SubscriptionActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive">
-            <!-- Deep link intent filters for payment return URLs -->
+            android:theme="@style/Theme.AgriHive.Login">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- AgriHive return URL for PayPal -->
-                <data android:scheme="agrhive" android:host="paypal-return" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- GCash deep link -->
-                <data android:scheme="gcash" android:host="payment" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- PayMaya deep link -->
-                <data android:scheme="paymaya" android:host="pay" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- BDO deep link -->
-                <data android:scheme="bdo" android:host="payment" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- PayPal deep link -->
-                <data android:scheme="paypal" android:host="payment" />
+                <data android:scheme="agrihive" android:host="payment-return" />
             </intent-filter>
         </activity>
 
-        <!-- Send Report -->
-        <activity
-            android:name=".hivestreams.SendReportActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
+        <activity android:name=".hivestreams.SendReportActivity" android:exported="false" />
+        <activity android:name=".hivestreams.CaptureIssueActivity" android:exported="false" />
+        <activity android:name=".hivestreams.ReportSentActivity" android:exported="false" />
+        <activity android:name=".camera.CameraActivity" android:exported="false" />
+        <activity android:name=".notification.NotificationActivity" android:exported="false" />
 
-        <!-- Capture Issue -->
-        <activity
-            android:name=".hivestreams.CaptureIssueActivity"
+        <activity android:name=".hivestreams.AiScannerActivity" android:exported="false" />
+        <activity android:name=".hivestreams.SavedTreatmentsActivity" android:exported="false" />
+        <activity android:name=".hivestreams.ScanResultActivity" android:exported="false" />
+        <activity android:name=".payment.PaymentDetailsActivity" android:exported="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-
-        <!-- Camera Activity -->
-        <activity
-            android:name=".camera.CameraActivity"
-            android:exported="false"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
-
-        <!-- Notifications Activity -->
-        <activity
-            android:name=".notification.NotificationActivity"
-            android:exported="true"
-            android:label="Notifications"
-            android:theme="@style/Theme.AgriHive" />
-
-        <!-- Report Sent -->
-        <activity
-            android:name=".hivestreams.ReportSentActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AgriHive" />
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
-
 </manifest>
