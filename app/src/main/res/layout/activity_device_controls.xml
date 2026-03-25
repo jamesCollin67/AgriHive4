@@ -1,421 +1,452 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A1815"
-    android:fillViewport="true"
-    tools:context=".device.DeviceControlActivity">
+    android:background="#0A1815">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="40dp">
-
-        <!-- Top Navigation -->
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back"
-            android:src="@drawable/ic_back"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="#FFFFFF" />
-
-        <TextView
-            android:id="@+id/tvHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Device Controls"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/btnBack"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/btnBack" />
-
-        <!-- Temperature Card -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cardTemperature"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="32dp"
-            android:background="@drawable/bg_control_card"
-            android:padding="24dp"
-            app:layout_constraintTop_toBottomOf="@id/btnBack">
-
-            <TextView
-                android:id="@+id/tvTempLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Current Hive Temperature"
-                android:textColor="#9CAF9F"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:id="@+id/ivTempIcon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="16dp"
-                android:src="@drawable/ic_temperature"
-                app:layout_constraintEnd_toStartOf="@id/tvTemperature"
-                app:layout_constraintHorizontal_chainStyle="packed"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTempLabel"
-                app:tint="#F4B400" />
-
-            <TextView
-                android:id="@+id/tvTemperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="34.2°C"
-                android:textColor="#F4B400"
-                android:textSize="44sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="@id/ivTempIcon"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/ivTempIcon"
-                app:layout_constraintTop_toTopOf="@id/ivTempIcon" />
-
-            <TextView
-                android:id="@+id/tvStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Normal: 32°C – 36°C"
-                android:textColor="#9CAF9F"
-                android:textSize="14sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTemperature" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- COOLING FAN Section -->
-        <TextView
-            android:id="@+id/tvCoolingFanLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
-            android:text="COOLING FAN"
-            android:textColor="#9CAF9F"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardTemperature" />
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cardFanControls"
+            android:id="@+id/main_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_control_card"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/tvCoolingFanLabel">
+            android:paddingBottom="40dp">
 
-            <!-- Fan Auto-Control -->
-            <View
-                android:id="@+id/bgIconAuto"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@drawable/bg_stepper"
+            <!-- Top Navigation -->
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Back"
+                android:src="@drawable/ic_back"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@drawable/ic_wind"
-                app:layout_constraintBottom_toBottomOf="@id/bgIconAuto"
-                app:layout_constraintEnd_toEndOf="@id/bgIconAuto"
-                app:layout_constraintStart_toStartOf="@id/bgIconAuto"
-                app:layout_constraintTop_toTopOf="@id/bgIconAuto" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="#FFFFFF" />
 
             <TextView
-                android:id="@+id/tvAutoTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Fan Auto-Control"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/switchAuto"
-                app:layout_constraintStart_toEndOf="@id/bgIconAuto"
-                app:layout_constraintTop_toTopOf="@id/bgIconAuto" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Activates when temp exceeds 36°C"
-                android:textColor="#9CAF9F"
-                android:textSize="13sp"
-                app:layout_constraintEnd_toStartOf="@id/switchAuto"
-                app:layout_constraintStart_toStartOf="@id/tvAutoTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvAutoTitle" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switchAuto"
+                android:id="@+id/tvHeader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
-                app:layout_constraintBottom_toBottomOf="@id/bgIconAuto"
+                android:text="Device Controls"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/btnBack"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/bgIconAuto"
-                app:thumbTint="#F4B400"
-                app:trackTint="#80F4B400" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/btnBack" />
 
-            <View
-                android:id="@+id/divider1"
+            <!-- Temperature Card -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cardTemperature"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="#243B33"
-                app:layout_constraintTop_toBottomOf="@id/bgIconAuto" />
-
-            <!-- Fan Activation Notification -->
-            <View
-                android:id="@+id/bgIconNotif"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_stepper"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/divider1" />
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@drawable/ic_bell"
-                app:layout_constraintBottom_toBottomOf="@id/bgIconNotif"
-                app:layout_constraintEnd_toEndOf="@id/bgIconNotif"
-                app:layout_constraintStart_toStartOf="@id/bgIconNotif"
-                app:layout_constraintTop_toTopOf="@id/bgIconNotif"
-                app:tint="#42A5F5" />
-
-            <TextView
-                android:id="@+id/tvNotifTitle"
-                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Fan Activation Notification"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/switchNotif"
-                app:layout_constraintStart_toEndOf="@id/bgIconNotif"
-                app:layout_constraintTop_toTopOf="@id/bgIconNotif" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Alert when fan turns on automatically"
-                android:textColor="#9CAF9F"
-                android:textSize="13sp"
-                app:layout_constraintEnd_toStartOf="@id/switchNotif"
-                app:layout_constraintStart_toStartOf="@id/tvNotifTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvNotifTitle" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switchNotif"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checked="true"
-                app:layout_constraintBottom_toBottomOf="@id/bgIconNotif"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/bgIconNotif"
-                app:thumbTint="#42A5F5"
-                app:trackTint="#8042A5F5" />
-
-            <View
-                android:id="@+id/divider2"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:background="#243B33"
-                app:layout_constraintTop_toBottomOf="@id/bgIconNotif" />
-
-            <!-- Auto-Activate Delay -->
-            <View
-                android:id="@+id/bgIconDelay"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/bg_stepper"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/divider2" />
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@drawable/ic_clock"
-                app:layout_constraintBottom_toBottomOf="@id/bgIconDelay"
-                app:layout_constraintEnd_toEndOf="@id/bgIconDelay"
-                app:layout_constraintStart_toStartOf="@id/bgIconDelay"
-                app:layout_constraintTop_toTopOf="@id/bgIconDelay"
-                app:tint="#4CAF50" />
-
-            <TextView
-                android:id="@+id/tvDelayTitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Auto-Activate Delay"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@id/stepperLayout"
-                app:layout_constraintStart_toEndOf="@id/bgIconDelay"
-                app:layout_constraintTop_toTopOf="@id/bgIconDelay" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Time before fan turns on automatically"
-                android:textColor="#9CAF9F"
-                android:textSize="13sp"
-                app:layout_constraintEnd_toStartOf="@id/stepperLayout"
-                app:layout_constraintStart_toStartOf="@id/tvDelayTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvDelayTitle" />
-
-            <LinearLayout
-                android:id="@+id/stepperLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="@id/bgIconDelay"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/bgIconDelay">
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="32dp"
+                android:background="@drawable/bg_control_card"
+                android:padding="24dp"
+                app:layout_constraintTop_toBottomOf="@id/btnBack">
 
                 <TextView
-                    android:id="@+id/btn_delay_minus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/bg_stepper"
-                    android:gravity="center"
-                    android:text="–"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:clickable="true"
-                    android:focusable="true"/>
-
-                <TextView
-                    android:id="@+id/tvDelayValue"
+                    android:id="@+id/tvTempLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="12dp"
-                    android:text="20s"
-                    android:textColor="#F4B400"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:text="Current Hive Temperature"
+                    android:textColor="#9CAF9F"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/ivTempIcon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="16dp"
+                    android:src="@drawable/ic_temperature"
+                    app:layout_constraintEnd_toStartOf="@id/tvTemperature"
+                    app:layout_constraintHorizontal_chainStyle="packed"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvTempLabel"
+                    app:tint="#F4B400" />
 
                 <TextView
-                    android:id="@+id/btn_delay_plus"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="@drawable/bg_stepper"
-                    android:gravity="center"
-                    android:text="+"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:clickable="true"
-                    android:focusable="true"/>
-            </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:id="@+id/tvTemperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="0.0°C"
+                    android:textColor="#F4B400"
+                    android:textSize="44sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/ivTempIcon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/ivTempIcon"
+                    app:layout_constraintTop_toTopOf="@id/ivTempIcon" />
 
-        <!-- FAN STATUS Section -->
-        <TextView
-            android:id="@+id/tvFanStatusLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
-            android:text="FAN STATUS"
-            android:textColor="#9CAF9F"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardFanControls" />
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Normal: 32°C – 36°C"
+                    android:textColor="#9CAF9F"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvTemperature" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/statusBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_control_card"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/tvFanStatusLabel">
-
-            <View
-                android:id="@+id/statusDot"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:background="@drawable/bg_status_dot"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+            <!-- COOLING FAN Section -->
             <TextView
-                android:id="@+id/tvStatusTitle"
+                android:id="@+id/tvCoolingFanLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Cooling Fan — Standby"
-                android:textColor="#FFFFFF"
-                android:textSize="16sp"
-                app:layout_constraintStart_toEndOf="@id/statusDot"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Temperature within normal range"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="32dp"
+                android:text="COOLING FAN"
                 android:textColor="#9CAF9F"
                 android:textSize="13sp"
-                app:layout_constraintStart_toStartOf="@id/tvStatusTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvStatusTitle" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardTemperature" />
 
-        <!-- Warning Box -->
-        <LinearLayout
-            android:id="@+id/warningBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/bg_warning_box"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            app:layout_constraintTop_toBottomOf="@id/statusBox">
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_warning"
-                app:tint="#F4B400" />
-
-            <TextView
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cardFanControls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:text="Adjust delay carefully. Too short a delay may cause frequent fan cycles. Recommended: 15–25 seconds."
-                android:textColor="#9CAF9F"
-                android:textSize="13sp" />
-        </LinearLayout>
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_control_card"
+                android:padding="16dp"
+                app:layout_constraintTop_toBottomOf="@id/tvCoolingFanLabel">
 
+                <!-- Fan Auto-Control -->
+                <View
+                    android:id="@+id/bgIconAuto"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_stepper"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_wind"
+                    app:layout_constraintBottom_toBottomOf="@id/bgIconAuto"
+                    app:layout_constraintEnd_toEndOf="@id/bgIconAuto"
+                    app:layout_constraintStart_toStartOf="@id/bgIconAuto"
+                    app:layout_constraintTop_toTopOf="@id/bgIconAuto" />
+
+                <TextView
+                    android:id="@+id/tvAutoTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Fan Auto-Control"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@id/switchAuto"
+                    app:layout_constraintStart_toEndOf="@id/bgIconAuto"
+                    app:layout_constraintTop_toTopOf="@id/bgIconAuto" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Activates when temp exceeds 36°C"
+                    android:textColor="#9CAF9F"
+                    android:textSize="13sp"
+                    app:layout_constraintEnd_toStartOf="@id/switchAuto"
+                    app:layout_constraintStart_toStartOf="@id/tvAutoTitle"
+                    app:layout_constraintTop_toBottomOf="@id/tvAutoTitle" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchAuto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    app:layout_constraintBottom_toBottomOf="@id/bgIconAuto"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/bgIconAuto"
+                    app:thumbTint="#F4B400"
+                    app:trackTint="#80F4B400" />
+
+                <View
+                    android:id="@+id/divider1"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#243B33"
+                    app:layout_constraintTop_toBottomOf="@id/bgIconAuto" />
+
+                <!-- Fan Activation Notification -->
+                <View
+                    android:id="@+id/bgIconNotif"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_stepper"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/divider1" />
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_bell"
+                    app:layout_constraintBottom_toBottomOf="@id/bgIconNotif"
+                    app:layout_constraintEnd_toEndOf="@id/bgIconNotif"
+                    app:layout_constraintStart_toStartOf="@id/bgIconNotif"
+                    app:layout_constraintTop_toTopOf="@id/bgIconNotif"
+                    app:tint="#42A5F5" />
+
+                <TextView
+                    android:id="@+id/tvNotifTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Fan Activation Notification"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@id/switchNotif"
+                    app:layout_constraintStart_toEndOf="@id/bgIconNotif"
+                    app:layout_constraintTop_toTopOf="@id/bgIconNotif" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Alert when fan turns on automatically"
+                    android:textColor="#9CAF9F"
+                    android:textSize="13sp"
+                    app:layout_constraintEnd_toStartOf="@id/switchNotif"
+                    app:layout_constraintStart_toStartOf="@id/tvNotifTitle"
+                    app:layout_constraintTop_toBottomOf="@id/tvNotifTitle" />
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchNotif"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    app:layout_constraintBottom_toBottomOf="@id/bgIconNotif"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/bgIconNotif"
+                    app:thumbTint="#42A5F5"
+                    app:trackTint="#8042A5F5" />
+
+                <View
+                    android:id="@+id/divider2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="#243B33"
+                    app:layout_constraintTop_toBottomOf="@id/bgIconNotif" />
+
+                <!-- Auto-Activate Delay -->
+                <View
+                    android:id="@+id/bgIconDelay"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/bg_stepper"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/divider2" />
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@drawable/ic_clock"
+                    app:layout_constraintBottom_toBottomOf="@id/bgIconDelay"
+                    app:layout_constraintEnd_toEndOf="@id/bgIconDelay"
+                    app:layout_constraintStart_toStartOf="@id/bgIconDelay"
+                    app:layout_constraintTop_toTopOf="@id/bgIconDelay"
+                    app:tint="#4CAF50" />
+
+                <TextView
+                    android:id="@+id/tvDelayTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Auto-Activate Delay"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toStartOf="@id/stepperLayout"
+                    app:layout_constraintStart_toEndOf="@id/bgIconDelay"
+                    app:layout_constraintTop_toTopOf="@id/bgIconDelay" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Time before fan turns on automatically"
+                    android:textColor="#9CAF9F"
+                    android:textSize="13sp"
+                    app:layout_constraintEnd_toStartOf="@id/stepperLayout"
+                    app:layout_constraintStart_toStartOf="@id/tvDelayTitle"
+                    app:layout_constraintTop_toBottomOf="@id/tvDelayTitle" />
+
+                <LinearLayout
+                    android:id="@+id/stepperLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="@id/bgIconDelay"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/bgIconDelay">
+
+                    <TextView
+                        android:id="@+id/btn_delay_minus"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_stepper"
+                        android:gravity="center"
+                        android:text="–"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:clickable="true"
+                        android:focusable="true"/>
+
+                    <TextView
+                        android:id="@+id/tvDelayValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="12dp"
+                        android:text="20s"
+                        android:textColor="#F4B400"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btn_delay_plus"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_stepper"
+                        android:gravity="center"
+                        android:text="+"
+                        android:textColor="#FFFFFF"
+                        android:textSize="18sp"
+                        android:clickable="true"
+                        android:focusable="true"/>
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- FAN STATUS Section -->
+            <TextView
+                android:id="@+id/tvFanStatusLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="32dp"
+                android:text="FAN STATUS"
+                android:textColor="#9CAF9F"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardFanControls" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/statusBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_control_card"
+                android:padding="16dp"
+                app:layout_constraintTop_toBottomOf="@id/tvFanStatusLabel">
+
+                <View
+                    android:id="@+id/statusDot"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/bg_status_dot"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvStatusTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="Cooling Fan — Standby"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toEndOf="@id/statusDot"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvStatusDesc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Temperature within normal range"
+                    android:textColor="#9CAF9F"
+                    android:textSize="13sp"
+                    app:layout_constraintStart_toStartOf="@id/tvStatusTitle"
+                    app:layout_constraintTop_toBottomOf="@id/tvStatusTitle" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Warning Box -->
+            <LinearLayout
+                android:id="@+id/warningBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_warning_box"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                app:layout_constraintTop_toBottomOf="@id/statusBox">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_warning"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:tint="#F4B400" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="Adjust delay carefully. Too short a delay may cause frequent fan cycles. Recommended: 15–25 seconds."
+                    android:textColor="#9CAF9F"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <!-- Full Screen Loading Overlay -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="#F4B400"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
