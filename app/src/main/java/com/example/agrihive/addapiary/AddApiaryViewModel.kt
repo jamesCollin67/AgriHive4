@@ -39,15 +39,17 @@ class AddApiaryViewModel : ViewModel() {
 
         // Avoid "Saving..." hanging forever when backend never replies.
         val timeoutRunnable = Runnable {
-            saveTimedOut = true
-            _isLoading.value = false
-            _errorMessage.value = "Save timed out. Check your internet and Firestore rules."
+            if (!saveTimedOut) {
+                saveTimedOut = true
+                _isLoading.value = false
+                _errorMessage.value = "Save timed out. Check your internet and Firestore rules."
+            }
         }
         timeoutHandler.postDelayed(timeoutRunnable, 15000)
 
         val apiaryId = firestore.collection("apiaries").document().id
 
-        val apiaryData = mapOf(
+        val apiaryData = hashMapOf(
             "id" to apiaryId,
             "name" to name,
             "location" to location,
@@ -55,6 +57,7 @@ class AddApiaryViewModel : ViewModel() {
             "ownerId" to uid,
             "temperature" to 0.0,
             "humidity" to 0.0,
+            "moisture" to 0.0,
             "weight" to 0.0,
             "isConnected" to false,
             "lastUpdate" to System.currentTimeMillis()

@@ -103,6 +103,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 }
 
                 val list = snapshot?.documents?.map { doc ->
+                    val moisture = if (!doc.getBoolean("isConnected")!!) 0.0 else doc.getDouble("moisture") ?: 0.0
                     Apiary(
                         id = doc.getString("id") ?: doc.id,
                         name = doc.getString("name") ?: "",
@@ -111,7 +112,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                         ownerId = doc.getString("ownerId") ?: "",
                         temperature = doc.getDouble("temperature") ?: 0.0,
                         humidity = doc.getDouble("humidity") ?: 0.0,
-                        moisture = doc.getDouble("moisture") ?: 0.0,
+                        moisture = moisture,
                         weight = doc.getDouble("weight") ?: 0.0,
                         isConnected = doc.getBoolean("isConnected") ?: false,
                         alertsCount = (doc.getLong("alertsCount") ?: 0L).toInt(),
@@ -128,13 +129,17 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         _totalApiaries.value = list.size
         _onlineCount.value = list.count { it.isConnected }
         
-        // Thresholds for alerts (example values)
+        // Thresholds for alerts
         _alertsCount.value = list.count { 
-            it.temperature > 38.0 || it.temperature < 32.0 || it.humidity > 80.0 
+            // 1. Moisture alert (> 18%)
+            it.moisture > 18.0 || 
+            // 2. Temp alert (Optimal: 34-36)
+            (it.temperature > 0 && (it.temperature < 34.0 || it.temperature > 36.0))
         }
         
-        // Threshold for harvest (example value: weight > 20kg)
-        _harvestReadyCount.value = list.count { it.weight > 20.0 }
+        // 3. Harvest Ready (Moisture <= 18% AND Weight stable/high)
+        // Simplified: Moisture <= 18% and weight > 0
+        _harvestReadyCount.value = list.count { it.moisture in 0.1..18.0 && it.weight > 5.0 }
     }
 
     fun getGreeting(): String {
