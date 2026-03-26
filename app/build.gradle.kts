@@ -36,12 +36,24 @@ android {
     buildFeatures {
         compose = true
         viewBinding = true
+        mlModelBinding = false
     }
 
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+}
+
+// Force TFLite versions to resolve manifest namespace conflicts from transitive dependencies
+configurations.all {
+    resolutionStrategy {
+        force("org.tensorflow:tensorflow-lite:2.16.1")
+        force("org.tensorflow:tensorflow-lite-api:2.16.1")
     }
 }
 
@@ -93,9 +105,11 @@ dependencies {
     
     implementation("com.google.android.gms:play-services-location:21.1.0")
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+    
+    // TFLite - Using version 2.16.1 which fixes Manifest Namespace collision
+    implementation("org.tensorflow:tensorflow-lite:2.16.1")
 
     // Room Database
-
     val roomVersion = "2.7.0-alpha11"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")

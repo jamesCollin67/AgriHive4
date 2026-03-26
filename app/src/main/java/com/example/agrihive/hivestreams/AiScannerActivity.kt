@@ -41,30 +41,26 @@ class AiScannerActivity : AppCompatActivity() {
     // 3. Crop Launcher
     private val cropImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            // Check if we have a result URI
             val resultUri = result.data?.data ?: cropUri
             if (resultUri != null) {
-                viewModel.uploadAndAnalyze(resultUri)
+                viewModel.analyzeImage(resultUri)
             } else {
-                // Try to get bitmap from extras as last resort
                 val bundle = result.data?.extras
                 val bitmap = bundle?.getParcelable<Bitmap>("data")
                 if (bitmap != null) {
-                    viewModel.uploadAndAnalyze(saveBitmapToCache(bitmap))
+                    viewModel.analyzeImage(saveBitmapToCache(bitmap))
                 } else {
-                    photoUri?.let { viewModel.uploadAndAnalyze(it) }
+                    photoUri?.let { viewModel.analyzeImage(it) }
                 }
             }
         } else {
-            // Fallback: If cropping failed or was cancelled, use the original image
             photoUri?.let { 
                 Toast.makeText(this, "Proceeding with original image...", Toast.LENGTH_SHORT).show()
-                viewModel.uploadAndAnalyze(it) 
+                viewModel.analyzeImage(it) 
             }
         }
     }
 
-    // 4. Permission Launcher
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -80,7 +76,6 @@ class AiScannerActivity : AppCompatActivity() {
         binding = ActivityAiScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Restore state if available
         if (savedInstanceState != null) {
             photoUri = savedInstanceState.getParcelable("photo_uri")
             cropUri = savedInstanceState.getParcelable("crop_uri")
@@ -140,14 +135,10 @@ class AiScannerActivity : AppCompatActivity() {
         intent.putExtra(MediaStore.EXTRA_OUTPUT, cropUri)
         intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString())
         
-        // Essential flags for modern Android security
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-
-        // Set ClipData for permission propagation on Android 10+
         intent.clipData = ClipData.newRawUri("", cropUri)
 
-        // Grant permissions to all matching activities
         val resInfoList = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
         for (resolveInfo in resInfoList) {
             val packageName = resolveInfo.activityInfo.packageName
@@ -158,8 +149,7 @@ class AiScannerActivity : AppCompatActivity() {
         try {
             cropImageLauncher.launch(intent)
         } catch (e: Exception) {
-            // If crop app errors out immediately
-            viewModel.uploadAndAnalyze(sourceUri)
+            viewModel.analyzeImage(sourceUri)
         }
     }
 
@@ -174,9 +164,9 @@ class AiScannerActivity : AppCompatActivity() {
         }
 
         viewModel.scanResult.observe(this) { result ->
-            result?.let { (disease, score) ->
+            result?.let { (label, score) ->
                 val intent = Intent(this, ScanResultActivity::class.java).apply {
-                    putExtra(ScanResultActivity.EXTRA_DISEASE, disease)
+                    putExtra(ScanResultActivity.EXTRA_DISEASE, label)
                     putExtra(ScanResultActivity.EXTRA_HEALTH_SCORE, score)
                     putExtra(ScanResultActivity.EXTRA_IMAGE_URI, viewModel.currentImageUri.toString())
                 }

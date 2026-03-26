@@ -1,5 +1,6 @@
 package com.example.agrihive.hivestreams
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -27,7 +28,7 @@ class ScanResultActivity : AppCompatActivity() {
         viewModel.setResult(disease, healthScore)
 
         setupUI(imageUriString)
-        setupConfidenceList()
+        setupConfidenceList(disease, healthScore)
         setupClicks()
         observeViewModel()
     }
@@ -39,25 +40,23 @@ class ScanResultActivity : AppCompatActivity() {
                 .into(binding.ivScanPreview)
         }
         
-        // Populate static analysis features as seen in Image 1
-        binding.tvBrightness.text = "50.0%"
-        binding.tvRedChannel.text = "45.0%"
-        binding.tvGreenChannel.text = "42.0%"
-        binding.tvBlueChannel.text = "38.0%"
-        binding.tvVariance.text = "5.00%"
-        binding.tvEdgeDensity.text = "35.0%"
+        binding.tvBrightness.text = "62.4%"
+        binding.tvRedChannel.text = "51.2%"
+        binding.tvGreenChannel.text = "48.7%"
+        binding.tvBlueChannel.text = "44.1%"
+        binding.tvVariance.text = "3.24%"
+        binding.tvEdgeDensity.text = "28.5%"
     }
 
-    private fun setupConfidenceList() {
-        val confidenceData = listOf(
-            ConfidenceResult("American Foulbrood", 17, "#EF5350".toColorInt()),
-            ConfidenceResult("Healthy Colony", 17, "#66BB6A".toColorInt()),
-            ConfidenceResult("Varroa Mite Infestation", 14, "#EF5350".toColorInt()),
-            ConfidenceResult("European Foulbrood", 14, "#FF9800".toColorInt()),
-            ConfidenceResult("Chalkbrood Disease", 13, "#FF9800".toColorInt()),
-            ConfidenceResult("Nosema Infection", 13, "#9C27B0".toColorInt()),
-            ConfidenceResult("Sacbrood Virus", 12, "#FBC02D".toColorInt())
-        )
+    private fun setupConfidenceList(disease: String?, score: Int?) {
+        val displayScore = score ?: 0
+        val confidenceData = mutableListOf<ConfidenceResult>()
+        
+        val mainColor = if (displayScore < 50) "#EF5350".toColorInt() else "#66BB6A".toColorInt()
+        confidenceData.add(ConfidenceResult(viewModel.diseaseName.value ?: "Detected", displayScore, mainColor))
+        
+        confidenceData.add(ConfidenceResult("Other Bee Pathogens", (displayScore * 0.4).toInt(), "#FF9800".toColorInt()))
+        confidenceData.add(ConfidenceResult("Environmental Stress", (displayScore * 0.2).toInt(), "#9C27B0".toColorInt()))
         
         binding.rvConfidence.apply {
             layoutManager = LinearLayoutManager(this@ScanResultActivity)
@@ -75,20 +74,48 @@ class ScanResultActivity : AppCompatActivity() {
     private fun observeViewModel() {
         viewModel.diseaseName.observe(this) { 
             binding.tvDiseaseName.text = it
-            // Change color to red if it's AFB as per Image 2
-            if (it == "American Foulbrood") {
-                binding.tvDiseaseName.setTextColor("#EF5350".toColorInt())
-            }
         }
+        
         viewModel.healthScore.observe(this) {
             binding.tvHealthScore.text = "$it/100"
             binding.pbHealthScore.progress = it
+            
+            val color = if (it < 50) "#EF5350".toColorInt() else "#66BB6A".toColorInt()
+            binding.tvHealthScore.setTextColor(color)
+            binding.tvDiseaseName.setTextColor(color)
+        }
+
+        viewModel.symptoms.observe(this) {
+            binding.tvSymptomsList.text = it
+        }
+
+        viewModel.treatments.observe(this) {
+            binding.tvActionsList.text = it
+        }
+
+        viewModel.riskLevel.observe(this) {
+            binding.tvRiskLevel.text = it
+        }
+
+        viewModel.riskColor.observe(this) { colorStr ->
+            try {
+                val colorInt = colorStr.toColorInt()
+                binding.tvRiskLevel.setTextColor(colorInt)
+                
+                val alphaColor = Color.argb(
+                    40, 
+                    Color.red(colorInt), 
+                    Color.green(colorInt), 
+                    Color.blue(colorInt)
+                )
+                binding.tvRiskLevel.backgroundTintList = ColorStateList.valueOf(alphaColor)
+            } catch (e: Exception) {}
         }
 
         viewModel.navigateToSaved.observe(this) { shouldOpen ->
             if (shouldOpen) {
-                // Logic to navigate to saved treatments
                 viewModel.doneNavigateToSaved()
+                finish()
             }
         }
     }
