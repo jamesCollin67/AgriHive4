@@ -49,7 +49,8 @@ class ScanResultViewModel : ViewModel() {
             label.contains("alive_bees") -> "Healthy Colony"
             label.contains("dead_bees") -> "Dead Bees / Colony Loss"
             label.contains("varroa_mites") -> "Varroa Mite Infestation"
-            label.contains("not_a_bee") -> "Unknown Object Detected"
+            label.contains("chalkbrood") -> "Chalkbrood Infection"
+            label.contains("not_a_bee") -> "Not a bee"
             else -> disease ?: "Unknown"
         }
         
@@ -70,6 +71,12 @@ class ScanResultViewModel : ViewModel() {
                 _symptoms.value = "• Visible mites on bees' backs\n• Deformed wings (DWV)\n• Patchy brood pattern\n• Crawling bees at hive entrance"
                 _treatments.value = "1. Apply approved mite treatment (Oxalic/Formic Acid)\n2. Use drone brood removal\n3. Re-queen with mite-resistant stock\n4. Screened bottom boards"
                 _riskLevel.value = "High Risk"
+                _riskColor.value = "#FF9800"
+            }
+            "Chalkbrood Infection" -> {
+                _symptoms.value = "• White/gray mummified larvae in brood cells\n• Irregular brood pattern\n• Reduced brood viability\n• Fungal growth in damp/cool hive areas"
+                _treatments.value = "1. Improve hive ventilation and reduce moisture\n2. Replace old combs and clean affected frames\n3. Strengthen colony with good nutrition\n4. Re-queen if colony remains weak"
+                _riskLevel.value = "Moderate Risk"
                 _riskColor.value = "#FF9800"
             }
             "Dead Bees / Colony Loss" -> {

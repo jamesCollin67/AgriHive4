@@ -1,4 +1,5 @@
 0 alive_bees
 1 dead_bees
 2 varroa_mites
-3 not_a_bee
+3 bee_chalkbrood
+4 not_a_bee
