@@ -51,7 +51,8 @@ class SendReportViewModel(application: Application) : AndroidViewModel(applicati
                     "description" to description,
                     "timestamp" to timestamp,
                     "imageUri" to selectedImageUri,
-                    "status" to "pending"
+                    "status" to "pending",
+                    "notified" to true // Set to true initially since there's no reply yet
                 )
                 
                 firestore.collection("reports")

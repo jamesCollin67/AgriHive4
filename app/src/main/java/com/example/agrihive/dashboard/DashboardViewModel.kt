@@ -1,6 +1,7 @@
 package com.example.agrihive.dashboard
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,11 +10,16 @@ import com.example.agrihive.addapiary.Apiary
 import com.example.agrihive.data.UserSessionManager
 import com.example.agrihive.data.local.AgriHiveDatabase
 import com.example.agrihive.data.local.ApiaryEntity
+import com.example.agrihive.weather.RainAlertNotification
 import com.example.agrihive.utils.NetworkConnectivityObserver
 import com.example.agrihive.utils.ConnectivityObserver
+import com.example.agrihive.notification.NotificationItem
+import com.example.agrihive.notification.NotificationRepository
+import com.example.agrihive.notification.NotificationType
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -50,17 +56,85 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _harvestReadyCount = MutableLiveData<Int>(0)
     val harvestReadyCount: LiveData<Int> = _harvestReadyCount
 
+    private val _unreadNotificationsCount = MutableLiveData<Int>(0)
+    val unreadNotificationsCount: LiveData<Int> = _unreadNotificationsCount
+
     private val _connectionStatus = MutableLiveData<ConnectivityObserver.Status>()
     val connectionStatus: LiveData<ConnectivityObserver.Status> = _connectionStatus
 
     private var apiaryListener: ListenerRegistration? = null
+    private var reportReplyListener: ListenerRegistration? = null
 
     init {
         observeConnection()
         loadUserName()
         loadFromCache()
-        // We no longer call loadApiaries() immediately here because it relies on _connectionStatus
-        // which might not have been emitted yet. The onEach in observeConnection will handle it.
+        updateFcmToken()
+        startReportReplyListener()
+        updateNotificationCount()
+    }
+
+    fun updateNotificationCount() {
+        val repository = NotificationRepository(getApplication())
+        _unreadNotificationsCount.postValue(repository.getUnreadCount())
+    }
+
+    private fun startReportReplyListener() {
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        Log.d("ReportReply", "Starting listener for user: $uid")
+        
+        reportReplyListener?.remove()
+        reportReplyListener = firestore.collection("reports")
+            .whereEqualTo("userId", uid)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("ReportReply", "Listener error", e)
+                    return@addSnapshotListener
+                }
+
+                Log.d("ReportReply", "Snapshot received with ${snapshot?.size()} documents")
+
+                snapshot?.documentChanges?.forEach { change ->
+                    val doc = change.document
+                    val data = doc.data
+                    val reply = data["reply"] as? String
+                    // If notified is missing, we assume false to ensure we catch it
+                    val notified = data["notified"] as? Boolean ?: false
+
+                    Log.d("ReportReply", "Doc ${doc.id}: notified=$notified, hasReply=${!reply.isNullOrBlank()}")
+
+                    // If there's a reply and it hasn't been notified yet
+                    if (!reply.isNullOrBlank() && !notified) {
+                        Log.d("ReportReply", "New reply found! Triggering notification...")
+                        
+                        // 1. Mark as notified in Firestore IMMEDIATELY to prevent loops
+                        firestore.collection("reports").document(doc.id)
+                            .update("notified", true)
+                            .addOnSuccessListener { Log.d("ReportReply", "Marked as notified in Firestore") }
+                            .addOnFailureListener { Log.e("ReportReply", "Failed to mark notified", it) }
+
+                        // 2. Show system notification (saves to repository and shows popup)
+                        RainAlertNotification.showAdminReplyNotification(getApplication(), reply)
+                        
+                        // 3. Update count for UI badge
+                        updateNotificationCount()
+                    }
+                }
+            }
+    }
+
+    private fun updateFcmToken() {
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                firestore.collection("users").document(uid)
+                    .update("fcmToken", token)
+                    .addOnSuccessListener {
+                        Log.d("FCM", "Token updated on dashboard: $token")
+                    }
+            }
+        }
     }
 
     private fun observeConnection() {

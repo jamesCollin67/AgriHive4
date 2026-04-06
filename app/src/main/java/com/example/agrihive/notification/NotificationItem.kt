@@ -21,5 +21,6 @@ enum class NotificationType {
     RAIN_ALERT,       // Rain weather alerts
     FEEDING_ALERT,    // Feeding reminders
     TEMPERATURE_ALERT, // Temperature warnings
-    SYSTEM            // System notifications
+    SYSTEM,           // System notifications
+    ADMIN_REPLY       // Admin reply to a beekeeper report
 }

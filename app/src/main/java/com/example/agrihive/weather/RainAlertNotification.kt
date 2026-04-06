@@ -28,6 +28,7 @@ object RainAlertNotification {
     private const val NOTIFICATION_ID_MODERATE_RAIN = 1002
     private const val NOTIFICATION_ID_HEAVY_RAIN = 1003
     private const val NOTIFICATION_ID_SEVERE = 1004
+    private const val NOTIFICATION_ID_ADMIN_REPLY = 2001
 
     /**
      * Create notification channel (required for Android 8.0+)
@@ -86,6 +87,22 @@ object RainAlertNotification {
         repository.addNotification(title, message, NotificationType.RAIN_ALERT)
 
         sendNotification(context, title, message, notificationId)
+    }
+
+    /**
+     * Show notification for admin reply
+     */
+    fun showAdminReplyNotification(context: Context, reply: String) {
+        createNotificationChannel(context)
+
+        val title = "Admin Replied to Your Report"
+        val message = reply
+
+        // Save notification to repository
+        val repository = NotificationRepository(context)
+        repository.addNotification(title, message, NotificationType.ADMIN_REPLY)
+
+        sendNotification(context, title, message, NOTIFICATION_ID_ADMIN_REPLY)
     }
 
     /**

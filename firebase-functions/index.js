@@ -143,3 +143,71 @@ exports.verifyOtp = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('invalid-argument', error.message || 'Verification failed');
   }
 });
+
+// Cloud Function: Notify Beekeeper on Admin Reply
+exports.onReportReply = functions.firestore
+  .document('reports/{reportId}')
+  .onUpdate(async (change, context) => {
+    const newData = change.after.data();
+    const oldData = change.before.data();
+
+    console.log(`Checking report reply update for ${context.params.reportId}`);
+
+    // Check if a reply was added or changed
+    if (newData.reply && newData.reply !== oldData.reply) {
+      const userId = newData.userId;
+      if (!userId) {
+        console.error('No userId found in report:', context.params.reportId);
+        return null;
+      }
+
+      console.log(`Sending notification to user: ${userId}`);
+
+      // Get user's FCM token
+      const userDoc = await admin.firestore().collection('users').doc(userId).get();
+      if (!userDoc.exists) {
+        console.error('User document not found for userId:', userId);
+        return null;
+      }
+
+      const fcmToken = userDoc.data().fcmToken;
+      if (!fcmToken) {
+        console.error('No FCM token found for user:', userId);
+        return null;
+      }
+
+      // Send FCM message as DATA-ONLY to ensure processing in background
+      const message = {
+        data: {
+          title: 'Admin Replied to Your Report',
+          body: newData.reply,
+          type: 'ADMIN_REPLY',
+          reportId: context.params.reportId
+        },
+        token: fcmToken,
+        android: {
+          priority: 'high'
+        }
+      };
+
+      try {
+        const response = await admin.messaging().send(message);
+        console.log('Successfully sent FCM message:', response);
+
+        // Also add to user's activity logs
+        await admin.firestore().collection('users').doc(userId).collection('activity_logs').add({
+          type: 'SYSTEM',
+          title: 'Admin Replied',
+          description: `Admin replied to your report: "${newData.reply}"`,
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+          userName: 'Admin'
+        });
+
+        return response;
+      } catch (error) {
+        console.error('Error sending FCM message:', error);
+        return null;
+      }
+    }
+    return null;
+  });

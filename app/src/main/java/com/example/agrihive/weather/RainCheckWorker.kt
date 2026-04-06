@@ -2,6 +2,11 @@ package com.example.agrihive.weather
 
 import android.content.Context
 import androidx.work.*
+import com.example.agrihive.notification.NotificationRepository
+import com.example.agrihive.notification.NotificationType
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 
 /**
@@ -27,6 +32,9 @@ class RainCheckWorker(
                 }
             }
 
+            // Check for admin replies to reports (Spark plan alternative to Cloud Functions)
+            checkReportReplies()
+
             // Also check forecast
             val forecast = weatherService.getForecast(10.0, 123.9) // Cebu coordinates
             for ((index, day) in forecast.withIndex()) {
@@ -45,6 +53,38 @@ class RainCheckWorker(
         } catch (e: Exception) {
             e.printStackTrace()
             Result.retry()
+        }
+    }
+
+    private suspend fun checkReportReplies() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val firestore = FirebaseFirestore.getInstance()
+        
+        try {
+            // Fetch all reports for this user (Spark plan query optimization)
+            val snapshot = firestore.collection("reports")
+                .whereEqualTo("userId", uid)
+                .get()
+                .await()
+
+            for (doc in snapshot.documents) {
+                val data = doc.data ?: continue
+                val reply = data["reply"] as? String
+                // If notified is missing, we check it to be safe
+                val notified = data["notified"] as? Boolean ?: false
+
+                if (!reply.isNullOrBlank() && !notified) {
+                    // Mark as notified in Firestore so we don't repeat
+                    firestore.collection("reports").document(doc.id)
+                        .update("notified", true)
+                        .await()
+
+                    // Show system notification (saves to repository and shows popup)
+                    RainAlertNotification.showAdminReplyNotification(applicationContext, reply)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

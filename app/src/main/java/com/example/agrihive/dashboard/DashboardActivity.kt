@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.agrihive.R
 import com.example.agrihive.addapiary.AddApiaryActivity
@@ -122,6 +123,19 @@ class DashboardActivity : AppCompatActivity() {
 
         viewModel.harvestReadyCount.observe(this) { count ->
             binding.tvHarvestCount.text = count.toString()
+        }
+
+        // Observe unread notifications for bottom navigation badge
+        viewModel.unreadNotificationsCount.observe(this) { count ->
+            val badge = binding.bottomNavigation.getOrCreateBadge(R.id.nav_alerts)
+            if (count > 0) {
+                badge.isVisible = true
+                badge.number = count
+                badge.backgroundColor = ContextCompat.getColor(this, R.color.status_error)
+                badge.badgeTextColor = ContextCompat.getColor(this, android.R.color.white)
+            } else {
+                badge.isVisible = false
+            }
         }
 
         // Observe apiaries list and toggle empty state visibility

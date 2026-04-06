@@ -56,8 +56,9 @@ class NotificationAdapter(
             val iconRes = when (notification.type) {
                 NotificationType.RAIN_ALERT -> R.drawable.ic_cloud
                 NotificationType.FEEDING_ALERT -> R.drawable.ic_bee
-                NotificationType.TEMPERATURE_ALERT -> R.drawable.ic_cloud
+                NotificationType.TEMPERATURE_ALERT -> R.drawable.ic_temperature
                 NotificationType.SYSTEM -> R.drawable.ic_bell
+                NotificationType.ADMIN_REPLY -> R.drawable.ic_summary
             }
             iconView.setImageResource(iconRes)
 

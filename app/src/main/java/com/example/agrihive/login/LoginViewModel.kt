@@ -1,6 +1,7 @@
 package com.example.agrihive.login
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -91,6 +93,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                         apiaries = apiaries,
                         uid = uid
                     )
+                    
+                    // Update FCM token on login
+                    updateFcmToken(uid)
                 }
                 _isLoading.value = false
                 _loginSuccess.value = true
@@ -101,6 +106,19 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 _loginSuccess.value = true // Still navigate to dashboard even if fetch fails
                 _navigateToDashboard.value = true
             }
+    }
+
+    private fun updateFcmToken(uid: String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                firestore.collection("users").document(uid)
+                    .update("fcmToken", token)
+                    .addOnSuccessListener {
+                        Log.d("FCM", "Token updated on login: $token")
+                    }
+            }
+        }
     }
 
     // Navigation handlers
