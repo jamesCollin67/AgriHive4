@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [ApiaryEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ApiaryEntity::class, ReportEntity::class], version = 2, exportSchema = false)
 abstract class AgriHiveDatabase : RoomDatabase() {
     abstract fun apiaryDao(): ApiaryDao
+    abstract fun reportDao(): ReportDao
 
     companion object {
         @Volatile
@@ -19,7 +20,9 @@ abstract class AgriHiveDatabase : RoomDatabase() {
                     context.applicationContext,
                     AgriHiveDatabase::class.java,
                     "agrihive_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

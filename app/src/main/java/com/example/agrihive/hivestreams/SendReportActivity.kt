@@ -69,6 +69,7 @@ class SendReportActivity : AppCompatActivity() {
         binding.btnRemoveAttachment.setOnClickListener {
             binding.cardAttachmentPreview.visibility = View.GONE
             cameraPhotoUri = null
+            viewModel.selectedImageUri = null
         }
 
         binding.btnSubmitReport.setOnClickListener {
@@ -95,6 +96,7 @@ class SendReportActivity : AppCompatActivity() {
     private fun showAttachmentPreview(uri: Uri) {
         binding.cardAttachmentPreview.visibility = View.VISIBLE
         Glide.with(this).load(uri).centerCrop().into(binding.ivAttachmentPreview)
+        viewModel.selectedImageUri = uri.toString()
     }
 
     private fun createTempImageUri(prefix: String): Uri {
