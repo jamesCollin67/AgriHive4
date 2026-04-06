@@ -17,6 +17,7 @@ class HiveStreamsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityApiaryDataStreamsBinding
     private val viewModel: HiveStreamsViewModel by viewModels()
+    private var apiaryId: String = ""
 
     companion object {
         const val EXTRA_APIARY_ID = "APIARY_ID"
@@ -28,7 +29,7 @@ class HiveStreamsActivity : AppCompatActivity() {
         binding = ActivityApiaryDataStreamsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val apiaryId = intent.getStringExtra(EXTRA_APIARY_ID) ?: return finish()
+        apiaryId = intent.getStringExtra(EXTRA_APIARY_ID) ?: return finish()
         val apiaryName = intent.getStringExtra(EXTRA_APIARY_NAME) ?: "Hive"
 
         setupUI(apiaryName)
@@ -43,8 +44,12 @@ class HiveStreamsActivity : AppCompatActivity() {
         
         // Fix: Route to AI Scanner UI
         binding.btnCamera.setOnClickListener {
-            val intent = Intent(this, AiScannerActivity::class.java)
-            startActivity(intent)
+            startActivity(
+                Intent(this, AiScannerActivity::class.java).apply {
+                    putExtra(AiScannerActivity.EXTRA_HIVE_NAME, apiaryName)
+                    putExtra(AiScannerActivity.EXTRA_APIARY_ID, apiaryId)
+                }
+            )
         }
         
         // Tab Selection Logic
@@ -159,7 +164,6 @@ class HiveStreamsActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        val apiaryId = intent.getStringExtra(EXTRA_APIARY_ID)
-        apiaryId?.let { viewModel.stopListening(it) }
+        apiaryId.let { viewModel.stopListening(it) }
     }
 }

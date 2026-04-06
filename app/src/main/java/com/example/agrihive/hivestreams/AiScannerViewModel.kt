@@ -31,6 +31,10 @@ class AiScannerViewModel(application: Application) : AndroidViewModel(applicatio
     private val _loadingMessage = MutableLiveData<String>()
     val loadingMessage: LiveData<String> = _loadingMessage
 
+    /** 0 = left, 1 = middle, 2 = right — multi-step analyze UI */
+    private val _analysisStep = MutableLiveData(1)
+    val analysisStep: LiveData<Int> = _analysisStep
+
     private val _scanResult = MutableLiveData<Pair<String, Int>?>()
     val scanResult: LiveData<Pair<String, Int>?> = _scanResult
 
@@ -68,7 +72,8 @@ class AiScannerViewModel(application: Application) : AndroidViewModel(applicatio
     fun analyzeImage(uri: Uri) {
         _currentImageUri = uri
         _isLoading.value = true
-        _loadingMessage.value = "Analyzing image..."
+        _loadingMessage.value = "Preprocessing image tensor..."
+        _analysisStep.value = 1
 
         viewModelScope.launch {
             try {
@@ -94,6 +99,9 @@ class AiScannerViewModel(application: Application) : AndroidViewModel(applicatio
                     _isLoading.postValue(false)
                     return@launch
                 }
+
+                _loadingMessage.postValue("Running neural network inference...")
+                _analysisStep.postValue(2)
 
                 val result = withContext(Dispatchers.Default) {
                     runInference(bitmap)

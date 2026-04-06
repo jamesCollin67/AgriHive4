@@ -1,17 +1,26 @@
 package com.example.agrihive.hivestreams
 
+import android.app.Application
+import android.net.Uri
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.log.LogType
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
 
-class ScanResultViewModel : ViewModel() {
+class ScanResultViewModel(application: Application) : AndroidViewModel(application) {
 
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
+
+    private var hiveName: String = "Hive"
+    private var apiaryId: String? = null
+    private var imageUriString: String? = null
 
     private val _diseaseName = MutableLiveData("Healthy")
     val diseaseName: LiveData<String> = _diseaseName
@@ -43,55 +52,41 @@ class ScanResultViewModel : ViewModel() {
     private val _isSaving = MutableLiveData(false)
     val isSaving: LiveData<Boolean> = _isSaving
 
+    fun setScanContext(hiveName: String?, apiaryId: String?, imageUri: String?) {
+        this.hiveName = hiveName?.trim()?.takeIf { it.isNotEmpty() } ?: "Hive"
+        this.apiaryId = apiaryId
+        this.imageUriString = imageUri
+    }
+
     fun setResult(disease: String?, score: Int?) {
         val label = disease?.lowercase() ?: "unknown"
-        _diseaseName.value = when {
-            label.contains("alive_bees") -> "Healthy Colony"
+        val displayName = when {
+            label.contains("alive_bees") || label == "healthy" -> "Healthy Colony"
             label.contains("dead_bees") -> "Dead Bees / Colony Loss"
-            label.contains("varroa_mites") -> "Varroa Mite Infestation"
+            label.contains("varroa_mites") || label.contains("varroa") -> "Varroa Mite Infestation"
             label.contains("chalkbrood") -> "Chalkbrood Infection"
             label.contains("not_a_bee") -> "Not a bee"
             else -> disease ?: "Unknown"
         }
-        
-        if (score != null) _healthScore.value = score.coerceIn(0, 100)
-        
-        updateTreatmentInfo(_diseaseName.value ?: "Unknown")
+        _diseaseName.value = displayName
+
+        val raw = score?.coerceIn(0, 100) ?: 50
+        val adjusted = when (displayName) {
+            "Healthy Colony" -> raw.coerceIn(72, 100)
+            "Not a bee" -> raw.coerceIn(45, 55)
+            else -> raw.coerceAtMost(49).coerceAtLeast(12)
+        }
+        _healthScore.value = adjusted
+
+        applyDiagnosisCopy(displayName, adjusted)
     }
 
-    private fun updateTreatmentInfo(name: String) {
-        when (name) {
-            "Healthy Colony" -> {
-                _symptoms.value = "• Active bees with steady hum\n• Clear entrance\n• Healthy brood patterns\n• Bees bringing in pollen"
-                _treatments.value = "1. Regular monitoring monthly\n2. Ensure fresh water source nearby\n3. Check for mites every 30 days\n4. Maintain enough food stores"
-                _riskLevel.value = "Healthy"
-                _riskColor.value = "#66BB6A"
-            }
-            "Varroa Mite Infestation" -> {
-                _symptoms.value = "• Visible mites on bees' backs\n• Deformed wings (DWV)\n• Patchy brood pattern\n• Crawling bees at hive entrance"
-                _treatments.value = "1. Apply approved mite treatment (Oxalic/Formic Acid)\n2. Use drone brood removal\n3. Re-queen with mite-resistant stock\n4. Screened bottom boards"
-                _riskLevel.value = "High Risk"
-                _riskColor.value = "#FF9800"
-            }
-            "Chalkbrood Infection" -> {
-                _symptoms.value = "• White/gray mummified larvae in brood cells\n• Irregular brood pattern\n• Reduced brood viability\n• Fungal growth in damp/cool hive areas"
-                _treatments.value = "1. Improve hive ventilation and reduce moisture\n2. Replace old combs and clean affected frames\n3. Strengthen colony with good nutrition\n4. Re-queen if colony remains weak"
-                _riskLevel.value = "Moderate Risk"
-                _riskColor.value = "#FF9800"
-            }
-            "Dead Bees / Colony Loss" -> {
-                _symptoms.value = "• Pile of dead bees at entrance or floor\n• No activity during warm weather\n• Cold hive with no vibration\n• Intact food stores but dead bees"
-                _treatments.value = "1. Clean out the hive and debris\n2. Investigate for starvation or disease\n3. Sterilize equipment before reuse\n4. Seal hive to prevent robbing"
-                _riskLevel.value = "Critical"
-                _riskColor.value = "#EF5350"
-            }
-            else -> {
-                _symptoms.value = "• AI did not detect a specific bee condition\n• Image might be blurry or far away\n• Non-bee object in focus"
-                _treatments.value = "1. Ensure good lighting and focus\n2. Crop image closer to the bees\n3. Clean camera lens\n4. Try capturing a different angle"
-                _riskLevel.value = "Unknown"
-                _riskColor.value = "#9CAF9F"
-            }
-        }
+    private fun applyDiagnosisCopy(displayName: String, score: Int) {
+        _symptoms.value = DiagnosisCopy.symptomsFor(displayName)
+        _treatments.value = DiagnosisCopy.treatmentsFor(displayName)
+        val (label, _, fg) = DiagnosisCopy.severityBadge(score)
+        _riskLevel.value = label
+        _riskColor.value = fg
     }
 
     fun onBackClicked() {
@@ -102,28 +97,72 @@ class ScanResultViewModel : ViewModel() {
         val uid = auth.currentUser?.uid ?: return
         val disease = _diseaseName.value ?: "Unknown"
         val score = _healthScore.value ?: 0
-        
+        val symptomsText = _symptoms.value ?: ""
+        val treatmentsText = _treatments.value ?: "Regular monitoring advised"
+
         _isSaving.value = true
-        
-        val savedTreatment = hashMapOf(
+
+        val uriStr = imageUriString
+        if (!uriStr.isNullOrBlank()) {
+            val uri = runCatching { Uri.parse(uriStr) }.getOrNull()
+            if (uri != null) {
+                uploadImageThenSave(uid, uri, disease, score, symptomsText, treatmentsText)
+                return
+            }
+        }
+        persistTreatment(uid, "", disease, score, symptomsText, treatmentsText)
+    }
+
+    private fun uploadImageThenSave(
+        uid: String,
+        uri: Uri,
+        disease: String,
+        score: Int,
+        symptomsText: String,
+        treatmentsText: String
+    ) {
+        val ref = storage.reference.child("saved_treatments/$uid/${UUID.randomUUID()}.jpg")
+        ref.putFile(uri)
+            .addOnSuccessListener {
+                ref.downloadUrl.addOnSuccessListener { download ->
+                    persistTreatment(uid, download.toString(), disease, score, symptomsText, treatmentsText)
+                }.addOnFailureListener {
+                    persistTreatment(uid, "", disease, score, symptomsText, treatmentsText)
+                }
+            }
+            .addOnFailureListener {
+                persistTreatment(uid, "", disease, score, symptomsText, treatmentsText)
+            }
+    }
+
+    private fun persistTreatment(
+        uid: String,
+        imageUrl: String,
+        disease: String,
+        score: Int,
+        symptomsText: String,
+        treatmentsText: String
+    ) {
+        val data = hashMapOf(
             "diseaseName" to disease,
             "healthScore" to score,
             "timestamp" to System.currentTimeMillis(),
-            "description" to (_treatments.value ?: "Regular monitoring advised"),
-            "hiveName" to "Hive Alpha"
+            "description" to treatmentsText,
+            "symptoms" to symptomsText,
+            "hiveName" to hiveName,
+            "imageUrl" to imageUrl,
+            "apiaryId" to (apiaryId ?: "")
         )
 
         firestore.collection("users").document(uid)
             .collection("saved_treatments")
-            .add(savedTreatment)
+            .add(data)
             .addOnSuccessListener {
                 _isSaving.value = false
-                
                 ActivityLogViewModel.getInstance().addLog(
                     LogType.HIVE_SENSOR,
-                    "Scanned hive: Found $disease (Score: $score)"
+                    "Scanned $hiveName: $disease (Score: $score)"
                 )
-
                 _navigateToSaved.value = true
             }
             .addOnFailureListener {

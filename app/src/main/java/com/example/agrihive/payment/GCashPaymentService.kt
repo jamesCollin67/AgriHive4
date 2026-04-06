@@ -55,19 +55,13 @@ class GCashPaymentService : PaymentService {
         }
 
         try {
-            // Method 1: Using GCash QR Payment Deep Link
-            // This opens GCash app with pre-filled payment details
-            val paymentUri = buildPaymentUri(request)
-            val intent = context.packageManager.getLaunchIntentForPackage(GCASH_PACKAGE)
-            
-            if (intent != null) {
-                // Set the data URI for deep linking
-                intent.data = paymentUri
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-                callback.onPaymentSuccess("Payment initiated - GCash app opened")
+            val launch = getPaymentIntent(context, request)
+            if (launch != null && launch.resolveActivity(context.packageManager) != null) {
+                launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(launch)
+                // Do not call onPaymentSuccess here — the user must complete checkout in GCash.
             } else {
-                callback.onPaymentFailure("Unable to launch GCash app")
+                callback.onPaymentFailure("Unable to open GCash for payment.")
             }
         } catch (e: Exception) {
             callback.onPaymentFailure("Failed to initiate GCash payment: ${e.message}")
@@ -77,10 +71,12 @@ class GCashPaymentService : PaymentService {
     override fun getPaymentIntent(context: Context, request: PaymentRequest): Intent? {
         return try {
             val paymentUri = buildPaymentUri(request)
-            val intent = Intent(Intent.ACTION_VIEW, paymentUri)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.setPackage(GCASH_PACKAGE)
-            intent
+            Intent(Intent.ACTION_VIEW, paymentUri).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                if (isAppInstalled(context)) {
+                    setPackage(GCASH_PACKAGE)
+                }
+            }
         } catch (e: Exception) {
             null
         }

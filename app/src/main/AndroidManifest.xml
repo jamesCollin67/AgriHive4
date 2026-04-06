@@ -68,12 +68,18 @@
         <activity android:name=".register.RegisterActivity" android:exported="false" />
         <activity android:name=".forgot.ForgotPasswordActivity" android:exported="false" />
         <activity android:name=".forgot.ResetPasswordActivity" android:exported="false" />
-        <activity android:name=".dashboard.DashboardActivity" android:exported="false" />
+        <activity
+            android:name=".dashboard.DashboardActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
         <activity android:name=".profile.ProfileActivity" android:exported="false" />
         <activity android:name=".addapiary.AddApiaryActivity" android:exported="false" />
         <activity android:name=".hivestreams.HiveStreamsActivity" android:exported="false" />
         <activity android:name=".editprofile.EditProfileActivity" android:exported="false" />
-        <activity android:name=".settings.SettingsActivity" android:exported="false" />
+        <activity
+            android:name=".settings.SettingsActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
         <activity android:name=".settings.ChangePasswordActivity" android:exported="false" />
         <activity android:name=".device.DeviceControlActivity" android:exported="false" />
         <activity android:name=".log.ActivityLogActivity" android:exported="false" />
@@ -98,13 +104,16 @@
         </activity>
 
         <activity android:name=".hivestreams.SendReportActivity" android:exported="false" />
-        <activity android:name=".hivestreams.CaptureIssueActivity" android:exported="false" />
         <activity android:name=".hivestreams.ReportSentActivity" android:exported="false" />
         <activity android:name=".camera.CameraActivity" android:exported="false" />
-        <activity android:name=".notification.NotificationActivity" android:exported="false" />
+        <activity
+            android:name=".notification.NotificationActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
 
         <activity android:name=".hivestreams.AiScannerActivity" android:exported="false" />
         <activity android:name=".hivestreams.SavedTreatmentsActivity" android:exported="false" />
+        <activity android:name=".hivestreams.SavedDiagnosisDetailActivity" android:exported="false" />
         <activity android:name=".hivestreams.ScanResultActivity" android:exported="false" />
         <activity android:name=".payment.PaymentDetailsActivity" android:exported="false" />
 

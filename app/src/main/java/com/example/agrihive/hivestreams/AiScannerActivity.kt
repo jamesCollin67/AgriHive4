@@ -8,6 +8,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +17,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
 import com.example.agrihive.databinding.ActivityAiScannerBinding
 import java.io.File
 import java.io.FileOutputStream
@@ -25,6 +28,13 @@ class AiScannerActivity : AppCompatActivity() {
     private val viewModel: AiScannerViewModel by viewModels()
     private var photoUri: Uri? = null
     private var cropUri: Uri? = null
+    private var hiveName: String = "Hive"
+    private var apiaryId: String? = null
+
+    companion object {
+        const val EXTRA_HIVE_NAME = "extra_hive_name"
+        const val EXTRA_APIARY_ID = "extra_apiary_id"
+    }
 
     // 1. Capture Photo Launcher
     private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -76,6 +86,9 @@ class AiScannerActivity : AppCompatActivity() {
         binding = ActivityAiScannerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        hiveName = intent.getStringExtra(EXTRA_HIVE_NAME)?.trim()?.takeIf { it.isNotEmpty() } ?: "Hive"
+        apiaryId = intent.getStringExtra(EXTRA_APIARY_ID)
+
         if (savedInstanceState != null) {
             photoUri = savedInstanceState.getParcelable("photo_uri")
             cropUri = savedInstanceState.getParcelable("crop_uri")
@@ -93,10 +106,7 @@ class AiScannerActivity : AppCompatActivity() {
 
     private fun setupClicks() {
         binding.btnBack.setOnClickListener { finish() }
-        binding.btnHistory.setOnClickListener { 
-            startActivity(Intent(this, SavedTreatmentsActivity::class.java))
-        }
-        
+
         binding.btnTakePhoto.setOnClickListener {
             checkPermissionAndLaunchCamera()
         }
@@ -153,6 +163,17 @@ class AiScannerActivity : AppCompatActivity() {
         }
     }
 
+    private fun applyLoadingDots(activeIndex: Int) {
+        val gold = Color.parseColor("#F4B400")
+        val muted = Color.parseColor("#9CAF9F")
+        val dots = listOf(binding.loadingDot0, binding.loadingDot1, binding.loadingDot2)
+        dots.forEachIndexed { i, v ->
+            val active = i == activeIndex
+            v.alpha = if (active) 1f else 0.35f
+            v.backgroundTintList = ColorStateList.valueOf(if (active) gold else muted)
+        }
+    }
+
     private fun observeViewModel() {
         viewModel.isLoading.observe(this) { isLoading ->
             binding.layoutInitial.visibility = if (isLoading) View.GONE else View.VISIBLE
@@ -169,6 +190,8 @@ class AiScannerActivity : AppCompatActivity() {
                     putExtra(ScanResultActivity.EXTRA_DISEASE, label)
                     putExtra(ScanResultActivity.EXTRA_HEALTH_SCORE, score)
                     putExtra(ScanResultActivity.EXTRA_IMAGE_URI, viewModel.currentImageUri.toString())
+                    putExtra(ScanResultActivity.EXTRA_HIVE_NAME, hiveName)
+                    putExtra(ScanResultActivity.EXTRA_APIARY_ID, apiaryId)
                 }
                 startActivity(intent)
                 viewModel.doneScan()

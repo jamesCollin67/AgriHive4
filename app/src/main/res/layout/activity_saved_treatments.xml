@@ -46,6 +46,7 @@
 
         <!-- Total Scans -->
         <LinearLayout
+            android:id="@+id/cardTotalScans"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -53,6 +54,8 @@
             android:background="@drawable/bg_stat_card"
             android:gravity="center"
             android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
             android:paddingVertical="12dp">
 
             <TextView
@@ -74,6 +77,7 @@
 
         <!-- Issues Found -->
         <LinearLayout
+            android:id="@+id/cardIssuesFound"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
@@ -81,6 +85,8 @@
             android:background="@drawable/bg_stat_card"
             android:gravity="center"
             android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
             android:paddingVertical="12dp">
 
             <TextView
@@ -102,6 +108,7 @@
 
         <!-- Healthy -->
         <LinearLayout
+            android:id="@+id/cardHealthy"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -109,6 +116,8 @@
             android:background="@drawable/bg_stat_card"
             android:gravity="center"
             android:orientation="vertical"
+            android:clickable="true"
+            android:focusable="true"
             android:paddingVertical="12dp">
 
             <TextView

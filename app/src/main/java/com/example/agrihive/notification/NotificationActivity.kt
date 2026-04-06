@@ -95,13 +95,21 @@ class NotificationActivity : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_apiaries -> {
-                    startActivity(Intent(this, DashboardActivity::class.java))
+                    startActivity(
+                        Intent(this, DashboardActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        }
+                    )
                     finish()
                     true
                 }
                 R.id.nav_alerts -> true
                 R.id.nav_settings -> {
-                    startActivity(Intent(this, SettingsActivity::class.java))
+                    startActivity(
+                        Intent(this, SettingsActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        }
+                    )
                     finish()
                     true
                 }

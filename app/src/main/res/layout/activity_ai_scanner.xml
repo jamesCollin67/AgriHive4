@@ -37,18 +37,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/btn_history"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="10dp"
-            android:src="@drawable/ic_history_box"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="#F4B400" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Model Status Badge -->
@@ -193,42 +181,113 @@
                 android:textSize="11sp" />
         </LinearLayout>
 
-        <!-- Loading State -->
-        <LinearLayout
+        <!-- Analyzing: cropped preview + overlay (matches post-crop flow) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_loading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ProgressBar
-                android:id="@+id/progressSpinner"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:indeterminateTint="#F4B400" />
+            <FrameLayout
+                android:id="@+id/frame_preview_analyzing"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_image_preview_dashed"
+                android:padding="3dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.92">
 
-            <TextView
-                android:id="@+id/tv_loading_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Preprocessing image tensor..."
-                android:textColor="#FFFFFF"
-                android:textSize="16sp" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:cardBackgroundColor="#1A3329"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-                <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle" android:backgroundTint="#F4B400" android:layout_margin="4dp"/>
-                <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle" android:backgroundTint="#F4B400" android:alpha="0.5" android:layout_margin="4dp"/>
-                <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_circle" android:backgroundTint="#F4B400" android:alpha="0.2" android:layout_margin="4dp"/>
-            </LinearLayout>
-        </LinearLayout>
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:id="@+id/iv_preview_analyzing"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="@null"
+                            android:scaleType="centerCrop" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_analyzing_scrim" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:padding="24dp">
+
+                            <ProgressBar
+                                android:id="@+id/progressSpinner"
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:indeterminateTint="#F4B400" />
+
+                            <TextView
+                                android:id="@+id/tv_loading_message"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="16dp"
+                                android:gravity="center"
+                                android:text="Preprocessing image tensor..."
+                                android:textColor="#FFFFFF"
+                                android:textSize="16sp" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="14dp"
+                                android:gravity="center"
+                                android:orientation="horizontal">
+
+                                <View
+                                    android:id="@+id/loading_dot_0"
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_marginHorizontal="5dp"
+                                    android:alpha="0.35"
+                                    android:background="@drawable/bg_circle_tintable"
+                                    android:backgroundTint="#9CAF9F" />
+
+                                <View
+                                    android:id="@+id/loading_dot_1"
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_marginHorizontal="5dp"
+                                    android:background="@drawable/bg_circle_tintable"
+                                    android:backgroundTint="#F4B400" />
+
+                                <View
+                                    android:id="@+id/loading_dot_2"
+                                    android:layout_width="8dp"
+                                    android:layout_height="8dp"
+                                    android:layout_marginHorizontal="5dp"
+                                    android:alpha="0.35"
+                                    android:background="@drawable/bg_circle_tintable"
+                                    android:backgroundTint="#9CAF9F" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </FrameLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

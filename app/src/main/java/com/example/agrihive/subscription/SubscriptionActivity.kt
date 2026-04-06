@@ -6,24 +6,62 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.agrihive.R
 import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.log.LogType
 import com.example.agrihive.payment.PaymentDetailsActivity
-import com.example.agrihive.payment.PaymentCallback
-import com.example.agrihive.payment.PaymentRequest
-import com.example.agrihive.payment.PaymentServiceFactory
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.chip.ChipGroup
 
 class SubscriptionActivity : AppCompatActivity() {
 
     private val viewModel: SubscriptionViewModel by viewModels()
     private val activityLogViewModel: ActivityLogViewModel by lazy { ActivityLogViewModel.getInstance() }
 
+    private lateinit var cardStarter: MaterialCardView
+    private lateinit var cardPro: MaterialCardView
+    private lateinit var cardEnterprise: MaterialCardView
+
+    private val planStarter by lazy {
+        SubscriptionPlan(
+            id = "plan_starter_3mo",
+            name = "Starter",
+            description = "Hive monitoring using sensors that measures temperature, humidity, and hive weight, with AI in-app for smart analysis.",
+            apiaryTier = ApiaryTier.TIER_1_2,
+            billingType = BillingType.QUARTERLY,
+            price = 550.0
+        )
+    }
+    private val planPro by lazy {
+        SubscriptionPlan(
+            id = "plan_pro_3mo",
+            name = "Pro",
+            description = "Hive monitoring using sensors that measures temperature, humidity, and hive weight, with AI in-app for smart analysis.",
+            apiaryTier = ApiaryTier.TIER_3_5,
+            billingType = BillingType.QUARTERLY,
+            price = 750.0
+        )
+    }
+    private val planEnterprise by lazy {
+        SubscriptionPlan(
+            id = "plan_enterprise_3mo",
+            name = "Enterprise",
+            description = "Hive monitoring using sensors that measures temperature, humidity, and hive weight, with AI in-app for smart analysis.",
+            apiaryTier = ApiaryTier.TIER_5_PLUS,
+            billingType = BillingType.QUARTERLY,
+            price = 999.0
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_subscription)
 
-        // Load plan from intent FIRST before setupViews
+        cardStarter = findViewById(R.id.card_starter)
+        cardPro = findViewById(R.id.card_pro)
+        cardEnterprise = findViewById(R.id.card_enterprise)
+
         val planName = intent.getStringExtra("PLAN_NAME")
         val planPrice = intent.getDoubleExtra("PLAN_PRICE", -1.0)
         val billingType = intent.getStringExtra("BILLING_TYPE") ?: "Monthly payment"
@@ -38,32 +76,84 @@ class SubscriptionActivity : AppCompatActivity() {
                 price = planPrice
             )
             viewModel.setSelectedPlan(plan)
+            when {
+                planName.equals("Starter", true) -> applyCardSelection(cardStarter)
+                planName.equals("Pro", true) -> applyCardSelection(cardPro)
+                planName.equals("Enterprise", true) -> applyCardSelection(cardEnterprise)
+                else -> applyCardSelection(cardPro)
+            }
         } else {
-            viewModel.setSelectedPlan(SubscriptionViewModel.getDefaultPlan())
+            viewModel.setSelectedPlan(planPro)
+            applyCardSelection(cardPro)
         }
 
+        viewModel.setPaymentMethod(PaymentMethod.GCASH)
+
+        findViewById<ChipGroup>(R.id.chip_group_payment).setOnCheckedStateChangeListener { _, checkedIds ->
+            val id = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
+            val method = when (id) {
+                R.id.chip_gcash -> PaymentMethod.GCASH
+                R.id.chip_maya -> PaymentMethod.MAYA
+                R.id.chip_bdo -> PaymentMethod.BDO
+                R.id.chip_paypal -> PaymentMethod.PAYPAL
+                else -> PaymentMethod.GCASH
+            }
+            viewModel.setPaymentMethod(method)
+        }
+
+        setupPlanCardClicks()
         setupViews()
         observeViewModel()
     }
 
+    private fun setupPlanCardClicks() {
+        cardStarter.setOnClickListener {
+            viewModel.setSelectedPlan(planStarter)
+            applyCardSelection(cardStarter)
+        }
+        cardPro.setOnClickListener {
+            viewModel.setSelectedPlan(planPro)
+            applyCardSelection(cardPro)
+        }
+        cardEnterprise.setOnClickListener {
+            viewModel.setSelectedPlan(planEnterprise)
+            applyCardSelection(cardEnterprise)
+        }
+    }
+
+    private fun applyCardSelection(selected: MaterialCardView) {
+        val strokePx = (2 * resources.displayMetrics.density).toInt()
+        val gold = ContextCompat.getColor(this, R.color.fab_yellow)
+        listOf(cardStarter, cardPro, cardEnterprise).forEach { card ->
+            if (card == selected) {
+                card.strokeWidth = strokePx
+                card.strokeColor = gold
+            } else {
+                card.strokeWidth = 0
+            }
+        }
+    }
+
     private fun setupViews() {
-        // Back button
         findViewById<View>(R.id.btnBack).setOnClickListener {
             finish()
         }
 
         findViewById<View>(R.id.btn_continue).setOnClickListener {
             val currentPlan = viewModel.selectedPlan.value
-            val planName = currentPlan?.name ?: "Subscription"
-            val planPrice = currentPlan?.price ?: 0.0
-            
-            activityLogViewModel.addLog(LogType.SUBSCRIPTION, "Selected $planName")
-            
-            val intent = Intent(this, PaymentDetailsActivity::class.java).apply {
-                putExtra("PLAN_NAME", planName)
-                putExtra("PLAN_PRICE", planPrice)
-            }
-            startActivity(intent)
+            val name = currentPlan?.name ?: "Subscription"
+            val price = currentPlan?.price ?: 0.0
+            val paymentMethod = viewModel.selectedPaymentMethod.value ?: PaymentMethod.GCASH
+
+            activityLogViewModel.addLog(LogType.SUBSCRIPTION, "Selected $name via ${paymentMethod.displayName}")
+
+            startActivity(
+                Intent(this, PaymentDetailsActivity::class.java).apply {
+                    putExtra(PaymentDetailsActivity.EXTRA_PLAN_NAME, name)
+                    putExtra(PaymentDetailsActivity.EXTRA_PLAN_PRICE, price)
+                    putExtra(PaymentDetailsActivity.EXTRA_PAYMENT_METHOD, paymentMethod.name)
+                }
+            )
         }
     }
 

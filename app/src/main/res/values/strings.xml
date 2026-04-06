@@ -293,4 +293,12 @@
     <string name="nav_scanner">Scanner</string>
     <string name="nav_notifications">Alerts</string>
     <string name="nav_profile">Profile</string>
+
+    <!-- Payment checkout (set payment_web_checkout_base_url to your PayMongo/Xendit/GCash web link when the app is not opened) -->
+    <string name="payment_web_checkout_base_url" translatable="false"></string>
+    <string name="payment_open_app_instruction">Complete your payment in the app that just opened. When you are done, return to AgriHive.</string>
+    <string name="payment_web_checkout_opened">Secure checkout opened in your browser. Finish payment there, then return to the app.</string>
+    <string name="payment_completed_title">Payment finished?</string>
+    <string name="payment_completed_message">If your payment was successful, you can continue to the confirmation screen. (Production apps should verify payment on your server before unlocking a subscription.)</string>
+    <string name="payment_completed_yes">Continue</string>
 </resources>

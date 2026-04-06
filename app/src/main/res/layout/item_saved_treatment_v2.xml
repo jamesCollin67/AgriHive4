@@ -17,15 +17,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/ivIcon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:id="@+id/ivThumb"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
         android:src="@drawable/ic_warning"
         app:layout_constraintBottom_toBottomOf="@id/ivIconBg"
         app:layout_constraintEnd_toEndOf="@id/ivIconBg"
         app:layout_constraintStart_toStartOf="@id/ivIconBg"
-        app:layout_constraintTop_toTopOf="@id/ivIconBg"
-        app:tint="#EF5350" />
+        app:layout_constraintTop_toTopOf="@id/ivIconBg" />
 
     <!-- Title and Subtitle -->
     <TextView

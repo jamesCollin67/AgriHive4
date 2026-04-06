@@ -11,6 +11,8 @@ class SavedTreatmentsViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
+    private var allTreatmentsList: List<SavedTreatment> = emptyList()
+
     private val _treatments = MutableLiveData<List<SavedTreatment>>()
     val treatments: LiveData<List<SavedTreatment>> = _treatments
 
@@ -45,13 +47,26 @@ class SavedTreatmentsViewModel : ViewModel() {
                 if (e != null || snapshot == null) return@addSnapshotListener
 
                 val list = snapshot.toObjects(SavedTreatment::class.java)
+                allTreatmentsList = list
                 _treatments.value = list
                 
                 // Calculate stats
                 _totalScans.value = list.size
-                _issuesFound.value = list.count { it.healthScore < 80 }
-                _healthyCount.value = list.count { it.healthScore >= 80 }
+                _issuesFound.value = list.count { it.healthScore < 50 }
+                _healthyCount.value = list.count { it.healthScore >= 50 }
             }
+    }
+
+    fun filterAll() {
+        _treatments.value = allTreatmentsList
+    }
+
+    fun filterIssues() {
+        _treatments.value = allTreatmentsList.filter { it.healthScore < 50 }
+    }
+
+    fun filterHealthy() {
+        _treatments.value = allTreatmentsList.filter { it.healthScore >= 50 }
     }
 
     fun onBackClicked() {

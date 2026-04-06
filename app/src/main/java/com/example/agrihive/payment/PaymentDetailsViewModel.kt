@@ -17,9 +17,6 @@ class PaymentDetailsViewModel : ViewModel() {
     private val _navigateBack = MutableLiveData(false)
     val navigateBack: LiveData<Boolean> = _navigateBack
 
-    private val _navigateToSuccess = MutableLiveData(false)
-    val navigateToSuccess: LiveData<Boolean> = _navigateToSuccess
-
     fun setPlanDetails(price: Double) {
         if (price > 0) {
             _planPrice.value = price
@@ -34,15 +31,7 @@ class PaymentDetailsViewModel : ViewModel() {
         _navigateBack.value = true
     }
 
-    fun onPayClicked() {
-        _navigateToSuccess.value = true
-    }
-
     fun doneBack() {
         _navigateBack.value = false
-    }
-
-    fun doneSuccess() {
-        _navigateToSuccess.value = false
     }
 }

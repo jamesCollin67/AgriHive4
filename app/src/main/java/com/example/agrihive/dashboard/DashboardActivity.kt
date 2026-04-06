@@ -81,11 +81,19 @@ class DashboardActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_apiaries -> true
                 R.id.nav_alerts -> {
-                    startActivity(Intent(this, NotificationActivity::class.java))
+                    startActivity(
+                        Intent(this, NotificationActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        }
+                    )
                     true
                 }
                 R.id.nav_settings -> {
-                    startActivity(Intent(this, SettingsActivity::class.java))
+                    startActivity(
+                        Intent(this, SettingsActivity::class.java).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        }
+                    )
                     true
                 }
                 else -> false
