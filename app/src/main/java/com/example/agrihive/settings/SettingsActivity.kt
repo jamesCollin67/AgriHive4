@@ -27,6 +27,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var sessionManager: UserSessionManager
     private lateinit var auth: FirebaseAuth
     private val firestore = FirebaseFirestore.getInstance()
+    private lateinit var bottomNav: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,9 +132,14 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav = findViewById(R.id.bottom_navigation)
         bottomNav.selectedItemId = R.id.nav_settings
         bottomNav.setOnItemSelectedListener { item ->
+            // BUG FIX: Prevent re-navigation if already on the selected UI
+            if (item.itemId == bottomNav.selectedItemId) {
+                return@setOnItemSelectedListener true
+            }
+
             when (item.itemId) {
                 R.id.nav_apiaries -> {
                     startActivity(
@@ -197,5 +203,7 @@ class SettingsActivity : AppCompatActivity() {
         // Refresh profile info when returning from Edit Profile
         displayCachedProfile()
         loadUserProfile()
+        // Ensure correct item is selected when returning to this activity
+        bottomNav.selectedItemId = R.id.nav_settings
     }
 }

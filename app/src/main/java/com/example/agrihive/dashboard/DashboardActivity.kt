@@ -79,8 +79,16 @@ class DashboardActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         binding.bottomNavigation.selectedItemId = R.id.nav_apiaries
         binding.bottomNavigation.setOnItemSelectedListener { item ->
+            // BUG FIX: Prevent re-navigation if already on the selected UI
+            if (item.itemId == binding.bottomNavigation.selectedItemId) {
+                return@setOnItemSelectedListener true
+            }
+
             when (item.itemId) {
-                R.id.nav_apiaries -> true
+                R.id.nav_apiaries -> {
+                    // Already here, handled by the check above
+                    true
+                }
                 R.id.nav_alerts -> {
                     startActivity(
                         Intent(this, NotificationActivity::class.java).apply {
@@ -131,8 +139,8 @@ class DashboardActivity : AppCompatActivity() {
             if (count > 0) {
                 badge.isVisible = true
                 badge.number = count
-                badge.backgroundColor = ContextCompat.getColor(this, R.color.status_error)
-                badge.badgeTextColor = ContextCompat.getColor(this, android.R.color.white)
+                badge.backgroundColor = ContextCompat.getColor(this, R.color.honey_primary)
+                badge.badgeTextColor = ContextCompat.getColor(this, android.R.color.black)
             } else {
                 badge.isVisible = false
             }
@@ -158,5 +166,13 @@ class DashboardActivity : AppCompatActivity() {
                 viewModel.clearError()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Ensure correct item is selected when returning to this activity
+        binding.bottomNavigation.selectedItemId = R.id.nav_apiaries
+        // Update notification count badge in case some were read in the NotificationActivity
+        viewModel.updateNotificationCount()
     }
 }

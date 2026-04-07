@@ -17,6 +17,7 @@ class SendReportViewModel(application: Application) : AndroidViewModel(applicati
     private val database = AgriHiveDatabase.getDatabase(application)
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    private val sessionManager = com.example.agrihive.data.UserSessionManager(application)
 
     private val _errorMessage = MutableLiveData<String?>(null)
     val errorMessage: LiveData<String?> = _errorMessage
@@ -35,7 +36,7 @@ class SendReportViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             try {
                 val timestamp = System.currentTimeMillis()
-                val userId = auth.currentUser?.uid ?: "anonymous"
+                val userId = auth.currentUser?.uid ?: return@launch // Ensure user is logged in
 
                 // 1. Save to local Room database
                 val reportLocal = ReportEntity(
@@ -45,14 +46,20 @@ class SendReportViewModel(application: Application) : AndroidViewModel(applicati
                 )
                 database.reportDao().insertReport(reportLocal)
 
-                // 2. Save to Firestore
+                // 2. Save to Firestore under the global collection
+                // We use the userId field to ensure the admin knows who sent it
+                // and the mobile app can filter its own reports.
+                // Include user name and farm from session for the admin dashboard
                 val reportFirestore = hashMapOf(
                     "userId" to userId,
+                    "name" to "${sessionManager.getFirstName()} ${sessionManager.getLastName()}".trim(),
+                    "farm" to sessionManager.getFarm(),
                     "description" to description,
                     "timestamp" to timestamp,
                     "imageUri" to selectedImageUri,
                     "status" to "pending",
-                    "notified" to true // Set to true initially since there's no reply yet
+                    "reply" to null,
+                    "notified" to true // Initially true because there's no reply yet
                 )
                 
                 firestore.collection("reports")

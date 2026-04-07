@@ -2,23 +2,35 @@ package com.example.agrihive.notification
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.google.firebase.auth.FirebaseAuth
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
 
 /**
  * Repository for managing app notifications
- * Stores notifications using SharedPreferences
+ * Stores notifications using SharedPreferences, partitioned by User ID
  */
 class NotificationRepository(context: Context) {
 
+    private val auth = FirebaseAuth.getInstance()
+    private val appContext = context.applicationContext
+
     companion object {
-        private const val PREFS_NAME = "agrihive_notifications"
+        private const val PREFS_BASE_NAME = "agrihive_notifications"
         private const val KEY_NOTIFICATIONS = "notifications_list"
         private const val MAX_NOTIFICATIONS = 50 // Keep last 50 notifications
     }
 
-    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    /**
+     * Get user-specific SharedPreferences.
+     * If no user is logged in, it returns a default one (though most ops require a user).
+     */
+    private val prefs: SharedPreferences
+        get() {
+            val uid = auth.currentUser?.uid ?: "anonymous"
+            return appContext.getSharedPreferences("${PREFS_BASE_NAME}_$uid", Context.MODE_PRIVATE)
+        }
 
     /**
      * Add a new notification
@@ -44,7 +56,7 @@ class NotificationRepository(context: Context) {
     }
 
     /**
-     * Get all notifications
+     * Get all notifications for the CURRENT user
      */
     fun getAllNotifications(): List<NotificationItem> {
         val jsonString = prefs.getString(KEY_NOTIFICATIONS, null) ?: return emptyList()
@@ -74,7 +86,7 @@ class NotificationRepository(context: Context) {
     }
 
     /**
-     * Get unread notifications count
+     * Get unread notifications count for the CURRENT user
      */
     fun getUnreadCount(): Int {
         return getAllNotifications().count { !it.isRead }
@@ -110,14 +122,14 @@ class NotificationRepository(context: Context) {
     }
 
     /**
-     * Clear all notifications
+     * Clear all notifications for the CURRENT user
      */
     fun clearAll() {
         prefs.edit().remove(KEY_NOTIFICATIONS).apply()
     }
 
     /**
-     * Save notifications to SharedPreferences
+     * Save notifications to user-specific SharedPreferences
      */
     private fun saveNotifications(notifications: List<NotificationItem>) {
         val jsonArray = JSONArray()

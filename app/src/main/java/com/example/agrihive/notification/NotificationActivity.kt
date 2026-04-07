@@ -71,6 +71,9 @@ class NotificationActivity : AppCompatActivity() {
     }
 
     private fun loadNotifications() {
+        // Mark all as read when the user opens the alerts screen
+        repository.markAllAsRead()
+
         val notifications = repository.getAllNotifications()
         adapter.updateNotifications(notifications)
         
@@ -93,6 +96,11 @@ class NotificationActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         bottomNavigationView.selectedItemId = R.id.nav_alerts
         bottomNavigationView.setOnItemSelectedListener { item ->
+            // BUG FIX: Prevent re-navigation if already on the selected UI
+            if (item.itemId == bottomNavigationView.selectedItemId) {
+                return@setOnItemSelectedListener true
+            }
+
             when (item.itemId) {
                 R.id.nav_apiaries -> {
                     startActivity(
@@ -121,5 +129,7 @@ class NotificationActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         loadNotifications()
+        // Ensure correct item is selected when returning to this activity
+        bottomNavigationView.selectedItemId = R.id.nav_alerts
     }
 }
