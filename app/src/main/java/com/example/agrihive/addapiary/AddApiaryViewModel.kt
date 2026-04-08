@@ -8,6 +8,12 @@ import android.os.Looper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+data class BeeFarm(
+    val id: String = "",
+    val name: String = "",
+    val address: String = ""
+)
+
 class AddApiaryViewModel : ViewModel() {
 
     private val _isLoading = MutableLiveData<Boolean>()
@@ -18,11 +24,42 @@ class AddApiaryViewModel : ViewModel() {
 
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
+
+    private val _beeFarms = MutableLiveData<List<BeeFarm>>()
+    val beeFarms: LiveData<List<BeeFarm>> = _beeFarms
+
     private val timeoutHandler = Handler(Looper.getMainLooper())
     private var saveTimedOut = false
 
-    fun saveApiary(name: String, location: String, nodeId: String) {
-        if (name.isBlank() || location.isBlank() || nodeId.isBlank()) {
+    init {
+        loadBeeFarms()
+    }
+
+    private fun loadBeeFarms() {
+        // Hardcoded farms as primary source — always available offline
+        val hardcodedFarms = listOf(
+            BeeFarm("1", "Apis Prince Honeybee Farm", "Apis Prince Honeybee Farm, Greener's Farm, Taptap, Cebu City, Cebu"),
+            BeeFarm("2", "GKG FARM CEBU PH", "Cansiguiring, Carmen, Cebu")
+        )
+        _beeFarms.value = hardcodedFarms
+
+        // Also try to update from Firestore in case admin adds more farms later
+        val firestore = FirebaseFirestore.getInstance()
+        firestore.collection("bee_farms").get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.isEmpty) {
+                    val farms = snapshot.documents.mapNotNull { doc ->
+                        val name = doc.getString("name") ?: return@mapNotNull null
+                        val address = doc.getString("address") ?: return@mapNotNull null
+                        BeeFarm(doc.id, name, address)
+                    }
+                    if (farms.isNotEmpty()) _beeFarms.value = farms
+                }
+            }
+    }
+
+    fun saveApiary(name: String, location: String, farmName: String, nodeId: String) {
+        if (name.isBlank() || location.isBlank() || farmName.isBlank() || nodeId.isBlank()) {
             _errorMessage.value = "Please fill in all fields"
             return
         }
@@ -37,7 +74,6 @@ class AddApiaryViewModel : ViewModel() {
         saveTimedOut = false
         val firestore = FirebaseFirestore.getInstance()
 
-        // Avoid "Saving..." hanging forever when backend never replies.
         val timeoutRunnable = Runnable {
             if (!saveTimedOut) {
                 saveTimedOut = true
@@ -53,6 +89,7 @@ class AddApiaryViewModel : ViewModel() {
             "id" to apiaryId,
             "name" to name,
             "location" to location,
+            "farmName" to farmName,
             "nodeId" to nodeId,
             "ownerId" to uid,
             "temperature" to 0.0,

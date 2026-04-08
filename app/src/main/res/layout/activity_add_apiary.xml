@@ -94,14 +94,14 @@
                     android:textColor="#FFFFFF" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Location -->
+            <!-- Farm Location Dropdown -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_location"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:hint="Location"
+                android:hint="Farm Location"
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxCornerRadiusBottomStart="16dp"
                 app:boxCornerRadiusTopEnd="16dp"
@@ -109,16 +109,47 @@
                 app:boxStrokeColor="@color/login_input_border"
                 app:hintTextColor="@color/login_text_hint">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <AutoCompleteTextView
                     android:id="@+id/et_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableStart="@drawable/ic_location_filled"
                     android:drawablePadding="16dp"
                     android:drawableTint="@color/login_text_secondary"
-                    android:hint="e.g. Bukidnon, Philippines"
-                    android:inputType="textPostalAddress"
-                    android:textColor="#FFFFFF" />
+                    android:hint="Select farm location"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:textColor="#FFFFFF"
+                    android:dropDownHeight="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Farm Name Dropdown -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_farm_name"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:hint="Farm Name"
+                app:boxCornerRadiusBottomEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxStrokeColor="@color/login_input_border"
+                app:hintTextColor="@color/login_text_hint">
+
+                <AutoCompleteTextView
+                    android:id="@+id/et_farm_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_saved"
+                    android:drawablePadding="16dp"
+                    android:drawableTint="@color/login_text_secondary"
+                    android:hint="Select farm name"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:textColor="#FFFFFF"
+                    android:dropDownHeight="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- ESP32 Node ID -->

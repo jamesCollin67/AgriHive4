@@ -3,64 +3,58 @@ package com.example.agrihive.register
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.databinding.ActivityRegisterBinding
 import com.example.agrihive.login.LoginActivity
 
-/**
- * Register Activity - Create new user account
- * MVVM Architecture with Firebase Auth backend
- */
 class RegisterActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterBinding
     private val viewModel: RegisterViewModel by viewModels()
+
+    // Bee farms data — mirrors AddApiaryViewModel
+    private val beeFarms = listOf(
+        Pair("Apis Prince Honeybee Farm", "Apis Prince Honeybee Farm, Greener's Farm, Taptap, Cebu City, Cebu"),
+        Pair("GKG FARM CEBU PH",          "Cansiguiring, Carmen, Cebu")
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Back button click
-        binding.btnBack.setOnClickListener {
-            finish()
-        }
+        setupDropdowns()
 
-        // Note: Password visibility toggle is now handled automatically by TextInputLayout
-        // in the activity_register.xml using app:endIconMode="password_toggle"
+        binding.btnBack.setOnClickListener { finish() }
 
-        // Sign Up button click
         binding.btnRegister.setOnClickListener {
             viewModel.register(
-                binding.firstName.text?.toString()?.trim() ?: "",
-                binding.lastName.text?.toString()?.trim() ?: "",
-                binding.email.text?.toString()?.trim() ?: "",
-                binding.password.text?.toString() ?: "",
-                binding.confirmPassword.text?.toString() ?: "",
-                binding.terms.isChecked
+                firstName       = binding.firstName.text?.toString()?.trim() ?: "",
+                lastName        = binding.lastName.text?.toString()?.trim() ?: "",
+                email           = binding.email.text?.toString()?.trim() ?: "",
+                password        = binding.password.text?.toString() ?: "",
+                confirmPassword = binding.confirmPassword.text?.toString() ?: "",
+                termsAccepted   = binding.terms.isChecked,
+                farmName        = binding.farmName.text?.toString()?.trim() ?: "",
+                farmLocation    = binding.farmLocation.text?.toString()?.trim() ?: ""
             )
         }
 
-        // Login link click
         binding.tvLoginLink.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
 
-        // Observe success state
         viewModel.registerSuccess.observe(this) { success ->
             if (success) {
-                Toast.makeText(
-                    this,
-                    "Registered successfully! Please verify your email.",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this, "Registered successfully! Please verify your email.", Toast.LENGTH_LONG).show()
             }
         }
 
-        // Observe error state
         viewModel.registerError.observe(this) { error ->
             error?.let {
                 Toast.makeText(this, it, Toast.LENGTH_LONG).show()
@@ -68,7 +62,6 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        // Observe navigation state
         viewModel.navigateToLogin.observe(this) { navigate ->
             if (navigate) {
                 startActivity(Intent(this, LoginActivity::class.java))
@@ -77,7 +70,6 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
 
-        // Observe loading state
         viewModel.isLoading.observe(this) { isLoading ->
             binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.btnRegister.isEnabled = !isLoading
@@ -86,17 +78,28 @@ class RegisterActivity : AppCompatActivity() {
             binding.email.isEnabled = !isLoading
             binding.password.isEnabled = !isLoading
             binding.confirmPassword.isEnabled = !isLoading
+            binding.farmName.isEnabled = !isLoading
+            binding.farmLocation.isEnabled = !isLoading
             binding.terms.isEnabled = !isLoading
         }
     }
 
-    // Helper function to open URLs
-    private fun openUrl(url: String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
-            startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(this, "Unable to open browser", Toast.LENGTH_SHORT).show()
+    private fun setupDropdowns() {
+        val farmNameAcv     = binding.farmName as AutoCompleteTextView
+        val farmLocationAcv = binding.farmLocation as AutoCompleteTextView
+
+        val nameAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, beeFarms.map { it.first })
+        farmNameAcv.setAdapter(nameAdapter)
+        farmNameAcv.setOnClickListener { farmNameAcv.showDropDown() }
+        farmNameAcv.setOnItemClickListener { _, _, position, _ ->
+            farmLocationAcv.setText(beeFarms[position].second, false)
+        }
+
+        val locationAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, beeFarms.map { it.second })
+        farmLocationAcv.setAdapter(locationAdapter)
+        farmLocationAcv.setOnClickListener { farmLocationAcv.showDropDown() }
+        farmLocationAcv.setOnItemClickListener { _, _, position, _ ->
+            farmNameAcv.setText(beeFarms[position].first, false)
         }
     }
 }

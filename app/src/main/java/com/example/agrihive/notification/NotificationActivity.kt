@@ -49,7 +49,8 @@ class NotificationActivity : AppCompatActivity() {
         backButton = findViewById(R.id.flBell)
         bottomNavigationView = findViewById(R.id.bottom_navigation)
         
-        backButton.setOnClickListener { finish() }
+        // Bell icon is decorative in the Alerts screen, no action needed
+        // backButton.setOnClickListener { finish() }
     }
 
     private fun setupRecyclerView() {
@@ -71,9 +72,6 @@ class NotificationActivity : AppCompatActivity() {
     }
 
     private fun loadNotifications() {
-        // Mark all as read when the user opens the alerts screen
-        repository.markAllAsRead()
-
         val notifications = repository.getAllNotifications()
         adapter.updateNotifications(notifications)
         

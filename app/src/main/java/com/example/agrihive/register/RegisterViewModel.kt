@@ -46,11 +46,14 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         email: String,
         password: String,
         confirmPassword: String,
-        termsAccepted: Boolean
+        termsAccepted: Boolean,
+        farmName: String,
+        farmLocation: String
     ) {
         // Validation - Check empty fields
         if (firstName.isBlank() || lastName.isBlank() ||
-            email.isBlank() || password.isBlank() || confirmPassword.isBlank()
+            email.isBlank() || password.isBlank() || confirmPassword.isBlank() ||
+            farmName.isBlank() || farmLocation.isBlank()
         ) {
             _registerError.value = "All fields are required."
             return
@@ -105,8 +108,10 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                         "firstName" to firstName,
                         "lastName" to lastName,
                         "email" to email,
-                        "farm" to "",
-                        "location" to "",
+                        "farm" to farmName,
+                        "farmName" to farmName,
+                        "location" to farmLocation,
+                        "farmLocation" to farmLocation,
                         "apiaries" to 0,
                         "createdAt" to System.currentTimeMillis()
                     )
