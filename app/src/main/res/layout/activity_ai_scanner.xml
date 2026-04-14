@@ -176,7 +176,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:gravity="center"
-                android:text="Healthy • Varroa • AFB • EFB • Chalkbrood • Sacbrood • Nosema"
+                android:text="Healthy • Varroa Mite • American Foulbrood • European Foulbrood • Chalkbrood • Sacbrood • Nosema"
                 android:textColor="#F4B400"
                 android:textSize="11sp" />
         </LinearLayout>

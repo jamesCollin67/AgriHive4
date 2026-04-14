@@ -125,8 +125,11 @@ dependencies {
     // TFLite - Using version 2.16.1 which fixes Manifest Namespace collision
     implementation("org.tensorflow:tensorflow-lite:2.16.1")
 
-    // Room Database
-    val roomVersion = "2.7.0-alpha11"
+    // MPAndroidChart — weight history line chart in HiveStreams
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // Room Database — 2.7.1 required for Kotlin 2.x + KSP 2.x compatibility
+    val roomVersion = "2.7.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")

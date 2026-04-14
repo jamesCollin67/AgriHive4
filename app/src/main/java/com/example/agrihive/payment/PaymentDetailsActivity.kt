@@ -114,25 +114,34 @@ class PaymentDetailsActivity : AppCompatActivity() {
         }
     }
 
-    // ── PayMongo payment initiation ───────────────────────────────────────────
     private fun initiatePayMongoPayment() {
         val price  = viewModel.planPrice.value ?: return
         val method = viewModel.selectedMethod.value ?: return
+
+        val methodLabel = when (method) {
+            PaymentDetailsViewModel.Method.GCASH   -> "GCash"
+            PaymentDetailsViewModel.Method.PAYMAYA -> "Maya"
+            PaymentDetailsViewModel.Method.BDO     -> "BDO"
+            PaymentDetailsViewModel.Method.PAYPAL  -> "PayPal"
+        }
+
+        // Warn user before opening external browser — avoids confusion
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Secure Payment")
+            .setMessage("You will be redirected to a secure PayMongo payment page to complete your ₱${price.toInt()} payment via $methodLabel.\n\nAfter paying, return to this app to confirm your subscription.")
+            .setPositiveButton("Continue to Payment") { _, _ ->
+                proceedWithPayment(price, method)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun proceedWithPayment(price: Double, method: PaymentDetailsViewModel.Method) {
         setLoadingState(true)
 
         lifecycleScope.launch {
             val description = "AgriHive $planName Plan"
-            val result: PayMongoService.Result = when (method) {
-                PaymentDetailsViewModel.Method.GCASH ->
-                    // Use Payment Link — works for GCash without needing redirect URL whitelisting
-                    PayMongoService.createPaymentLink(price, description)
-                PaymentDetailsViewModel.Method.PAYMAYA ->
-                    // Use Payment Link — works for Maya without needing redirect URL whitelisting
-                    PayMongoService.createPaymentLink(price, description)
-                else ->
-                    // BDO / PayPal → also use generic PayMongo payment link
-                    PayMongoService.createPaymentLink(price, description)
-            }
+            val result: PayMongoService.Result = PayMongoService.createPaymentLink(price, description)
 
             setLoadingState(false)
 

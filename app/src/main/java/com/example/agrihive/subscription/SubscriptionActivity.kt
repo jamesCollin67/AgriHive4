@@ -12,7 +12,6 @@ import com.example.agrihive.log.ActivityLogViewModel
 import com.example.agrihive.log.LogType
 import com.example.agrihive.payment.PaymentDetailsActivity
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.chip.ChipGroup
 
 class SubscriptionActivity : AppCompatActivity() {
 
@@ -89,18 +88,7 @@ class SubscriptionActivity : AppCompatActivity() {
 
         viewModel.setPaymentMethod(PaymentMethod.GCASH)
 
-        findViewById<ChipGroup>(R.id.chip_group_payment).setOnCheckedStateChangeListener { _, checkedIds ->
-            val id = checkedIds.firstOrNull() ?: return@setOnCheckedStateChangeListener
-            val method = when (id) {
-                R.id.chip_gcash -> PaymentMethod.GCASH
-                R.id.chip_maya -> PaymentMethod.MAYA
-                R.id.chip_bdo -> PaymentMethod.BDO
-                R.id.chip_paypal -> PaymentMethod.PAYPAL
-                else -> PaymentMethod.GCASH
-            }
-            viewModel.setPaymentMethod(method)
-        }
-
+        // Payment method is selected on the PaymentDetailsActivity — no chip group here
         setupPlanCardClicks()
         setupViews()
         observeViewModel()

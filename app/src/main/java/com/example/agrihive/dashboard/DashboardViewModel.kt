@@ -219,10 +219,13 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                         weight = doc.getDouble("weight") ?: 0.0,
                         isConnected = doc.getBoolean("isConnected") ?: false,
                         alertsCount = (doc.getLong("alertsCount") ?: 0L).toInt(),
-                        // Handle both Timestamp (serverTimestamp) and Long (legacy) values
-                        lastUpdate = doc.getTimestamp("lastUpdate")?.toDate()?.time
-                            ?: doc.getLong("lastUpdate")
-                            ?: 0L
+                        // Safely handle both Timestamp and Long — getTimestamp() throws if field is a Long
+                        lastUpdate = when (val raw = doc.get("lastUpdate")) {
+                            is com.google.firebase.Timestamp -> raw.toDate().time
+                            is Long -> raw
+                            is Number -> raw.toLong()
+                            else -> 0L
+                        }
                     )
                 } ?: emptyList()
 

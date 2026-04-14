@@ -3,6 +3,7 @@ package com.example.agrihive.dashboard
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -37,10 +38,18 @@ class ApiaryAdapter(
                 if (apiary.isConnected) R.drawable.bg_green_circle else R.drawable.bg_red_circle
             )
 
-            binding.tvTemp.text     = "%.1f°C".format(apiary.temperature)
-            binding.tvHumidity.text = "%.0f%%".format(apiary.humidity)
-            binding.tvMoisture.text = "%.1f%%".format(apiary.moisture)
-            binding.tvWeight.text   = "%.1fkg".format(apiary.weight)
+            // Show "--" when node is offline — don't show stale 0.0 values
+            if (apiary.isConnected) {
+                binding.tvTemp.text     = "%.1f°C".format(apiary.temperature)
+                binding.tvHumidity.text = "%.0f%%".format(apiary.humidity)
+                binding.tvMoisture.text = "%.1f%%".format(apiary.moisture)
+                binding.tvWeight.text   = "%.1fkg".format(apiary.weight)
+            } else {
+                binding.tvTemp.text     = "--"
+                binding.tvHumidity.text = "--"
+                binding.tvMoisture.text = "--"
+                binding.tvWeight.text   = "--"
+            }
 
             val alerts = calculateAlerts(apiary)
             if (alerts > 0) {
@@ -50,28 +59,47 @@ class ApiaryAdapter(
                 binding.tvAlertBadge.visibility = View.GONE
             }
 
+            // Harvest ready badge
+            if (isHarvestReady(apiary)) {
+                binding.tvHarvestBadge.visibility = View.VISIBLE
+            } else {
+                binding.tvHarvestBadge.visibility = View.GONE
+            }
+
+            // ⋮ menu button → popup with Edit / Delete options
+            binding.btnApiaryMenu.setOnClickListener { anchor ->
+                val popup = PopupMenu(anchor.context, anchor)
+                popup.menu.add(0, 1, 0, "✏️  Edit Apiary")
+                popup.menu.add(0, 2, 1, "🗑️  Delete Apiary")
+                popup.setOnMenuItemClickListener { item ->
+                    when (item.itemId) {
+                        1, 2 -> { onApiaryLongClick(apiary); true }
+                        else -> false
+                    }
+                }
+                popup.show()
+            }
+
             // Short tap → open HiveStreams
             binding.root.setOnClickListener { onApiaryClick(apiary) }
 
-            // Long press → open Edit Apiary
+            // Long press still works as fallback
             binding.root.setOnLongClickListener {
                 onApiaryLongClick(apiary)
-                true // consume the event
+                true
             }
         }
 
         private fun calculateAlerts(apiary: Apiary): Int {
             var count = 0
-            // 1. Moisture Content Threshold (> 18% is alert)
             if (apiary.moisture > 18.0) count++
-            
-            // 2. Temperature Threshold (Optimal: 34°C – 36°C)
-            if (apiary.temperature > 0 && (apiary.temperature < 34.0 || apiary.temperature > 36.0)) {
-                count++
-            }
-            
+            if (apiary.temperature > 0 && (apiary.temperature < 34.0 || apiary.temperature > 36.0)) count++
+            if (apiary.weight in 0.1..4.9) count++ // low weight alert
             return count
         }
+
+        private fun isHarvestReady(apiary: Apiary) =
+            apiary.moisture in 0.1..18.0 && apiary.weight > 5.0 && apiary.isConnected
     }
 
     private class DiffCallback : DiffUtil.ItemCallback<Apiary>() {

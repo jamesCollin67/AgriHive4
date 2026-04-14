@@ -20,22 +20,37 @@
             android:id="@+id/tv_greeting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello, Tfgf"
+            android:text="Hello, Beekeeper 👋"
             android:textColor="#9CAF9F"
-            android:textSize="14sp" />
+            android:textSize="15sp" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="2dp">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-black"
-                android:text="Your Apiaries"
-                android:textColor="#FFFFFF"
-                android:textSize="32sp" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-black"
+                    android:text="Your Apiaries"
+                    android:textColor="#FFFFFF"
+                    android:textSize="30sp" />
+
+                <TextView
+                    android:id="@+id/tv_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Monday, April 14"
+                    android:textColor="#6B8B6E"
+                    android:textSize="13sp" />
+            </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btn_add_top"
@@ -63,19 +78,19 @@
         android:id="@+id/layout_stats"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:orientation="horizontal"
         android:paddingHorizontal="12dp"
         app:layout_constraintTop_toBottomOf="@id/layout_header">
 
-        <!-- Stat Item 1 -->
+        <!-- Total Apiaries -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:layout_weight="1"
             app:cardBackgroundColor="#1A3329"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:strokeColor="#2D4A3E"
             app:strokeWidth="1dp">
@@ -84,32 +99,40 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingVertical="14dp">
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="4dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🐝"
+                    android:textSize="18sp" />
                 <TextView
                     android:id="@+id/tv_total_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-black"
                     android:text="0"
                     android:textColor="#F4B400"
-                    android:textSize="22sp" />
+                    android:textSize="24sp" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total Apiaries"
+                    android:gravity="center"
+                    android:text="Total"
                     android:textColor="#9CAF9F"
-                    android:textSize="8sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Stat Item 2 -->
+        <!-- Online -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:layout_weight="1"
             app:cardBackgroundColor="#1A3329"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:strokeColor="#2D4A3E"
             app:strokeWidth="1dp">
@@ -118,32 +141,41 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingVertical="14dp">
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="4dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📡"
+                    android:textSize="18sp" />
                 <TextView
                     android:id="@+id/tv_online_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-black"
                     android:text="0"
-                    android:textColor="#F4B400"
-                    android:textSize="22sp" />
+                    android:textColor="#66BB6A"
+                    android:textSize="24sp" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:text="Online"
                     android:textColor="#9CAF9F"
-                    android:textSize="8sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Stat Item 3 -->
+        <!-- Alerts -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_stat_alerts"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:layout_weight="1"
             app:cardBackgroundColor="#1A3329"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:strokeColor="#2D4A3E"
             app:strokeWidth="1dp">
@@ -152,32 +184,40 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingVertical="14dp">
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="4dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⚠️"
+                    android:textSize="18sp" />
                 <TextView
                     android:id="@+id/tv_alerts_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-black"
                     android:text="0"
-                    android:textColor="#F4B400"
-                    android:textSize="22sp" />
+                    android:textColor="#EF5350"
+                    android:textSize="24sp" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Active Alerts"
+                    android:gravity="center"
+                    android:text="Alerts"
                     android:textColor="#9CAF9F"
-                    android:textSize="8sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Stat Item 4 -->
+        <!-- Harvest Ready -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:layout_weight="1"
             app:cardBackgroundColor="#1A3329"
-            app:cardCornerRadius="12dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:strokeColor="#2D4A3E"
             app:strokeWidth="1dp">
@@ -186,21 +226,29 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:paddingVertical="14dp">
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="4dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🍯"
+                    android:textSize="18sp" />
                 <TextView
                     android:id="@+id/tv_harvest_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
                     android:fontFamily="sans-serif-black"
                     android:text="0"
-                    android:textColor="#66BB6A"
-                    android:textSize="22sp" />
+                    android:textColor="#F4B400"
+                    android:textSize="24sp" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Harvest Ready"
+                    android:gravity="center"
+                    android:text="Harvest"
                     android:textColor="#9CAF9F"
-                    android:textSize="8sp" />
+                    android:textSize="10sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
@@ -274,15 +322,22 @@
                 app:cornerRadius="18dp" />
         </LinearLayout>
 
-        <!-- List View -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_apiaries"
+        <!-- List View wrapped in SwipeRefreshLayout -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:padding="16dp"
-            android:visibility="gone"
-            tools:listitem="@layout/item_apiary_card" />
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_apiaries"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:padding="16dp"
+                android:visibility="visible"
+                tools:listitem="@layout/item_apiary_card" />
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

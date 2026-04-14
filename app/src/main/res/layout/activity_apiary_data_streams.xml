@@ -526,26 +526,12 @@
                                 android:textSize="16sp" />
                         </LinearLayout>
 
-                        <!-- Graph Placeholder -->
-                        <FrameLayout
+                        <!-- Real MPAndroidChart Line Chart -->
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/weight_line_chart"
                             android:layout_width="match_parent"
-                            android:layout_height="150dp"
-                            android:layout_marginTop="16dp">
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:layout_gravity="bottom"
-                                android:background="#2D4A3E" />
-
-                            <!-- Simplified line representation -->
-                            <ImageView
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:scaleType="fitXY"
-                                android:alpha="0.6"
-                                android:src="@drawable/bg_honey_gradient" />
-                        </FrameLayout>
+                            android:layout_height="180dp"
+                            android:layout_marginTop="16dp" />
 
                         <LinearLayout
                             android:layout_width="match_parent"

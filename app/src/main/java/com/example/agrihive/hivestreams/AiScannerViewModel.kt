@@ -76,7 +76,7 @@ class AiScannerViewModel(application: Application) : AndroidViewModel(applicatio
     fun analyzeImage(uri: Uri) {
         _currentImageUri = uri
         _isLoading.value = true
-        _loadingMessage.value = "Preprocessing image tensor..."
+        _loadingMessage.value = "Preparing your photo for analysis..."
         _analysisStep.value = 1
 
         viewModelScope.launch {
@@ -104,13 +104,16 @@ class AiScannerViewModel(application: Application) : AndroidViewModel(applicatio
                     return@launch
                 }
 
-                _loadingMessage.postValue("Running neural network inference...")
+                _loadingMessage.postValue("Checking for bee diseases...")
                 _analysisStep.postValue(2)
 
                 val result = withContext(Dispatchers.Default) {
                     runInference(bitmap)
                 }
 
+                _loadingMessage.postValue("Almost done — preparing your results...")
+                _analysisStep.postValue(3)
+                delay(400) // brief pause so user sees the final step
                 _scanResult.postValue(result)
             } catch (e: Exception) {
                 Log.e("AiScannerViewModel", "Inference failed", e)

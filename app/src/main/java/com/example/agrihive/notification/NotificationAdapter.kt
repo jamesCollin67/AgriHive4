@@ -48,19 +48,44 @@ class NotificationAdapter(
             titleView.text = notification.title
             messageView.text = notification.message
             timeView.text = formatTime(notification.timestamp)
-            
+
             // Show/hide unread indicator
             unreadIndicator.visibility = if (notification.isRead) View.GONE else View.VISIBLE
 
-            // Set icon based on notification type
-            val iconRes = when (notification.type) {
-                NotificationType.RAIN_ALERT -> R.drawable.ic_cloud
-                NotificationType.FEEDING_ALERT -> R.drawable.ic_bee
-                NotificationType.TEMPERATURE_ALERT -> R.drawable.ic_temperature
-                NotificationType.SYSTEM -> R.drawable.ic_bell
-                NotificationType.ADMIN_REPLY -> R.drawable.ic_summary
+            // Distinct icon + tint per notification type
+            val (iconRes, iconTint, bgTint) = when (notification.type) {
+                NotificationType.TEMPERATURE_ALERT -> Triple(
+                    R.drawable.ic_temperature, "#EF5350", "#2DEF5350"
+                )
+                NotificationType.RAIN_ALERT -> Triple(
+                    R.drawable.ic_cloud, "#2196F3", "#2D2196F3"
+                )
+                NotificationType.FEEDING_ALERT -> Triple(
+                    R.drawable.ic_bee, "#F4B400", "#2DF4B400"
+                )
+                NotificationType.ADMIN_REPLY -> Triple(
+                    R.drawable.ic_summary, "#66BB6A", "#2D66BB6A"
+                )
+                NotificationType.SYSTEM -> Triple(
+                    R.drawable.ic_bell, "#9CAF9F", "#2D9CAF9F"
+                )
             }
+
             iconView.setImageResource(iconRes)
+            iconView.imageTintList = android.content.res.ColorStateList.valueOf(
+                android.graphics.Color.parseColor(iconTint)
+            )
+            itemView.findViewById<View>(R.id.ivIconBg).backgroundTintList =
+                android.content.res.ColorStateList.valueOf(
+                    android.graphics.Color.parseColor(bgTint)
+                )
+
+            // Admin replies get a distinct gold title color to stand out
+            titleView.setTextColor(
+                android.graphics.Color.parseColor(
+                    if (notification.type == NotificationType.ADMIN_REPLY) "#66BB6A" else "#F4B400"
+                )
+            )
 
             // Click listeners
             itemView.setOnClickListener { onItemClick(notification) }

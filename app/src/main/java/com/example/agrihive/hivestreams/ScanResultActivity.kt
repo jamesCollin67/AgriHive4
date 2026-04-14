@@ -98,10 +98,20 @@ class ScanResultActivity : AppCompatActivity() {
             binding.tvHealthScore.text = "$score/100"
             binding.pbHealthScore.progress = score
 
-            val color = if (score < 50) "#EF5350".toColorInt() else "#66BB6A".toColorInt()
-            binding.tvHealthScore.setTextColor(color)
-            binding.tvDiseaseName.setTextColor(color)
-            binding.pbHealthScore.progressTintList = ColorStateList.valueOf(color)
+            val (color, scoreLabel) = when {
+                score >= 80 -> "#66BB6A" to "Healthy Hive"
+                score >= 60 -> "#FF9800" to "Mild Concern"
+                score >= 40 -> "#FF9800" to "Needs Attention"
+                else        -> "#EF5350" to "Critical — Act Now"
+            }
+            binding.tvHealthScore.setTextColor(android.graphics.Color.parseColor(color))
+            binding.tvDiseaseName.setTextColor(android.graphics.Color.parseColor(color))
+            binding.pbHealthScore.progressTintList =
+                android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(color))
+
+            // Show plain-language score label below the progress bar
+            binding.tvHealthScoreLabel?.text = scoreLabel
+            binding.tvHealthScoreLabel?.setTextColor(android.graphics.Color.parseColor(color))
         }
 
         viewModel.symptoms.observe(this) {
@@ -137,6 +147,12 @@ class ScanResultActivity : AppCompatActivity() {
                 viewModel.doneNavigateToSaved()
                 finish()
             }
+        }
+
+        // Show "Saved ✓" feedback on the button while saving
+        viewModel.isSaving.observe(this) { saving ->
+            binding.btnSaveResult.text = if (saving) "Saving..." else "Save Result"
+            binding.btnSaveResult.isEnabled = !saving
         }
     }
 

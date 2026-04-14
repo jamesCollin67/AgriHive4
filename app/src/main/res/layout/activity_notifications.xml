@@ -85,17 +85,55 @@
         app:layout_constraintTop_toBottomOf="@id/tvUnreadCount"
         tools:listitem="@layout/item_notification_v2" />
 
-    <TextView
+    <!-- Better empty state -->
+    <LinearLayout
         android:id="@+id/emptyState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No notifications yet"
-        android:textColor="#9CAF9F"
+        android:gravity="center"
+        android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/rvNotifications"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/rvNotifications" />
+        app:layout_constraintTop_toTopOf="@id/rvNotifications">
+
+        <FrameLayout
+            android:layout_width="100dp"
+            android:layout_height="100dp">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_circle"
+                android:backgroundTint="#0AFFFFFF" />
+            <ImageView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_notifications"
+                app:tint="#F4B400"
+                android:alpha="0.6" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:fontFamily="sans-serif-black"
+            android:text="All Clear"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:paddingHorizontal="32dp"
+            android:text="No alerts yet. Your hives are being monitored."
+            android:textColor="#6B8B6E"
+            android:textSize="14sp" />
+    </LinearLayout>
 
     <!-- Bottom Navigation Bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

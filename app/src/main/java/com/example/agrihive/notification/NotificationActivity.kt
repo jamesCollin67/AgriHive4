@@ -3,10 +3,10 @@ package com.example.agrihive.notification
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.widget.TextView
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.settings.SettingsActivity
@@ -21,7 +21,7 @@ class NotificationActivity : AppCompatActivity() {
     private lateinit var adapter: NotificationAdapter
     
     private lateinit var rvNotifications: RecyclerView
-    private lateinit var emptyState: TextView
+    private lateinit var emptyState: View
     private lateinit var tvUnreadCount: TextView
     private lateinit var tvBadgeCount: TextView
     private lateinit var unreadBadge: View

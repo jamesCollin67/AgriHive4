@@ -152,14 +152,14 @@
                     android:dropDownHeight="wrap_content" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- ESP32 Node ID -->
+            <!-- Sensor Device ID (formerly ESP32 Node ID — renamed for non-technical users) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_node_id"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:hint="ESP32 Node ID"
+                android:hint="Sensor Device ID"
                 app:boxCornerRadiusBottomEnd="16dp"
                 app:boxCornerRadiusBottomStart="16dp"
                 app:boxCornerRadiusTopEnd="16dp"
@@ -209,7 +209,7 @@
                         android:layout_marginStart="12dp"
                         android:fontFamily="sans-serif"
                         android:lineSpacingExtra="4dp"
-                        android:text="The ESP32 Node ID links this apiary to your physical sensor device. You can find it on your device label or the AgriHive setup guide."
+                        android:text="The Sensor Device ID connects this apiary to your physical sensor. You can find it printed on the sensor device label or in the AgriHive setup guide."
                         android:textColor="#9CAF9F"
                         android:textSize="13sp" />
                 </LinearLayout>

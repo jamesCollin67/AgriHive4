@@ -37,11 +37,29 @@ class DashboardActivity : AppCompatActivity() {
         // Setup RecyclerView
         setupRecyclerView()
 
+        // Set today's date in header
+        val sdf = java.text.SimpleDateFormat("EEEE, MMMM d", java.util.Locale.getDefault())
+        binding.tvDate.text = sdf.format(java.util.Date())
+
         // Setup click listeners
         setupClickListeners()
         
         // Setup bottom navigation
         setupBottomNavigation()
+
+        // Swipe to refresh
+        binding.swipeRefresh.setColorSchemeColors(
+            android.graphics.Color.parseColor("#F4B400")
+        )
+        binding.swipeRefresh.setProgressBackgroundColorSchemeColor(
+            android.graphics.Color.parseColor("#1A3329")
+        )
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.loadApiaries()
+        }
+        viewModel.isLoading.observe(this) { loading ->
+            binding.swipeRefresh.isRefreshing = loading
+        }
 
         // Observe ViewModel
         observeViewModel()
@@ -132,6 +150,21 @@ class DashboardActivity : AppCompatActivity() {
             binding.tvAlertsCount.text = count.toString()
         }
 
+        // Tapping the Alerts card navigates to the first hive with an active alert
+        binding.cardStatAlerts.setOnClickListener {
+            val alertedApiary = viewModel.apiaries.value?.firstOrNull { apiary ->
+                apiary.moisture > 18.0 ||
+                (apiary.temperature > 0 && (apiary.temperature < 34.0 || apiary.temperature > 36.0)) ||
+                apiary.weight in 0.1..4.9
+            }
+            if (alertedApiary != null) {
+                startActivity(Intent(this, com.example.agrihive.hivestreams.HiveStreamsActivity::class.java).apply {
+                    putExtra("APIARY_ID", alertedApiary.id)
+                    putExtra("APIARY_NAME", alertedApiary.name)
+                })
+            }
+        }
+
         viewModel.harvestReadyCount.observe(this) { count ->
             binding.tvHarvestCount.text = count.toString()
         }
@@ -152,13 +185,12 @@ class DashboardActivity : AppCompatActivity() {
         // Observe apiaries list and toggle empty state visibility
         viewModel.apiaries.observe(this) { apiaries ->
             adapter.submitList(apiaries)
-            
             if (apiaries.isEmpty()) {
                 binding.layoutEmptyState.visibility = View.VISIBLE
-                binding.rvApiaries.visibility = View.GONE
+                binding.swipeRefresh.visibility = View.GONE
             } else {
                 binding.layoutEmptyState.visibility = View.GONE
-                binding.rvApiaries.visibility = View.VISIBLE
+                binding.swipeRefresh.visibility = View.VISIBLE
             }
         }
 
@@ -170,18 +202,21 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
 
-        // Observe subscription expiry — only navigate once
+        // Observe subscription expiry — show dialog with option to dismiss
         viewModel.subscriptionExpired.observe(this) { expired ->
             if (expired == true) {
                 viewModel.clearSubscriptionExpired()
-                Toast.makeText(
-                    this,
-                    "Your subscription has expired. Please renew to continue.",
-                    Toast.LENGTH_LONG
-                ).show()
-                startActivity(
-                    Intent(this, com.example.agrihive.sensorsubscription.SensorSubscriptionActivity::class.java)
-                )
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("⚠️ Subscription Expired")
+                    .setMessage("Your subscription has expired. Renew now to continue monitoring your hives with real-time sensor data.")
+                    .setPositiveButton("Renew Now") { _, _ ->
+                        startActivity(
+                            Intent(this, com.example.agrihive.sensorsubscription.SensorSubscriptionActivity::class.java)
+                        )
+                    }
+                    .setNegativeButton("Remind Me Later", null)
+                    .setCancelable(true)
+                    .show()
             }
         }
     }

@@ -65,10 +65,39 @@
                     android:textSize="10sp"
                     android:textStyle="bold" />
 
+                <!-- Harvest Ready badge -->
+                <TextView
+                    android:id="@+id/tv_harvest_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_login_input"
+                    android:backgroundTint="#26F4B400"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:text="🍯 Ready"
+                    android:textColor="#F4B400"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <!-- Edit/Delete menu button — always visible, replaces undiscoverable long-press -->
+                <TextView
+                    android:id="@+id/btn_apiary_menu"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginStart="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:gravity="center"
+                    android:text="⋮"
+                    android:textColor="#9CAF9F"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_marginStart="12dp"
+                    android:layout_marginStart="4dp"
                     android:src="@drawable/ic_chevron_right"
                     app:tint="#4DFFFFFF" />
             </LinearLayout>
