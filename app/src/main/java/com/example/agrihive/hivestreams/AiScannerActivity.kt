@@ -186,12 +186,16 @@ class AiScannerActivity : AppCompatActivity() {
 
         viewModel.scanResult.observe(this) { result ->
             result?.let { (label, score) ->
+                val probs = viewModel.allProbabilities.value ?: emptyList()
                 val intent = Intent(this, ScanResultActivity::class.java).apply {
                     putExtra(ScanResultActivity.EXTRA_DISEASE, label)
                     putExtra(ScanResultActivity.EXTRA_HEALTH_SCORE, score)
                     putExtra(ScanResultActivity.EXTRA_IMAGE_URI, viewModel.currentImageUri.toString())
                     putExtra(ScanResultActivity.EXTRA_HIVE_NAME, hiveName)
                     putExtra(ScanResultActivity.EXTRA_APIARY_ID, apiaryId)
+                    // Pass real probabilities as parallel arrays
+                    putExtra(ScanResultActivity.EXTRA_PROB_LABELS, probs.map { it.first }.toTypedArray())
+                    putIntegerArrayListExtra(ScanResultActivity.EXTRA_PROB_SCORES, ArrayList(probs.map { it.second }))
                 }
                 startActivity(intent)
                 viewModel.doneScan()

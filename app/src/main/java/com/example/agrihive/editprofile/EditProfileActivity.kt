@@ -53,12 +53,28 @@ class EditProfileActivity : AppCompatActivity() {
     private fun updateProfile() {
         val fullName = binding.etFullName.text?.toString()?.trim() ?: ""
         val phone = binding.etPhone.text?.toString()?.trim() ?: ""
-        
+
+        // Validate name
+        if (fullName.isBlank()) {
+            binding.etFullName.error = "Name cannot be empty"
+            binding.etFullName.requestFocus()
+            return
+        }
+        if (fullName.length < 2) {
+            binding.etFullName.error = "Name is too short"
+            binding.etFullName.requestFocus()
+            return
+        }
+
         val parts = fullName.split(" ", limit = 2)
         val fn = parts.getOrElse(0) { "" }
         val ln = parts.getOrElse(1) { "" }
-        
+
         val uid = auth.currentUser?.uid ?: return
+
+        // Disable button to prevent double-tap
+        binding.btnSave.isEnabled = false
+        binding.btnSave.text = "Saving..."
 
         val updates = mutableMapOf<String, Any>(
             "firstName" to fn,
@@ -68,12 +84,19 @@ class EditProfileActivity : AppCompatActivity() {
 
         firestore.collection("users").document(uid).update(updates)
             .addOnSuccessListener {
-                sessionManager.saveUserData(firstName = fn, lastName = ln, email = binding.etEmail.text.toString())
+                sessionManager.saveUserData(
+                    firstName = fn,
+                    lastName = ln,
+                    email = binding.etEmail.text.toString()
+                )
                 binding.tvDisplayName.text = fullName
-                Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show()
                 finish()
-            }.addOnFailureListener {
-                Toast.makeText(this, it.message ?: "Update failed", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                binding.btnSave.isEnabled = true
+                binding.btnSave.text = "Save"
+                Toast.makeText(this, it.message ?: "Update failed. Please try again.", Toast.LENGTH_SHORT).show()
             }
     }
 }

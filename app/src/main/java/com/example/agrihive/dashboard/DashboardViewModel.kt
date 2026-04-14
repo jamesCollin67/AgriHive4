@@ -62,6 +62,9 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val _connectionStatus = MutableLiveData<ConnectivityObserver.Status>()
     val connectionStatus: LiveData<ConnectivityObserver.Status> = _connectionStatus
 
+    private val _subscriptionExpired = MutableLiveData<Boolean>()
+    val subscriptionExpired: LiveData<Boolean> = _subscriptionExpired
+
     private var apiaryListener: ListenerRegistration? = null
     private var reportReplyListener: ListenerRegistration? = null
 
@@ -72,6 +75,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         updateFcmToken()
         startReportReplyListener()
         updateNotificationCount()
+        checkSubscriptionStatus()
     }
 
     fun updateNotificationCount() {
@@ -215,7 +219,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                         weight = doc.getDouble("weight") ?: 0.0,
                         isConnected = doc.getBoolean("isConnected") ?: false,
                         alertsCount = (doc.getLong("alertsCount") ?: 0L).toInt(),
-                        lastUpdate = doc.getLong("lastUpdate") ?: 0L
+                        // Handle both Timestamp (serverTimestamp) and Long (legacy) values
+                        lastUpdate = doc.getTimestamp("lastUpdate")?.toDate()?.time
+                            ?: doc.getLong("lastUpdate")
+                            ?: 0L
                     )
                 } ?: emptyList()
 
@@ -251,8 +258,37 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun clearError() { _errorMessage.value = null }
 
+    private fun checkSubscriptionStatus() {
+        val uid = firebaseAuth.currentUser?.uid ?: return
+        // Delay check by 2 seconds so dashboard loads first
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(2000)
+            firestore.collection("subscriptions").document(uid).get()
+                .addOnSuccessListener { doc ->
+                    if (doc.exists()) {
+                        val due = doc.getString("due") ?: return@addOnSuccessListener
+                        try {
+                            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                            val dueDate = sdf.parse(due)
+                            if (dueDate != null && dueDate.before(java.util.Date())) {
+                                _subscriptionExpired.postValue(true)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("Subscription", "Failed to parse due date: $due", e)
+                        }
+                    }
+                    // No subscription document = user is on Basic plan, no expiry
+                }
+        }
+    }
+
+    fun clearSubscriptionExpired() {
+        _subscriptionExpired.value = false
+    }
+
     override fun onCleared() {
         super.onCleared()
         apiaryListener?.remove()
+        reportReplyListener?.remove()
     }
 }

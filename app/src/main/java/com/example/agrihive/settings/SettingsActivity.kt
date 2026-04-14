@@ -134,12 +134,9 @@ class SettingsActivity : AppCompatActivity() {
     private fun setupBottomNavigation() {
         bottomNav = findViewById(R.id.bottom_navigation)
         bottomNav.selectedItemId = R.id.nav_settings
+        // Swallow reselection — do nothing when tapping the already-active tab
+        bottomNav.setOnItemReselectedListener { /* no-op */ }
         bottomNav.setOnItemSelectedListener { item ->
-            // BUG FIX: Prevent re-navigation if already on the selected UI
-            if (item.itemId == bottomNav.selectedItemId) {
-                return@setOnItemSelectedListener true
-            }
-
             when (item.itemId) {
                 R.id.nav_apiaries -> {
                     startActivity(
@@ -159,7 +156,7 @@ class SettingsActivity : AppCompatActivity() {
                     finish()
                     true
                 }
-                R.id.nav_settings -> true
+                R.id.nav_settings -> true // already here
                 else -> false
             }
         }

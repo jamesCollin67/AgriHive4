@@ -11,12 +11,13 @@ import com.example.agrihive.addapiary.Apiary
 import com.example.agrihive.databinding.ItemApiaryCardBinding
 
 class ApiaryAdapter(
-    private val onApiaryClick: (Apiary) -> Unit
+    private val onApiaryClick: (Apiary) -> Unit,
+    private val onApiaryLongClick: (Apiary) -> Unit = {}
 ) : ListAdapter<Apiary, ApiaryAdapter.ViewHolder>(DiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemApiaryCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, onApiaryClick)
+        return ViewHolder(binding, onApiaryClick, onApiaryLongClick)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -25,27 +26,22 @@ class ApiaryAdapter(
 
     class ViewHolder(
         private val binding: ItemApiaryCardBinding,
-        private val onApiaryClick: (Apiary) -> Unit
+        private val onApiaryClick: (Apiary) -> Unit,
+        private val onApiaryLongClick: (Apiary) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(apiary: Apiary) {
             binding.tvApiaryName.text = apiary.name
-            
-            // Set the location text to the value from the database (from user input in AddApiaryActivity)
             binding.tvLocation.text = if (apiary.location.isBlank()) "No Location Set" else apiary.location
-            
+
             binding.ivStatus.setBackgroundResource(
                 if (apiary.isConnected) R.drawable.bg_green_circle else R.drawable.bg_red_circle
             )
-            
-            binding.tvTemp.text = "%.1f°C".format(apiary.temperature)
-            binding.tvHumidity.text = "%.0f%%".format(apiary.humidity)
-            
-            // Display moisture (handling as specify: 0.0 if disconnected is handled in ViewModel)
-            binding.tvMoisture.text = "%.1f%%".format(apiary.moisture)
-            
-            binding.tvWeight.text = "%.1fkg".format(apiary.weight)
 
-            // Calculate Alerts based on thresholds
+            binding.tvTemp.text     = "%.1f°C".format(apiary.temperature)
+            binding.tvHumidity.text = "%.0f%%".format(apiary.humidity)
+            binding.tvMoisture.text = "%.1f%%".format(apiary.moisture)
+            binding.tvWeight.text   = "%.1fkg".format(apiary.weight)
+
             val alerts = calculateAlerts(apiary)
             if (alerts > 0) {
                 binding.tvAlertBadge.visibility = View.VISIBLE
@@ -54,7 +50,14 @@ class ApiaryAdapter(
                 binding.tvAlertBadge.visibility = View.GONE
             }
 
+            // Short tap → open HiveStreams
             binding.root.setOnClickListener { onApiaryClick(apiary) }
+
+            // Long press → open Edit Apiary
+            binding.root.setOnLongClickListener {
+                onApiaryLongClick(apiary)
+                true // consume the event
+            }
         }
 
         private fun calculateAlerts(apiary: Apiary): Int {

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -14,18 +16,31 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Read PayMongo key from local.properties — never hardcoded in source
+        val localProps = Properties()
+        val localPropsFile = rootProject.file("local.properties")
+        if (localPropsFile.exists()) localProps.load(localPropsFile.inputStream())
+        buildConfigField("String", "PAYMONGO_SECRET_KEY",
+            "\"${localProps.getProperty("PAYMONGO_SECRET_KEY", "sk_test_placeholder")}\"")
+        buildConfigField("String", "APP_VERSION", "\"1.0.0\"")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            isMinifyEnabled = false
+            versionNameSuffix = "-debug"
         }
     }
     compileOptions {
@@ -37,6 +52,7 @@ android {
         compose = true
         viewBinding = true
         mlModelBinding = false
+        buildConfig = true
     }
 
     packaging {

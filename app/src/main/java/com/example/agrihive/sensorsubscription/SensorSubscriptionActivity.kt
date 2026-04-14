@@ -16,8 +16,8 @@ import com.google.android.material.card.MaterialCardView
 class SensorSubscriptionActivity : AppCompatActivity() {
 
     private val viewModel: SensorSubscriptionViewModel by viewModels()
-    private var selectedPlan: String = "Pro"
-    private var selectedPrice: Double = 750.0
+    private var selectedPlan: String = "Basic"
+    private var selectedPrice: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,10 +32,17 @@ class SensorSubscriptionActivity : AppCompatActivity() {
             finish()
         }
 
+        val cardBasic = findViewById<MaterialCardView>(R.id.card_basic)
         val cardStarter = findViewById<MaterialCardView>(R.id.card_starter)
         val cardPro = findViewById<MaterialCardView>(R.id.card_pro)
         val cardEnterprise = findViewById<MaterialCardView>(R.id.card_enterprise)
         val btnContinue = findViewById<MaterialButton>(R.id.btn_continue)
+
+        cardBasic.setOnClickListener {
+            selectedPlan = "Basic"
+            selectedPrice = 0.0
+            updateSelectionUI()
+        }
 
         cardStarter.setOnClickListener {
             selectedPlan = "Starter"
@@ -56,34 +63,45 @@ class SensorSubscriptionActivity : AppCompatActivity() {
         }
 
         btnContinue.setOnClickListener {
-            navigateToPayment(selectedPlan, selectedPrice)
+            if (selectedPlan == "Basic") {
+                // Basic is free — no payment needed, just finish
+                android.widget.Toast.makeText(this, "You're on the Basic plan. Upgrade anytime!", android.widget.Toast.LENGTH_SHORT).show()
+                finish()
+            } else {
+                navigateToPayment(selectedPlan, selectedPrice)
+            }
         }
     }
 
     private fun updateSelectionUI() {
+        val cardBasic = findViewById<MaterialCardView>(R.id.card_basic)
         val cardStarter = findViewById<MaterialCardView>(R.id.card_starter)
         val cardPro = findViewById<MaterialCardView>(R.id.card_pro)
         val cardEnterprise = findViewById<MaterialCardView>(R.id.card_enterprise)
-        
+
+        val dotBasic = findViewById<ImageView>(R.id.dot_basic)
         val dotStarter = findViewById<ImageView>(R.id.dot_starter)
         val dotPro = findViewById<ImageView>(R.id.dot_pro)
         val dotEnterprise = findViewById<ImageView>(R.id.dot_enterprise)
 
         val btnContinue = findViewById<MaterialButton>(R.id.btn_continue)
 
-        // Reset all cards to blend with background
+        resetCardUI(cardBasic, dotBasic)
         resetCardUI(cardStarter, dotStarter)
         resetCardUI(cardPro, dotPro)
         resetCardUI(cardEnterprise, dotEnterprise)
 
-        // Highlight selected card with its corresponding plan color
         when (selectedPlan) {
-            "Starter" -> highlightCard(cardStarter, dotStarter, Color.parseColor("#F4B400"))
-            "Pro" -> highlightCard(cardPro, dotPro, Color.parseColor("#66BB6A"))
+            "Basic"      -> highlightCard(cardBasic, dotBasic, Color.parseColor("#78909C"))
+            "Starter"    -> highlightCard(cardStarter, dotStarter, Color.parseColor("#F4B400"))
+            "Pro"        -> highlightCard(cardPro, dotPro, Color.parseColor("#66BB6A"))
             "Enterprise" -> highlightCard(cardEnterprise, dotEnterprise, Color.parseColor("#F4B400"))
         }
 
-        btnContinue.text = "Continue with $selectedPlan — ₱${selectedPrice.toInt()}"
+        btnContinue.text = when (selectedPlan) {
+            "Basic" -> "Continue with Basic — Free"
+            else    -> "Continue with $selectedPlan — ₱${selectedPrice.toInt()}"
+        }
     }
 
     private fun resetCardUI(card: MaterialCardView, dot: ImageView) {

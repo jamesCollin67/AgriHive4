@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.agrihive.data.UserSessionManager
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.regex.Pattern
 
@@ -113,7 +114,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                         "location" to farmLocation,
                         "farmLocation" to farmLocation,
                         "apiaries" to 0,
-                        "createdAt" to System.currentTimeMillis()
+                        "createdAt" to FieldValue.serverTimestamp()
                     )
 
                     // Save user data to Firestore

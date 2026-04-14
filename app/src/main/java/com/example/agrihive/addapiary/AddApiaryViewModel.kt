@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import android.os.Handler
 import android.os.Looper
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 data class BeeFarm(
@@ -36,25 +37,31 @@ class AddApiaryViewModel : ViewModel() {
     }
 
     private fun loadBeeFarms() {
-        // Hardcoded farms as primary source — always available offline
+        // Show hardcoded farms immediately for offline/fast display
         val hardcodedFarms = listOf(
             BeeFarm("1", "Apis Prince Honeybee Farm", "Apis Prince Honeybee Farm, Greener's Farm, Taptap, Cebu City, Cebu"),
             BeeFarm("2", "GKG FARM CEBU PH", "Cansiguiring, Carmen, Cebu")
         )
         _beeFarms.value = hardcodedFarms
 
-        // Also try to update from Firestore in case admin adds more farms later
-        val firestore = FirebaseFirestore.getInstance()
-        firestore.collection("bee_farms").get()
+        // Always fetch from Firestore — this is the single source of truth.
+        // If admin adds/removes farms from the web panel, this picks it up.
+        FirebaseFirestore.getInstance().collection("bee_farms").get()
             .addOnSuccessListener { snapshot ->
-                if (!snapshot.isEmpty) {
-                    val farms = snapshot.documents.mapNotNull { doc ->
-                        val name = doc.getString("name") ?: return@mapNotNull null
-                        val address = doc.getString("address") ?: return@mapNotNull null
-                        BeeFarm(doc.id, name, address)
-                    }
-                    if (farms.isNotEmpty()) _beeFarms.value = farms
+                val farms = snapshot.documents.mapNotNull { doc ->
+                    val name = doc.getString("name") ?: return@mapNotNull null
+                    val address = doc.getString("address") ?: return@mapNotNull null
+                    BeeFarm(doc.id, name, address)
                 }
+                // Always use Firestore result if available, even if empty
+                // (admin may have intentionally cleared the list)
+                if (farms.isNotEmpty()) {
+                    _beeFarms.value = farms
+                }
+                // If Firestore returns empty, keep hardcoded as fallback
+            }
+            .addOnFailureListener {
+                // Network error — hardcoded list already shown, no action needed
             }
     }
 
@@ -85,7 +92,7 @@ class AddApiaryViewModel : ViewModel() {
 
         val apiaryId = firestore.collection("apiaries").document().id
 
-        val apiaryData = hashMapOf(
+        val apiaryData = hashMapOf<String, Any>(
             "id" to apiaryId,
             "name" to name,
             "location" to location,
@@ -97,7 +104,7 @@ class AddApiaryViewModel : ViewModel() {
             "moisture" to 0.0,
             "weight" to 0.0,
             "isConnected" to false,
-            "lastUpdate" to System.currentTimeMillis()
+            "lastUpdate" to FieldValue.serverTimestamp()
         )
 
         firestore.collection("apiaries").document(apiaryId).set(apiaryData)

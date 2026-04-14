@@ -3,6 +3,7 @@ package com.example.agrihive.log
 import android.content.Context
 import android.content.SharedPreferences
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import org.json.JSONArray
 import org.json.JSONObject
@@ -55,12 +56,12 @@ class ActivityLogRepository {
 
         // Create log data with user ID for proper isolation
         // Use "User" as default to avoid extra Firestore read for speed
-        val logData = hashMapOf(
-            "uid" to uid,  // This ensures logs are user-specific
+        val logData = hashMapOf<String, Any>(
+            "uid" to uid,
             "type" to type.name,
             "title" to title,
             "description" to description,
-            "timestamp" to Date(),
+            "timestamp" to FieldValue.serverTimestamp(),
             "userName" to "User"
         )
 

@@ -55,7 +55,9 @@ class HiveStreamsViewModel : ViewModel() {
                     weight = doc.getDouble("weight") ?: 0.0,
                     isConnected = doc.getBoolean("isConnected") ?: false,
                     alertsCount = (doc.getLong("alertsCount") ?: 0L).toInt(),
-                    lastUpdate = doc.getLong("lastUpdate") ?: 0L
+                    lastUpdate = doc.getTimestamp("lastUpdate")?.toDate()?.time
+                        ?: doc.getLong("lastUpdate")
+                        ?: 0L
                 )
             }
 

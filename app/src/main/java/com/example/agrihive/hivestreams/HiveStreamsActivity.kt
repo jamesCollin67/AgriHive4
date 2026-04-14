@@ -99,11 +99,18 @@ class HiveStreamsActivity : AppCompatActivity() {
                     if (it.isConnected) R.drawable.bg_green_circle else R.drawable.bg_red_circle
                 )
 
-                // Sensor Values
-                binding.tvTempValue.text = "%.1f".format(it.temperature)
-                binding.tvHumidityValue.text = "%.1f".format(it.humidity)
-                binding.tvMoistureValue.text = "%.1f".format(it.moisture)
-                binding.tvWeightValue.text = "%.1f".format(it.weight)
+                // Sensor Values — show "--" without units when node is disconnected
+                if (it.isConnected) {
+                    binding.tvTempValue.text = "%.1f".format(it.temperature)
+                    binding.tvHumidityValue.text = "%.1f".format(it.humidity)
+                    binding.tvMoistureValue.text = "%.1f".format(it.moisture)
+                    binding.tvWeightValue.text = "%.1f".format(it.weight)
+                } else {
+                    binding.tvTempValue.text = "--"
+                    binding.tvHumidityValue.text = "--"
+                    binding.tvMoistureValue.text = "--"
+                    binding.tvWeightValue.text = "--"
+                }
 
                 // Hive Info
                 binding.tvLocationValue.text = it.location
@@ -146,20 +153,87 @@ class HiveStreamsActivity : AppCompatActivity() {
     }
 
     private fun updateStatusLabels(apiary: com.example.agrihive.addapiary.Apiary) {
-        binding.tvTempStatus.text = "Normal"
-        binding.tvHumidityStatus.text = "Normal"
-        binding.tvWeightStatus.text = "Normal"
-        
-        binding.tvMoistureStatus.text = "Warning"
-        binding.cardMoisture.strokeWidth = 2
-        binding.cardMoisture.strokeColor = ContextCompat.getColor(this, android.R.color.holo_orange_light)
+        // Temperature: optimal range 34–36°C for honeybees
+        val tempStatus = when {
+            apiary.temperature <= 0 -> "No Data"
+            apiary.temperature < 34.0 -> "Too Cold"
+            apiary.temperature > 36.0 -> "Too Hot"
+            else -> "Normal"
+        }
+        val tempColor = when (tempStatus) {
+            "Normal" -> ContextCompat.getColor(this, android.R.color.holo_green_light)
+            "No Data" -> ContextCompat.getColor(this, android.R.color.darker_gray)
+            else -> ContextCompat.getColor(this, android.R.color.holo_red_light)
+        }
+        binding.tvTempStatus.text = tempStatus
+        binding.tvTempStatus.setTextColor(tempColor)
+
+        // Humidity: optimal 50–80%
+        val humidityStatus = when {
+            apiary.humidity <= 0 -> "No Data"
+            apiary.humidity < 50.0 -> "Too Dry"
+            apiary.humidity > 80.0 -> "Too Humid"
+            else -> "Normal"
+        }
+        val humidityColor = when (humidityStatus) {
+            "Normal" -> ContextCompat.getColor(this, android.R.color.holo_green_light)
+            "No Data" -> ContextCompat.getColor(this, android.R.color.darker_gray)
+            else -> ContextCompat.getColor(this, android.R.color.holo_orange_light)
+        }
+        binding.tvHumidityStatus.text = humidityStatus
+        binding.tvHumidityStatus.setTextColor(humidityColor)
+
+        // Moisture: honey ready at ≤18%, warning above
+        val moistureStatus = when {
+            apiary.moisture <= 0 -> "No Data"
+            apiary.moisture <= 18.0 -> "Harvest Ready"
+            apiary.moisture <= 22.0 -> "Normal"
+            else -> "Too Wet"
+        }
+        val moistureColor = when (moistureStatus) {
+            "Harvest Ready" -> ContextCompat.getColor(this, android.R.color.holo_green_light)
+            "Normal" -> ContextCompat.getColor(this, android.R.color.holo_blue_light)
+            "No Data" -> ContextCompat.getColor(this, android.R.color.darker_gray)
+            else -> ContextCompat.getColor(this, android.R.color.holo_orange_light)
+        }
+        binding.tvMoistureStatus.text = moistureStatus
+        binding.tvMoistureStatus.setTextColor(moistureColor)
+        // Only show warning stroke when actually too wet
+        if (moistureStatus == "Too Wet") {
+            binding.cardMoisture.strokeWidth = 2
+            binding.cardMoisture.strokeColor = ContextCompat.getColor(this, android.R.color.holo_orange_light)
+        } else {
+            binding.cardMoisture.strokeWidth = 0
+        }
+
+        // Weight: flag if suspiciously low (possible theft/swarm)
+        val weightStatus = when {
+            apiary.weight <= 0 -> "No Data"
+            apiary.weight < 5.0 -> "Low"
+            else -> "Normal"
+        }
+        binding.tvWeightStatus.text = weightStatus
+        binding.tvWeightStatus.setTextColor(
+            if (weightStatus == "Normal") ContextCompat.getColor(this, android.R.color.holo_green_light)
+            else ContextCompat.getColor(this, android.R.color.darker_gray)
+        )
     }
 
     private fun resetValues() {
-        binding.tvTempValue.text = "0.0"
-        binding.tvHumidityValue.text = "0.0"
-        binding.tvMoistureValue.text = "0.0"
-        binding.tvWeightValue.text = "0.0"
+        binding.tvTempValue.text = "--"
+        binding.tvHumidityValue.text = "--"
+        binding.tvMoistureValue.text = "--"
+        binding.tvWeightValue.text = "--"
+        // Clear status labels when no data
+        binding.tvTempStatus.text = "No Data"
+        binding.tvHumidityStatus.text = "No Data"
+        binding.tvMoistureStatus.text = "No Data"
+        binding.tvWeightStatus.text = "No Data"
+        binding.tvTempStatus.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+        binding.tvHumidityStatus.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+        binding.tvMoistureStatus.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+        binding.tvWeightStatus.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+        binding.cardMoisture.strokeWidth = 0
     }
 
     override fun onDestroy() {

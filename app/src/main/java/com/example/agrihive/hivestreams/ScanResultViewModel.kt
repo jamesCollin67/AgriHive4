@@ -146,7 +146,7 @@ class ScanResultViewModel(application: Application) : AndroidViewModel(applicati
         val data = hashMapOf(
             "diseaseName" to disease,
             "healthScore" to score,
-            "timestamp" to System.currentTimeMillis(),
+            "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
             "description" to treatmentsText,
             "symptoms" to symptomsText,
             "hiveName" to hiveName,

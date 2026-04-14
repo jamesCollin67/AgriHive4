@@ -10,7 +10,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.example.agrihive.databinding.ActivityAiScannerBinding
-import com.example.agrihive.hivestreams.ScanResultActivity
 import java.io.File
 
 class CameraActivity : AppCompatActivity() {
@@ -22,12 +21,12 @@ class CameraActivity : AppCompatActivity() {
 
     private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
-            photoUri?.let { viewModel.uploadAndAnalyze(it, apiaryId) }
+            photoUri?.let { viewModel.analyzeWithAiScanner(it, apiaryId) }
         }
     }
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let { viewModel.uploadAndAnalyze(it, apiaryId) }
+        uri?.let { viewModel.analyzeWithAiScanner(it, apiaryId) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,13 +60,16 @@ class CameraActivity : AppCompatActivity() {
             binding.btnGallery.isEnabled = !isLoading
         }
 
-        viewModel.scanResult.observe(this) { result ->
-            result?.let {
-                val intent = Intent(this, ScanResultActivity::class.java).apply {
-                    putExtra(ScanResultActivity.EXTRA_DISEASE, it)
-                    putExtra(ScanResultActivity.EXTRA_HEALTH_SCORE, 92) // Example score
+        // Navigate to AiScannerActivity with the captured image
+        viewModel.navigateToAiScanner.observe(this) { pair ->
+            pair?.let { (uri, apiary) ->
+                val intent = Intent(this, com.example.agrihive.hivestreams.AiScannerActivity::class.java).apply {
+                    putExtra(com.example.agrihive.hivestreams.AiScannerActivity.EXTRA_APIARY_ID, apiary)
+                    // Pass the image URI as a string so AiScanner can load it
+                    putExtra("pre_selected_uri", uri.toString())
                 }
                 startActivity(intent)
+                viewModel.doneNavigating()
                 finish()
             }
         }
@@ -75,6 +77,7 @@ class CameraActivity : AppCompatActivity() {
         viewModel.errorMessage.observe(this) { error ->
             error?.let {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                viewModel.clearError()
             }
         }
     }

@@ -48,17 +48,22 @@ class ForgotPasswordViewModel : ViewModel() {
                 if (task.isSuccessful) {
                     _resetSuccess.value = true
                 } else {
-                    // Handle specific Firebase auth errors
-                    val errorMsg = when (task.exception?.message) {
-                        null -> "Failed to send reset link"
-                        else -> task.exception?.message
+                    val errorMsg = when {
+                        task.exception?.message?.contains("no user record") == true ||
+                        task.exception?.message?.contains("user-not-found") == true ->
+                            "No account found with this email address."
+                        task.exception?.message?.contains("invalid-email") == true ->
+                            "The email address is not valid."
+                        task.exception?.message?.contains("network") == true ->
+                            "Network error. Please check your connection and try again."
+                        else -> task.exception?.message ?: "Failed to send reset link. Please try again."
                     }
                     _errorMessage.value = errorMsg
                 }
             }
             .addOnFailureListener { exception ->
                 _isLoading.value = false
-                _errorMessage.value = exception.message ?: "An error occurred"
+                _errorMessage.value = exception.message ?: "An error occurred. Please try again."
             }
     }
 

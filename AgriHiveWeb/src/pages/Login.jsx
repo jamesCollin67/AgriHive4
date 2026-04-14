@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Card, Typography, TextField, Button, InputAdornment, Container } from '@mui/material';
+import { Box, Card, Typography, TextField, Button, InputAdornment, Container, CircularProgress } from '@mui/material';
 import { Lock, Email as Mail, Agriculture as Hexagon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,23 +10,35 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password) return;
-    
-    // Quick Testing Sandbox Account Bypass
-    if (email === 'admin@agrihive.com' && password === 'admin123') {
-       navigate('/dashboard');
-       return;
+    if (!email || !password) {
+      setErrorMsg('Please enter your email and password.');
+      return;
     }
-
+    setLoading(true);
+    setErrorMsg('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/dashboard');
-    } catch (e) {
-      setErrorMsg("Invalid credentials or user not found on Firebase.");
+    } catch (err) {
+      switch (err.code) {
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          setErrorMsg('Invalid email or password.');
+          break;
+        case 'auth/too-many-requests':
+          setErrorMsg('Too many failed attempts. Please try again later.');
+          break;
+        default:
+          setErrorMsg('Login failed. Please check your connection and try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,6 +119,7 @@ export default function Login() {
               fullWidth 
               variant="contained" 
               size="large"
+              disabled={loading}
               sx={{ 
                 py: 1.5, 
                 fontSize: '1.1rem', 
@@ -115,7 +128,7 @@ export default function Login() {
                 '&:hover': { bgcolor: '#0f4020' }
               }}
             >
-              Login
+              {loading ? <CircularProgress size={22} sx={{ color: 'white' }} /> : 'Login'}
             </Button>
           </form>
         </Card>

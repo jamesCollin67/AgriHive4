@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Chip, Dialog, Button, Divider, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Typography, Paper, Chip, Dialog, Button, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
 import {
   CheckCircle as CheckCircleIcon,
   AccessTime as ClockIcon,
-  ChevronRight as ChevronRightIcon
+  ChevronRight as ChevronRightIcon,
+  Warning as WarningIcon,
+  Cancel as CancelIcon
 } from '@mui/icons-material';
-import { collection, query, onSnapshot, doc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, updateDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useAdminData } from '../context/AdminDataContext';
 
 function getInitial(name) {
   return (name || 'U')[0].toUpperCase();
@@ -22,31 +25,10 @@ function getAvatarColor(name) {
 export default function Subscriptions() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [subscriptions, setSubscriptions] = useState([]);
+  const { subscriptions, subsLoading: loading } = useAdminData();
   const [confirmingSub, setConfirmingSub] = useState(null);
   const [successMsg, setSuccessMsg] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const q = query(collection(db, 'subscriptions'));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const liveData = snapshot.docs.map(d => {
-        const data = d.data();
-        let daysLeft = 0;
-        if (data.due) {
-          const diff = Math.abs(new Date(data.due) - new Date());
-          daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        }
-        return { id: d.id, ...data, daysLeft };
-      });
-      setSubscriptions(liveData);
-      setLoading(false);
-    }, (error) => {
-      console.error("Subscriptions listener error:", error);
-      setLoading(false);
-    });
-    return () => unsub();
-  }, []);
+  const [rejectingSub, setRejectingSub] = useState(null);
 
   const confirmed = subscriptions.filter(s => !s.pending);
   const pending = subscriptions.filter(s => s.pending);
@@ -67,6 +49,22 @@ export default function Subscriptions() {
       });
       setSuccessMsg(true);
       setTimeout(() => { setSuccessMsg(false); setConfirmingSub(null); }, 2000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      await updateDoc(doc(db, 'subscriptions', rejectingSub.id), { pending: false, rejected: true });
+      await addDoc(collection(db, 'activity_logs'), {
+        action: 'Payment Rejected',
+        user: rejectingSub.name || 'System User',
+        target: rejectingSub.farm || 'Beekeeper Node',
+        status: 'Error',
+        timestamp: serverTimestamp()
+      });
+      setRejectingSub(null);
     } catch (e) {
       console.error(e);
     }
@@ -173,7 +171,7 @@ export default function Subscriptions() {
                   <Typography sx={{ fontSize: 11, color: '#aaa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub.email}</Typography>
                 </Box>
 
-                {/* Status + Plan */}
+                {/* Status + Plan + Expiry */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5, flexShrink: 0 }}>
                   <Chip
                     label={isConfirmed ? '✓ Confirmed' : 'Pending'}
@@ -185,9 +183,32 @@ export default function Subscriptions() {
                     }}
                   />
                   <Typography sx={{ fontSize: 12, color: '#aaa' }}>{sub.plan || '3-month'}</Typography>
+                  {isConfirmed && sub.daysLeft > 0 && (
+                    <Typography sx={{
+                      fontSize: 11, fontWeight: 600,
+                      color: sub.daysLeft <= 7 ? '#e53935' : sub.daysLeft <= 14 ? '#f57c00' : '#aaa'
+                    }}>
+                      {sub.daysLeft <= 7 ? `⚠ ${sub.daysLeft}d left` : `${sub.daysLeft}d left`}
+                    </Typography>
+                  )}
                 </Box>
 
-                {!isMobile && <ChevronRightIcon sx={{ fontSize: 18, color: '#ccc' }} />}
+                {sub.pending && (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setConfirmingSub(sub); }}
+                      sx={{ px: 1.5, py: 0.5, borderRadius: 1, bgcolor: '#e8f5e9', color: '#2e7d32', fontSize: 12, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}
+                    >
+                      Confirm
+                    </Box>
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setRejectingSub(sub); }}
+                      sx={{ px: 1.5, py: 0.5, borderRadius: 1, bgcolor: '#ffebee', color: '#c62828', fontSize: 12, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}
+                    >
+                      Reject
+                    </Box>
+                  </Box>
+                )}
               </Paper>
             );
           })}
@@ -202,7 +223,7 @@ export default function Subscriptions() {
           <Box sx={{ p: 6, textAlign: 'center' }}>
             <CheckCircleIcon sx={{ fontSize: 64, color: '#43a047', mb: 2 }} />
             <Typography variant="h5" fontWeight={700} color="success.main">Subscription Confirmed!</Typography>
-            <Typography color="text.secondary">Plan activated and recorded in Firebase.</Typography>
+            <Typography color="text.secondary">Subscription activated successfully.</Typography>
           </Box>
         ) : confirmingSub && (
           <Box sx={{ p: 4 }}>
@@ -236,6 +257,27 @@ export default function Subscriptions() {
             </Box>
           </Box>
         )}
+      </Dialog>
+
+      {/* Reject Dialog */}
+      <Dialog open={Boolean(rejectingSub)} onClose={() => setRejectingSub(null)}
+        PaperProps={{ sx: { borderRadius: 3, p: 1, mx: 2, minWidth: 300 } }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+            <CancelIcon sx={{ color: '#e53935', fontSize: 28 }} />
+            <Typography variant="h6" fontWeight={700}>Reject Payment?</Typography>
+          </Box>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+            This will mark {rejectingSub?.name}'s subscription request as rejected. The GCash reference will be flagged as invalid.
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'flex-end' }}>
+            <Button onClick={() => setRejectingSub(null)} color="inherit">Cancel</Button>
+            <Button variant="contained" color="error" onClick={handleReject}>
+              Yes, Reject
+            </Button>
+          </Box>
+        </Box>
       </Dialog>
     </Box>
   );

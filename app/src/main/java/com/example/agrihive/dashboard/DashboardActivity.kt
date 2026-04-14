@@ -58,6 +58,15 @@ class DashboardActivity : AppCompatActivity() {
                     putExtra("APIARY_NAME", apiary.name)
                 }
                 startActivity(intent)
+            },
+            onApiaryLongClick = { apiary ->
+                // Long press → Edit or Delete apiary
+                val intent = Intent(this, com.example.agrihive.addapiary.EditApiaryActivity::class.java).apply {
+                    putExtra(com.example.agrihive.addapiary.EditApiaryActivity.EXTRA_APIARY_ID, apiary.id)
+                    putExtra(com.example.agrihive.addapiary.EditApiaryActivity.EXTRA_APIARY_NAME, apiary.name)
+                    putExtra(com.example.agrihive.addapiary.EditApiaryActivity.EXTRA_APIARY_LOCATION, apiary.location)
+                }
+                startActivity(intent)
             }
         )
         binding.rvApiaries.layoutManager = LinearLayoutManager(this)
@@ -78,17 +87,11 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun setupBottomNavigation() {
         binding.bottomNavigation.selectedItemId = R.id.nav_apiaries
+        // Swallow reselection — do nothing when tapping the already-active tab
+        binding.bottomNavigation.setOnItemReselectedListener { /* no-op */ }
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            // BUG FIX: Prevent re-navigation if already on the selected UI
-            if (item.itemId == binding.bottomNavigation.selectedItemId) {
-                return@setOnItemSelectedListener true
-            }
-
             when (item.itemId) {
-                R.id.nav_apiaries -> {
-                    // Already here, handled by the check above
-                    true
-                }
+                R.id.nav_apiaries -> true // already here
                 R.id.nav_alerts -> {
                     startActivity(
                         Intent(this, NotificationActivity::class.java).apply {
@@ -164,6 +167,21 @@ class DashboardActivity : AppCompatActivity() {
             error?.let {
                 Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
                 viewModel.clearError()
+            }
+        }
+
+        // Observe subscription expiry — only navigate once
+        viewModel.subscriptionExpired.observe(this) { expired ->
+            if (expired == true) {
+                viewModel.clearSubscriptionExpired()
+                Toast.makeText(
+                    this,
+                    "Your subscription has expired. Please renew to continue.",
+                    Toast.LENGTH_LONG
+                ).show()
+                startActivity(
+                    Intent(this, com.example.agrihive.sensorsubscription.SensorSubscriptionActivity::class.java)
+                )
             }
         }
     }

@@ -41,6 +41,10 @@ class AiScannerViewModel(application: Application) : AndroidViewModel(applicatio
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
+    // Full probability map: label -> percentage (0-100)
+    private val _allProbabilities = MutableLiveData<List<Pair<String, Int>>>()
+    val allProbabilities: LiveData<List<Pair<String, Int>>> = _allProbabilities
+
     private var _currentImageUri: Uri? = null
     val currentImageUri: Uri? get() = _currentImageUri
 
@@ -152,6 +156,13 @@ class AiScannerViewModel(application: Application) : AndroidViewModel(applicatio
         } else {
             "Unknown Outcome"
         }
+
+        // Build sorted probability list for all labels (top 5 max)
+        val allProbs = probabilities.indices
+            .map { i -> Pair(if (labels.isNotEmpty() && i < labels.size) labels[i] else "Label $i", (probabilities[i] * 100).toInt()) }
+            .sortedByDescending { it.second }
+            .take(5)
+        _allProbabilities.postValue(allProbs)
 
         return Pair(label, (maxProb * 100).toInt())
     }

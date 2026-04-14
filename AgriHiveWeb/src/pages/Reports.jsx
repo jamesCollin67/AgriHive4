@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, Paper, Button, TextField, Chip, Dialog, useTheme, useMediaQuery, CircularProgress } from '@mui/material';
+import React, { useState, useMemo } from 'react';
+import { Box, Typography, Paper, Button, TextField, Chip, Dialog, InputBase,
+  useTheme, useMediaQuery, CircularProgress } from '@mui/material';
+import { useSearchParams } from 'react-router-dom';
 import {
   ArrowBack as ArrowLeftIcon,
   Reply as CornerUpLeftIcon,
@@ -8,61 +10,72 @@ import {
   Layers as LayersIcon,
   CheckCircle as CheckCircleIcon,
   Send as SendIcon,
-  ChevronRight as ChevronRightIcon
+  ChevronRight as ChevronRightIcon,
+  AccessTime as ClockIcon,
+  Warning as WarningIcon,
+  Search as SearchIcon,
+  FilterList as FilterIcon,
 } from '@mui/icons-material';
 import {
-  collection, query, orderBy, onSnapshot,
-  doc, deleteDoc, updateDoc, addDoc, serverTimestamp
+  collection, doc, deleteDoc, updateDoc, addDoc, serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useAdminData } from '../context/AdminDataContext';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function getInitial(name) {
-  return (name || 'U')[0].toUpperCase();
-}
+function getInitial(name) { return (name || 'U')[0].toUpperCase(); }
 function getAvatarColor(name) {
   const colors = ['#f57c00', '#43a047', '#1565c0', '#6a1b9a', '#00838f'];
   let sum = 0;
   for (const c of (name || 'U')) sum += c.charCodeAt(0);
   return colors[sum % colors.length];
 }
+function formatTs(ts) {
+  if (!ts) return '';
+  if (typeof ts === 'number') return new Date(ts).toLocaleString();
+  if (ts?.toDate) return ts.toDate().toLocaleString();
+  return '';
+}
 
-// ── Main Component ────────────────────────────────────────────────────────────
 export default function Reports() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [reports, setReports] = useState([]);
-  const [selectedReport, setSelectedReport] = useState(null);
-  const [replyText, setReplyText] = useState('');
-  const [showReplyBox, setShowReplyBox] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  useEffect(() => {
-    const q = query(collection(db, 'reports'), orderBy('timestamp', 'desc'));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const liveData = snapshot.docs.map(d => {
-        const data = d.data();
-        return {
-          id: d.id,
-          name: data.name || data.userId || 'Mobile User',
-          farm: data.farm || data.farmName || 'Unassigned',
-          message: data.description || data.message || 'No description provided.',
-          location: data.location || 'Unknown',
-          hiveCount: data.hiveCount || data.numHives || '—',
-          unread: data.status === 'pending' || data.unread === true,
-          reply: data.reply || null,
-          ...data,
-        };
-      });
-      setReports(liveData);
-      setLoading(false);
-    }, (error) => {
-      console.error("Reports listener error:", error);
-      setLoading(false);
+  const { reports, reportsLoading: loading } = useAdminData();
+
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [replyText, setReplyText]           = useState('');
+  const [showReplyBox, setShowReplyBox]     = useState(false);
+  const [showSuccess, setShowSuccess]       = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Search + filter state — pre-fill farm filter if navigated from Dashboard
+  const [search, setSearch]   = useState('');
+  const [filter, setFilter]   = useState(searchParams.get('farm') || 'all');
+  // 'all' | 'pending' | 'replied' | specific farm name
+
+  const farmNames = useMemo(() => {
+    const names = [...new Set(reports.map(r => r.farm).filter(Boolean))];
+    return names.sort();
+  }, [reports]);
+
+  const filtered = useMemo(() => {
+    return reports.filter(r => {
+      const matchSearch =
+        !search ||
+        r.name.toLowerCase().includes(search.toLowerCase()) ||
+        r.farm.toLowerCase().includes(search.toLowerCase()) ||
+        r.message.toLowerCase().includes(search.toLowerCase());
+
+      const matchFilter =
+        filter === 'all' ? true :
+        filter === 'pending' ? r.unread :
+        filter === 'replied' ? Boolean(r.reply) :
+        r.farm === filter;
+
+      return matchSearch && matchFilter;
     });
-    return () => unsub();
-  }, []);
+  }, [reports, search, filter]);
 
   const pendingCount = reports.filter(r => r.unread).length;
 
@@ -70,6 +83,7 @@ export default function Reports() {
     try {
       await deleteDoc(doc(db, 'reports', id));
       setSelectedReport(null);
+      setShowDeleteConfirm(false);
     } catch (e) { console.error(e); }
   };
 
@@ -79,9 +93,9 @@ export default function Reports() {
       await updateDoc(doc(db, 'reports', selectedReport.id), {
         reply: replyText,
         repliedAt: serverTimestamp(),
-        unread: false, // For admin list
-        userRead: false, // NEW: For mobile app to detect new reply
-        notified: false, // NEW: For mobile app to trigger local notification
+        unread: false,
+        userRead: false,
+        notified: false,
       });
       await addDoc(collection(db, 'activity_logs'), {
         action: 'Report Reply Dispatched',
@@ -91,81 +105,61 @@ export default function Reports() {
         timestamp: serverTimestamp(),
       });
       setShowSuccess(true);
-      setTimeout(() => {
-        setShowSuccess(false);
-        setReplyText('');
-        setShowReplyBox(false);
-      }, 2000);
+      setTimeout(() => { setShowSuccess(false); setReplyText(''); setShowReplyBox(false); }, 2000);
     } catch (e) { console.error(e); }
   };
 
-  // ── DETAIL VIEW ─────────────────────────────────────────────────────────────
+  // ── DETAIL VIEW ──────────────────────────────────────────────────────────────
   if (selectedReport) {
     return (
       <Box>
-        {/* Top Action Bar */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: { xs: 2, md: 4 }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-          {/* Back */}
-          <Box
-            onClick={() => { setSelectedReport(null); setShowReplyBox(false); setReplyText(''); }}
-            sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', alignSelf: 'flex-start' }}
-          >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          mb: { xs: 2, md: 4 }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+          <Box onClick={() => { setSelectedReport(null); setShowReplyBox(false); setReplyText(''); }}
+            sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', alignSelf: 'flex-start' }}>
             <ArrowLeftIcon sx={{ fontSize: 20, color: '#1a5c2a' }} />
-            <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#1a5c2a' }}>Back</Typography>
+            <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#1a5c2a' }}>Back to Reports</Typography>
           </Box>
-
-          {/* Reply + Delete */}
           <Box sx={{ display: 'flex', gap: 1.5, width: { xs: '100%', sm: 'auto' } }}>
-            <Button
-              variant="contained"
-              fullWidth={isMobile}
-              startIcon={<CornerUpLeftIcon />}
+            <Button variant="contained" fullWidth={isMobile} startIcon={<CornerUpLeftIcon />}
               onClick={() => setShowReplyBox(v => !v)}
-              sx={{
-                bgcolor: '#43a047', '&:hover': { bgcolor: '#2e7d32' },
-                borderRadius: 2, fontWeight: 700, fontSize: 13,
-                textTransform: 'none', px: 2.5,
-              }}
-            >
-              Reply
+              sx={{ bgcolor: '#43a047', '&:hover': { bgcolor: '#2e7d32' }, borderRadius: 2,
+                fontWeight: 700, fontSize: 13, textTransform: 'none', px: 2.5 }}>
+              {selectedReport.reply ? 'Send Follow-up' : 'Reply'}
             </Button>
-            <Button
-              variant="contained"
-              fullWidth={isMobile}
-              startIcon={<Trash2Icon />}
-              onClick={() => handleDelete(selectedReport.id)}
-              sx={{
-                bgcolor: '#e53935', '&:hover': { bgcolor: '#c62828' },
-                borderRadius: 2, fontWeight: 700, fontSize: 13,
-                textTransform: 'none', px: 2.5,
-              }}
-            >
+            <Button variant="contained" fullWidth={isMobile} startIcon={<Trash2Icon />}
+              onClick={() => setShowDeleteConfirm(true)}
+              sx={{ bgcolor: '#e53935', '&:hover': { bgcolor: '#c62828' }, borderRadius: 2,
+                fontWeight: 700, fontSize: 13, textTransform: 'none', px: 2.5 }}>
               Delete
             </Button>
           </Box>
         </Box>
 
-        {/* Details Card */}
-        <Paper elevation={0} sx={{
-          maxWidth: 620, mx: 'auto',
-          border: '1px solid rgba(0,0,0,0.08)', borderRadius: 3,
-          bgcolor: 'white', p: { xs: 2, md: 3 },
-        }}>
-          <Typography sx={{ fontSize: 18, fontWeight: 700, mb: 2.5 }}>Report Details</Typography>
-
-          {/* Row 1: Beekeeper + Farm Name */}
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
-            <Box sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 2, p: 2 }}>
-              <Typography sx={{ fontSize: 11, color: '#aaa', mb: 0.5 }}>Beekeeper</Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{selectedReport.name}</Typography>
-            </Box>
-            <Box sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 2, p: 2 }}>
-              <Typography sx={{ fontSize: 11, color: '#aaa', mb: 0.5 }}>Farm Name</Typography>
-              <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{selectedReport.farm}</Typography>
-            </Box>
+        <Paper elevation={0} sx={{ maxWidth: 620, mx: 'auto', border: '1px solid rgba(0,0,0,0.08)',
+          borderRadius: 3, bgcolor: 'white', p: { xs: 2, md: 3 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
+            <Typography sx={{ fontSize: 18, fontWeight: 700 }}>Report Details</Typography>
+            {selectedReport.timestamp && (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <ClockIcon sx={{ fontSize: 13, color: '#bbb' }} />
+                <Typography sx={{ fontSize: 12, color: '#bbb' }}>{formatTs(selectedReport.timestamp)}</Typography>
+              </Box>
+            )}
           </Box>
 
-          {/* Row 2: Location + Active Hives */}
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 2 }}>
+            {[
+              { label: 'Beekeeper', value: selectedReport.name },
+              { label: 'Farm Name', value: selectedReport.farm },
+            ].map((item, i) => (
+              <Box key={i} sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 2, p: 2 }}>
+                <Typography sx={{ fontSize: 11, color: '#aaa', mb: 0.5 }}>{item.label}</Typography>
+                <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{item.value}</Typography>
+              </Box>
+            ))}
+          </Box>
+
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 3 }}>
             <Box sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 2, p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
@@ -183,49 +177,37 @@ export default function Reports() {
             </Box>
           </Box>
 
-          {/* Report Message */}
           <Typography sx={{ fontSize: 12, color: '#aaa', mb: 1 }}>Report Message</Typography>
-          <Box sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 2, p: 2, mb: showReplyBox || selectedReport.reply ? 2 : 0 }}>
-            <Typography sx={{ fontSize: 14, color: '#444', lineHeight: 1.75 }}>
-              {selectedReport.message}
-            </Typography>
+          <Box sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 2, p: 2,
+            mb: (showReplyBox || selectedReport.reply) ? 2 : 0 }}>
+            <Typography sx={{ fontSize: 14, color: '#444', lineHeight: 1.75 }}>{selectedReport.message}</Typography>
           </Box>
 
-          {/* Admin Reply (if already sent) */}
           {selectedReport.reply && (
             <>
-              <Typography sx={{ fontSize: 12, color: '#aaa', mb: 1 }}>Admin Reply</Typography>
+              <Typography sx={{ fontSize: 12, color: '#aaa', mb: 1, mt: 2 }}>Admin Reply</Typography>
               <Box sx={{ bgcolor: '#e8f5e9', border: '1px solid #c8e6c9', borderRadius: 2, p: 2 }}>
-                <Typography sx={{ fontSize: 14, color: '#1a5c2a', lineHeight: 1.75 }}>
-                  {selectedReport.reply}
-                </Typography>
+                <Typography sx={{ fontSize: 14, color: '#1a5c2a', lineHeight: 1.75 }}>{selectedReport.reply}</Typography>
               </Box>
             </>
           )}
 
-          {/* Inline Reply Box */}
-          {showReplyBox && !selectedReport.reply && (
+          {showReplyBox && (
             <Box sx={{ mt: 2 }}>
-              <Typography sx={{ fontSize: 12, color: '#aaa', mb: 1 }}>Your Reply</Typography>
-              <TextField
-                fullWidth multiline rows={3} variant="outlined"
+              <Typography sx={{ fontSize: 12, color: '#aaa', mb: 1 }}>
+                {selectedReport.reply ? 'Send Follow-up Reply' : 'Your Reply'}
+              </Typography>
+              <TextField fullWidth multiline rows={3} variant="outlined"
                 placeholder="Type your message to the beekeeper..."
-                value={replyText}
-                onChange={e => setReplyText(e.target.value)}
-                sx={{ mb: 1.5, '& .MuiOutlinedInput-root': { borderRadius: 2, fontSize: 14 } }}
-              />
+                value={replyText} onChange={e => setReplyText(e.target.value)}
+                sx={{ mb: 1.5, '& .MuiOutlinedInput-root': { borderRadius: 2, fontSize: 14 } }} />
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                <Button onClick={() => setShowReplyBox(false)} color="inherit" sx={{ textTransform: 'none', fontSize: 13 }}>Cancel</Button>
-                <Button
-                  variant="contained"
-                  endIcon={<SendIcon />}
-                  onClick={handleSendReply}
+                <Button onClick={() => setShowReplyBox(false)} color="inherit"
+                  sx={{ textTransform: 'none', fontSize: 13 }}>Cancel</Button>
+                <Button variant="contained" endIcon={<SendIcon />} onClick={handleSendReply}
                   disabled={!replyText.trim()}
-                  sx={{
-                    bgcolor: '#2e7d32', '&:hover': { bgcolor: '#1a5c2a' },
-                    textTransform: 'none', fontWeight: 700, fontSize: 13, borderRadius: 2,
-                  }}
-                >
+                  sx={{ bgcolor: '#2e7d32', '&:hover': { bgcolor: '#1a5c2a' },
+                    textTransform: 'none', fontWeight: 700, fontSize: 13, borderRadius: 2 }}>
                   Send Reply
                 </Button>
               </Box>
@@ -233,12 +215,30 @@ export default function Reports() {
           )}
         </Paper>
 
-        {/* Success Dialog */}
         <Dialog open={showSuccess} PaperProps={{ sx: { p: 4, borderRadius: 4, textAlign: 'center', minWidth: 280 } }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <CheckCircleIcon sx={{ fontSize: 56, color: '#43a047', mb: 2 }} />
             <Typography variant="h6" fontWeight={700} color="success.main">Reply Sent!</Typography>
             <Typography color="text.secondary" fontSize={13}>Your message was saved to the database.</Typography>
+          </Box>
+        </Dialog>
+
+        <Dialog open={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)}
+          PaperProps={{ sx: { borderRadius: 3, p: 1, mx: 2, minWidth: 300 } }}>
+          <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+              <WarningIcon sx={{ color: '#e53935', fontSize: 28 }} />
+              <Typography variant="h6" fontWeight={700}>Delete Report?</Typography>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              This will permanently delete this report from {selectedReport.name}. This cannot be undone.
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'flex-end' }}>
+              <Button onClick={() => setShowDeleteConfirm(false)} color="inherit">Cancel</Button>
+              <Button variant="contained" color="error" onClick={() => handleDelete(selectedReport.id)}>
+                Yes, Delete
+              </Button>
+            </Box>
           </Box>
         </Dialog>
       </Box>
@@ -249,23 +249,53 @@ export default function Reports() {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+        mb: 3, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', md: '2.125rem' } }}>Received Reports</Typography>
+          <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
+            Received Reports
+          </Typography>
           <Typography sx={{ color: '#888', fontSize: 14, mt: 0.5 }}>
-            {pendingCount} pending report(s)
+            {pendingCount > 0 ? `${pendingCount} pending` : 'All caught up'} · {reports.length} total
           </Typography>
         </Box>
         {pendingCount > 0 && (
-          <Chip
-            label={`${pendingCount} Pending`}
-            sx={{
-              bgcolor: '#ffebee', color: '#c62828',
-              fontWeight: 700, fontSize: 13, px: 0.5, height: 32,
-              borderRadius: 5,
-            }}
-          />
+          <Chip label={`${pendingCount} Pending`}
+            sx={{ bgcolor: '#ffebee', color: '#c62828', fontWeight: 700, fontSize: 13,
+              px: 0.5, height: 32, borderRadius: 5 }} />
         )}
+      </Box>
+
+      {/* Search + Filter Bar */}
+      <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
+        <Paper elevation={0} sx={{ display: 'flex', alignItems: 'center',
+          border: '1px solid rgba(0,0,0,0.12)', borderRadius: 3, px: 2, py: 0.8,
+          gap: 1, flex: 1, minWidth: 200 }}>
+          <SearchIcon sx={{ fontSize: 18, color: '#aaa' }} />
+          <InputBase placeholder="Search by name, farm, or message..."
+            value={search} onChange={e => setSearch(e.target.value)}
+            sx={{ fontSize: 14, flex: 1 }} />
+        </Paper>
+
+        {/* Quick filter chips */}
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+          {['all', 'pending', 'replied', ...farmNames].map(f => (
+            <Chip key={f}
+              label={f === 'all' ? 'All' : f === 'pending' ? 'Pending' : f === 'replied' ? 'Replied' : f}
+              onClick={() => setFilter(f)}
+              size="small"
+              sx={{
+                cursor: 'pointer',
+                bgcolor: filter === f ? '#1a5c2a' : 'white',
+                color: filter === f ? 'white' : '#555',
+                border: '1px solid',
+                borderColor: filter === f ? '#1a5c2a' : 'rgba(0,0,0,0.15)',
+                fontWeight: filter === f ? 700 : 500,
+                fontSize: 12,
+              }}
+            />
+          ))}
+        </Box>
       </Box>
 
       {/* Report Cards */}
@@ -273,26 +303,28 @@ export default function Reports() {
         <Box sx={{ py: 6, textAlign: 'center' }}>
           <CircularProgress size={32} sx={{ color: '#2e7d32' }} />
         </Box>
-      ) : reports.length === 0 ? (
-        <Paper elevation={0} sx={{ p: { xs: 4, md: 8 }, textAlign: 'center', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 3 }}>
-          <Typography variant="h6" color="text.secondary" fontWeight={700}>No Reports Received</Typography>
+      ) : filtered.length === 0 ? (
+        <Paper elevation={0} sx={{ p: { xs: 4, md: 8 }, textAlign: 'center',
+          border: '1px solid rgba(0,0,0,0.08)', borderRadius: 3 }}>
+          <Typography sx={{ fontSize: 36, mb: 1 }}>📋</Typography>
+          <Typography variant="h6" color="text.secondary" fontWeight={700}>
+            {reports.length === 0 ? 'No Reports Received' : 'No Matching Reports'}
+          </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            Beekeeper reports from the mobile app will appear here.
+            {reports.length === 0
+              ? 'Beekeeper reports from the mobile app will appear here.'
+              : 'Try adjusting your search or filter.'}
           </Typography>
         </Paper>
       ) : (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: 2 }}>
-          {reports.map(report => {
+          {filtered.map(report => {
             const avatarColor = getAvatarColor(report.name);
             return (
-              <Paper
-                key={report.id}
-                elevation={0}
+              <Paper key={report.id} elevation={0}
                 onClick={() => {
                   setSelectedReport(report);
-                  if (report.unread) {
-                    updateDoc(doc(db, 'reports', report.id), { unread: false });
-                  }
+                  if (report.unread) updateDoc(doc(db, 'reports', report.id), { unread: false });
                 }}
                 sx={{
                   border: '1px solid rgba(0,0,0,0.09)',
@@ -301,33 +333,28 @@ export default function Reports() {
                   cursor: 'pointer', bgcolor: 'white',
                   '&:hover': { boxShadow: '0 4px 20px rgba(0,0,0,0.08)', transform: 'translateY(-1px)' },
                   transition: 'all 0.2s',
-                }}
-              >
-                {/* Top Row */}
+                }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.5 }}>
-                  {/* Avatar */}
-                  <Box sx={{
-                    width: 44, height: 44, borderRadius: 2, flexShrink: 0,
-                    bgcolor: avatarColor,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: 'white', fontWeight: 800, fontSize: 19,
-                  }}>
+                  <Box sx={{ width: 44, height: 44, borderRadius: 2, flexShrink: 0,
+                    bgcolor: avatarColor, display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 19 }}>
                     {getInitial(report.name)}
                   </Box>
-
-                  {/* Name + Farm */}
                   <Box sx={{ flex: 1, overflow: 'hidden' }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{report.name}</Typography>
-                    <Typography sx={{ fontSize: 13, color: '#2e7d32', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{report.farm}</Typography>
+                    <Typography sx={{ fontWeight: 700, fontSize: 15, whiteSpace: 'nowrap',
+                      overflow: 'hidden', textOverflow: 'ellipsis' }}>{report.name}</Typography>
+                    <Typography sx={{ fontSize: 13, color: '#2e7d32', fontWeight: 600,
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{report.farm}</Typography>
                   </Box>
-
-                  {/* Arrow */}
-                  <Box sx={{ color: '#43a047' }}>
-                    <ChevronRightIcon sx={{ fontSize: 18 }} />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
+                    {report.reply && (
+                      <Chip label="Replied" size="small"
+                        sx={{ bgcolor: '#e8f5e9', color: '#2e7d32', fontWeight: 700, fontSize: 10 }} />
+                    )}
+                    <ChevronRightIcon sx={{ fontSize: 18, color: '#ccc' }} />
                   </Box>
                 </Box>
 
-                {/* Location + Hives row */}
                 {(report.location !== 'Unknown' || report.hiveCount !== '—') && (
                   <Box sx={{ display: 'flex', gap: 2.5, mb: 1.5, pl: { xs: 0, sm: 7 }, flexWrap: 'wrap' }}>
                     {report.location && report.location !== 'Unknown' && (
@@ -345,15 +372,18 @@ export default function Reports() {
                   </Box>
                 )}
 
-                {/* Message preview */}
-                <Typography sx={{
-                  fontSize: 13, color: '#43a047', pl: { xs: 0, sm: 7 },
+                <Typography sx={{ fontSize: 13, color: '#555', pl: { xs: 0, sm: 7 },
                   overflow: 'hidden', display: '-webkit-box',
-                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                  lineHeight: 1.65,
-                }}>
+                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.65 }}>
                   {report.message}
                 </Typography>
+
+                {report.timestamp && (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1, pl: { xs: 0, sm: 7 } }}>
+                    <ClockIcon sx={{ fontSize: 12, color: '#ccc' }} />
+                    <Typography sx={{ fontSize: 11, color: '#bbb' }}>{formatTs(report.timestamp)}</Typography>
+                  </Box>
+                )}
               </Paper>
             );
           })}

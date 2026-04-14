@@ -4,59 +4,42 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
-import java.util.UUID
 
+/**
+ * CameraViewModel — legacy class kept for compatibility.
+ *
+ * The primary AI scan flow now goes through AiScannerActivity + AiScannerViewModel
+ * which uses the on-device TFLite model directly (no Firebase Storage or RTDB needed).
+ *
+ * This ViewModel is retained only if CameraActivity is used for non-AI photo capture.
+ * The old uploadAndAnalyze() flow (Firebase Storage → RTDB) has been removed as it
+ * conflicted with the AiScanner flow and used Firebase services not available on Spark plan.
+ */
 class CameraViewModel : ViewModel() {
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _scanResult = MutableLiveData<String?>()
-    val scanResult: LiveData<String?> = _scanResult
+    private val _navigateToAiScanner = MutableLiveData<Pair<Uri, String>?>()
+    val navigateToAiScanner: LiveData<Pair<Uri, String>?> = _navigateToAiScanner
 
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    fun uploadAndAnalyze(uri: Uri, apiaryId: String) {
-        _isLoading.value = true
-
-        val storageRef = FirebaseStorage.getInstance().reference
-        val imageRef = storageRef.child("scans/${UUID.randomUUID()}.jpg")
-
-        imageRef.putFile(uri)
-            .addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
-                    saveScanResult(downloadUri.toString(), apiaryId)
-                }
-            }
-            .addOnFailureListener {
-                _isLoading.value = false
-                _errorMessage.value = "Upload failed: ${it.message}"
-            }
+    /**
+     * Routes the captured image to the AiScannerActivity for on-device TFLite inference.
+     * @param uri The image URI captured by the camera
+     * @param apiaryId The apiary this scan belongs to
+     */
+    fun analyzeWithAiScanner(uri: Uri, apiaryId: String) {
+        _navigateToAiScanner.value = Pair(uri, apiaryId)
     }
 
-    private fun saveScanResult(imageUrl: String, apiaryId: String) {
-        val database = FirebaseDatabase.getInstance().reference
-        val scanId = database.child("disease_scans").child(apiaryId).push().key ?: return
-        
-        // Simulation of AI result for now (as requested for backend flow)
-        val result = mapOf(
-            "imageUrl" to imageUrl,
-            "result" to "Healthy",
-            "confidence" to 0.98,
-            "timestamp" to System.currentTimeMillis()
-        )
+    fun doneNavigating() {
+        _navigateToAiScanner.value = null
+    }
 
-        database.child("disease_scans").child(apiaryId).child(scanId).setValue(result)
-            .addOnSuccessListener {
-                _isLoading.value = false
-                _scanResult.value = "Healthy"
-            }
-            .addOnFailureListener {
-                _isLoading.value = false
-                _errorMessage.value = "Failed to save result: ${it.message}"
-            }
+    fun clearError() {
+        _errorMessage.value = null
     }
 }

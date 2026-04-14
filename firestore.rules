@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper: check if the requesting user is a registered admin ──────────
+    function isAdmin() {
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // ── Helper: check if the requesting user owns the document ──────────────
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── admins collection ───────────────────────────────────────────────────
+    // Only admins can read the admins list. Nobody can write via client SDK.
+    match /admins/{uid} {
+      allow read: if isAdmin() || isOwner(uid); // allow self-check for role verification
+      allow write: if false; // managed via Firebase Console / Admin SDK only
+    }
+
+    // ── users collection ────────────────────────────────────────────────────
+    // Mobile users can read/write their own document.
+    // Admins can read all and update (deactivate/reactivate) but not create.
+    match /users/{uid} {
+      allow read:   if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid); // mobile app registration
+      allow update: if isOwner(uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── apiaries collection ─────────────────────────────────────────────────
+    // Only the owner of an apiary can read/write it. Admins can read all.
+    match /apiaries/{apiaryId} {
+      allow read:   if isAdmin() ||
+                       (request.auth != null && resource.data.ownerId == request.auth.uid);
+      allow create: if request.auth != null &&
+                       request.resource.data.ownerId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.ownerId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    }
+
+    // ── reports collection ──────────────────────────────────────────────────
+    // Mobile users can create reports and read their own.
+    // Admins can read all, update (reply), and delete.
+    match /reports/{reportId} {
+      allow read:   if isAdmin() ||
+                       (request.auth != null && resource.data.userId == request.auth.uid);
+      allow create: if request.auth != null &&
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() ||
+                       (request.auth != null && resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // ── subscriptions collection ────────────────────────────────────────────
+    // Mobile users can create and read their own subscription.
+    // Admins can read all and update (confirm/reject).
+    match /subscriptions/{subId} {
+      allow read:   if isAdmin() ||
+                       (request.auth != null && resource.data.userId == request.auth.uid);
+      allow create: if request.auth != null &&
+                       request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── activity_logs collection ────────────────────────────────────────────
+    // Only admins can read. Admins and authenticated users can create (for logging).
+    match /activity_logs/{logId} {
+      allow read:   if isAdmin();
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // ── bee_farms collection ────────────────────────────────────────────────
+    // Any authenticated user can read (needed for AddApiary dropdown).
+    // Only admins can write.
+    match /bee_farms/{farmId} {
+      allow read:  if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // ── weight_analytics collection ─────────────────────────────────────────
+    // Owner or admin can read. Only IoT device (via Admin SDK) writes.
+    match /weight_analytics/{docId} {
+      allow read:  if isAdmin() ||
+                      (request.auth != null && resource.data.ownerId == request.auth.uid);
+      allow write: if false; // written by backend/IoT only
+    }
+
+    // ── saved_treatments (subcollection under users) ────────────────────────
+    match /users/{uid}/saved_treatments/{treatmentId} {
+      allow read, write: if isOwner(uid) || isAdmin();
+    }
+
+    // ── Deny everything else ────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

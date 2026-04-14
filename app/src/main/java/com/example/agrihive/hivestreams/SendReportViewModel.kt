@@ -9,6 +9,7 @@ import com.example.agrihive.data.local.AgriHiveDatabase
 import com.example.agrihive.data.local.ReportEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
@@ -35,31 +36,28 @@ class SendReportViewModel(application: Application) : AndroidViewModel(applicati
 
         viewModelScope.launch {
             try {
-                val timestamp = System.currentTimeMillis()
-                val userId = auth.currentUser?.uid ?: return@launch // Ensure user is logged in
+                val userId = auth.currentUser?.uid ?: return@launch
 
                 // 1. Save to local Room database
                 val reportLocal = ReportEntity(
                     description = description,
-                    timestamp = timestamp,
+                    timestamp = System.currentTimeMillis(),
                     imageUri = selectedImageUri
                 )
                 database.reportDao().insertReport(reportLocal)
 
-                // 2. Save to Firestore under the global collection
-                // We use the userId field to ensure the admin knows who sent it
-                // and the mobile app can filter its own reports.
-                // Include user name and farm from session for the admin dashboard
+                // 2. Save to Firestore — use serverTimestamp() so ordering works correctly
                 val reportFirestore = hashMapOf(
                     "userId" to userId,
                     "name" to "${sessionManager.getFirstName()} ${sessionManager.getLastName()}".trim(),
                     "farm" to sessionManager.getFarm(),
                     "description" to description,
-                    "timestamp" to timestamp,
+                    "timestamp" to FieldValue.serverTimestamp(),
                     "imageUri" to selectedImageUri,
                     "status" to "pending",
+                    "unread" to true,
                     "reply" to null,
-                    "notified" to true // Initially true because there's no reply yet
+                    "notified" to true // true = no reply yet, nothing to notify about
                 )
                 
                 firestore.collection("reports")

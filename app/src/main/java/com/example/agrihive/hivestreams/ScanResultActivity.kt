@@ -28,18 +28,24 @@ class ScanResultActivity : AppCompatActivity() {
         val hiveName = intent.getStringExtra(EXTRA_HIVE_NAME)?.trim()?.takeIf { it.isNotEmpty() } ?: "Hive"
         val apiaryId = intent.getStringExtra(EXTRA_APIARY_ID)
 
+        // Real probabilities from TFLite model
+        val probLabels = intent.getStringArrayExtra(EXTRA_PROB_LABELS)
+        val probScores = intent.getIntegerArrayListExtra(EXTRA_PROB_SCORES)
+        val realProbabilities: List<Pair<String, Int>> = if (!probLabels.isNullOrEmpty() && !probScores.isNullOrEmpty()) {
+            probLabels.zip(probScores)
+        } else {
+            emptyList()
+        }
+
         binding.tvHiveContext.text = hiveName
 
         viewModel.setScanContext(hiveName, apiaryId, imageUriString)
         viewModel.setResult(disease, healthScore)
 
         setupUI(imageUriString)
-        setupConfidenceList(
-            viewModel.diseaseName.value.orEmpty(),
-            viewModel.healthScore.value ?: 0
-        )
-        setupClicks()
+        setupConfidenceList(realProbabilities)
         observeViewModel()
+        setupClicks()
     }
 
     private fun setupUI(imageUriString: String?) {
@@ -50,22 +56,22 @@ class ScanResultActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupConfidenceList(diseaseLabel: String, healthScoreValue: Int) {
-        val confidenceData = mutableListOf<ConfidenceResult>()
-
-        val mainColor = if (healthScoreValue < 50) "#EF5350".toColorInt() else "#66BB6A".toColorInt()
-        confidenceData.add(
-            ConfidenceResult(
-                diseaseLabel.ifBlank { "Detected" },
-                healthScoreValue,
-                mainColor
-            )
-        )
-
-        val secondary = (healthScoreValue * 0.4).toInt().coerceIn(0, 100)
-        val tertiary = (healthScoreValue * 0.2).toInt().coerceIn(0, 100)
-        confidenceData.add(ConfidenceResult("Other Bee Pathogens", secondary, "#FF9800".toColorInt()))
-        confidenceData.add(ConfidenceResult("Environmental Stress", tertiary, "#9C27B0".toColorInt()))
+    private fun setupConfidenceList(probabilities: List<Pair<String, Int>>) {
+        val confidenceData = probabilities.mapIndexed { index, (label, score) ->
+            val color = when (index) {
+                0 -> if (score < 50) "#EF5350".toColorInt() else "#66BB6A".toColorInt()
+                1 -> "#FF9800".toColorInt()
+                2 -> "#9C27B0".toColorInt()
+                3 -> "#1565C0".toColorInt()
+                else -> "#607D8B".toColorInt()
+            }
+            // Clean up label for display
+            val displayLabel = label
+                .replace("_", " ")
+                .split(" ")
+                .joinToString(" ") { it.replaceFirstChar { c -> c.uppercase() } }
+            ConfidenceResult(displayLabel, score, color)
+        }
 
         binding.rvConfidence.apply {
             layoutManager = LinearLayoutManager(this@ScanResultActivity)
@@ -140,5 +146,7 @@ class ScanResultActivity : AppCompatActivity() {
         const val EXTRA_IMAGE_URI = "extra_image_uri"
         const val EXTRA_HIVE_NAME = "extra_hive_name"
         const val EXTRA_APIARY_ID = "extra_apiary_id"
+        const val EXTRA_PROB_LABELS = "extra_prob_labels"
+        const val EXTRA_PROB_SCORES = "extra_prob_scores"
     }
 }

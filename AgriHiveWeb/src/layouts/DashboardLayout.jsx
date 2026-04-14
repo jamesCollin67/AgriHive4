@@ -11,11 +11,12 @@ import {
   Subscriptions as SubscriptionsIcon,
   Menu as MenuIcon,
   Logout as LogoutIcon,
-  Notifications as BellIcon,
+  History as HistoryIcon,
   Close as CloseIcon,
 } from '@mui/icons-material';
 import { collection, query, onSnapshot, orderBy, limit } from 'firebase/firestore';
-import { db } from '../firebase';
+import { signOut } from 'firebase/auth';
+import { db, auth } from '../firebase';
 
 const drawerWidth = 240;
 const SIDEBAR_GREEN = '#1a5c2a';
@@ -121,9 +122,9 @@ export default function DashboardLayout() {
               AgriHive Admin
             </Typography>
           </Box>
-          <IconButton onClick={handleOpenNotif}>
+          <IconButton onClick={handleOpenNotif} title="Admin Activity Log">
             <Badge badgeContent={unreadCount} color="error">
-              <BellIcon />
+              <HistoryIcon />
             </Badge>
           </IconButton>
         </Toolbar>
@@ -174,7 +175,7 @@ export default function DashboardLayout() {
         }}
       >
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, px: 1 }}>Activity Logs</Typography>
+          <Typography variant="h6" sx={{ fontWeight: 700, px: 1 }}>Recent Activity</Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             {unreadCount > 0 && (
               <Button
@@ -225,7 +226,9 @@ export default function DashboardLayout() {
         <Typography sx={{ mb: 3 }}>Are you sure you want to exit the admin panel?</Typography>
         <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
           <Button onClick={() => setLogoutOpen(false)} color="inherit">Cancel</Button>
-          <Button variant="contained" color="error" onClick={() => navigate('/login')}>Logout</Button>
+          <Button variant="contained" color="error" onClick={() => {
+            signOut(auth).then(() => navigate('/login'));
+          }}>Logout</Button>
         </Box>
       </Dialog>
     </Box>

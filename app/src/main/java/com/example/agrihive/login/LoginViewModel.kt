@@ -74,6 +74,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun fetchAndSaveUserData(uid: String) {
+        // Enforce email verification — unverified users cannot access the app
+        if (firebaseAuth.currentUser?.isEmailVerified == false) {
+            firebaseAuth.signOut()
+            _isLoading.value = false
+            _loginError.value = "Please verify your email address before logging in. Check your inbox for a verification link."
+            return
+        }
+
         firestore.collection("users").document(uid).get()
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
