@@ -17,6 +17,11 @@ import com.example.agrihive.notification.NotificationItem
 import com.example.agrihive.notification.NotificationRepository
 import com.example.agrihive.notification.NotificationType
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.messaging.FirebaseMessaging
@@ -67,6 +72,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
     private var apiaryListener: ListenerRegistration? = null
     private var reportReplyListener: ListenerRegistration? = null
+
+    // RTDB listeners — one per apiary nodeId, kept alive on the dashboard
+    private val rtdb = FirebaseDatabase.getInstance()
+    private val rtdbListeners = mutableMapOf<String, ValueEventListener>() // nodeId → listener
 
     init {
         observeConnection()
@@ -232,7 +241,73 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                 _apiaries.value = list
                 calculateStats(list)
                 saveToCache(list)
+
+                // Start real-time RTDB sync for every apiary that has a nodeId
+                // This keeps dashboard cards live without needing to open HiveStreams
+                syncRtdbForApiaries(list)
             }
+    }
+
+    /**
+     * For each apiary with a nodeId, attach an RTDB listener that pushes
+     * live sensor data into Firestore. This makes dashboard cards update
+     * in real-time without the user needing to open HiveStreams first.
+     */
+    private fun syncRtdbForApiaries(apiaries: List<Apiary>) {
+        val activeNodeIds = apiaries.mapNotNull { it.nodeId.takeIf { id -> id.isNotBlank() } }.toSet()
+
+        // Remove listeners for nodeIds no longer in the list
+        val toRemove = rtdbListeners.keys.filter { it !in activeNodeIds }
+        toRemove.forEach { nodeId ->
+            rtdbListeners[nodeId]?.let { rtdb.getReference("/$nodeId").removeEventListener(it) }
+            rtdbListeners.remove(nodeId)
+            Log.d("RTDB", "Removed listener for nodeId: $nodeId")
+        }
+
+        // Add listeners for new nodeIds
+        apiaries.forEach { apiary ->
+            val nodeId = apiary.nodeId
+            if (nodeId.isBlank() || rtdbListeners.containsKey(nodeId)) return@forEach
+
+            val apiaryId = apiary.id
+            Log.d("RTDB", "Dashboard: attaching RTDB listener → /$nodeId → apiary $apiaryId")
+
+            val listener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (!snapshot.exists()) return
+
+                    val temperature = snapshot.child("temperature").getValue(Double::class.java) ?: 0.0
+                    val humidity    = snapshot.child("humidity").getValue(Double::class.java)    ?: 0.0
+                    val moisture    = snapshot.child("moisture").getValue(Double::class.java)    ?: 0.0
+                    val weightKg    = snapshot.child("weight").getValue(Double::class.java)      ?: 0.0
+                    val isConnected = snapshot.child("isConnected").getValue(Boolean::class.java) ?: false
+
+                    Log.d("RTDB", "[$nodeId] T=$temperature H=$humidity Mo=$moisture W=$weightKg")
+
+                    // Write into Firestore — the Firestore snapshot listener on the dashboard
+                    // will pick this up and refresh the card automatically
+                    firestore.collection("apiaries").document(apiaryId)
+                        .update(mapOf(
+                            "temperature" to temperature,
+                            "humidity"    to humidity,
+                            "moisture"    to moisture,
+                            "weight"      to weightKg,
+                            "isConnected" to isConnected,
+                            "lastUpdate"  to FieldValue.serverTimestamp()
+                        ))
+                        .addOnFailureListener { e ->
+                            Log.e("RTDB", "Firestore update failed for $nodeId: ${e.message}")
+                        }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("RTDB", "Listener cancelled for $nodeId: ${error.message}")
+                }
+            }
+
+            rtdb.getReference("/$nodeId").addValueEventListener(listener)
+            rtdbListeners[nodeId] = listener
+        }
     }
 
     private fun saveToCache(list: List<Apiary>) {
@@ -293,5 +368,10 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         super.onCleared()
         apiaryListener?.remove()
         reportReplyListener?.remove()
+        // Remove all RTDB listeners
+        rtdbListeners.forEach { (nodeId, listener) ->
+            rtdb.getReference("/$nodeId").removeEventListener(listener)
+        }
+        rtdbListeners.clear()
     }
 }

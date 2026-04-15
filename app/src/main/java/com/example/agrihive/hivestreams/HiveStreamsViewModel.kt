@@ -5,6 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.agrihive.addapiary.Apiary
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -15,6 +20,7 @@ data class WeightPoint(val timeLabel: String, val weight: Float)
 class HiveStreamsViewModel : ViewModel() {
 
     private val firestore = FirebaseFirestore.getInstance()
+    private val rtdb      = FirebaseDatabase.getInstance()
 
     private val _apiaryData = MutableLiveData<Apiary?>()
     val apiaryData: LiveData<Apiary?> = _apiaryData
@@ -22,7 +28,6 @@ class HiveStreamsViewModel : ViewModel() {
     private val _weightAnalytics = MutableLiveData<WeightAnalyticsData?>()
     val weightAnalytics: LiveData<WeightAnalyticsData?> = _weightAnalytics
 
-    // Weight history for the line chart (last 7 readings)
     private val _weightHistory = MutableLiveData<List<WeightPoint>>(emptyList())
     val weightHistory: LiveData<List<WeightPoint>> = _weightHistory
 
@@ -35,6 +40,8 @@ class HiveStreamsViewModel : ViewModel() {
     private var apiaryListener: ListenerRegistration? = null
     private var analyticsListener: ListenerRegistration? = null
     private var historyListener: ListenerRegistration? = null
+    private var rtdbListener: ValueEventListener? = null
+    private var rtdbNodePath: String? = null
 
     fun startListening(apiaryId: String) {
         _isLoading.value = true
@@ -65,7 +72,6 @@ class HiveStreamsViewModel : ViewModel() {
                     weight = doc.getDouble("weight") ?: 0.0,
                     isConnected = doc.getBoolean("isConnected") ?: false,
                     alertsCount = (doc.getLong("alertsCount") ?: 0L).toInt(),
-                    // Safely handle both Timestamp and Long — getTimestamp() throws if field is a Long
                     lastUpdate = when (val raw = doc.get("lastUpdate")) {
                         is com.google.firebase.Timestamp -> raw.toDate().time
                         is Long -> raw
@@ -75,7 +81,12 @@ class HiveStreamsViewModel : ViewModel() {
                 )
                 _apiaryData.value = apiary
 
-                // Auto-save weight reading to history if connected
+                // Start RTDB listener using the nodeId from this apiary
+                val nodeId = apiary.nodeId
+                if (nodeId.isNotBlank()) {
+                    startRtdbListener(nodeId, apiaryId)
+                }
+
                 if (apiary.isConnected && apiary.weight > 0) {
                     saveWeightReading(apiaryId, apiary.weight)
                 }
@@ -85,7 +96,70 @@ class HiveStreamsViewModel : ViewModel() {
         listenWeightHistory(apiaryId)
     }
 
-    /** Save current weight reading into a sub-collection for chart history */
+    /**
+     * Listen to RTDB at /{nodeId}/ — the path the ESP32 writes to.
+     * nodeId must match SENSOR_DEVICE_ID in the Arduino code.
+     * On every update, syncs values into the Firestore apiary document.
+     */
+    private fun startRtdbListener(nodeId: String, apiaryId: String) {
+        // Build the correct path from the actual nodeId
+        val path = "/$nodeId"
+
+        // If already listening to this exact path, do nothing
+        if (rtdbNodePath == path) return
+
+        // Remove old listener on the old path before switching
+        rtdbListener?.let {
+            rtdbNodePath?.let { oldPath -> rtdb.getReference(oldPath).removeEventListener(it) }
+        }
+        rtdbNodePath = path
+
+        android.util.Log.d("RTDB", "Starting listener on path: $path for apiary: $apiaryId")
+
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!snapshot.exists()) {
+                    android.util.Log.w("RTDB", "No data at path: $path — check SENSOR_DEVICE_ID matches nodeId")
+                    return
+                }
+
+                // ESP32 now sends weight in kg directly
+                val temperature = snapshot.child("temperature").getValue(Double::class.java) ?: 0.0
+                val humidity    = snapshot.child("humidity").getValue(Double::class.java)    ?: 0.0
+                val moisture    = snapshot.child("moisture").getValue(Double::class.java)    ?: 0.0
+                val weightKg    = snapshot.child("weight").getValue(Double::class.java)      ?: 0.0
+                val isConnected = snapshot.child("isConnected").getValue(Boolean::class.java) ?: false
+
+                android.util.Log.d("RTDB", "Data received → T=$temperature H=$humidity Mo=$moisture W=$weightKg connected=$isConnected")
+
+                // Push live values into Firestore so HiveStreams UI updates
+                firestore.collection("apiaries").document(apiaryId)
+                    .update(mapOf(
+                        "temperature" to temperature,
+                        "humidity"    to humidity,
+                        "moisture"    to moisture,
+                        "weight"      to weightKg,
+                        "isConnected" to isConnected,
+                        "lastUpdate"  to FieldValue.serverTimestamp()
+                    ))
+                    .addOnSuccessListener {
+                        android.util.Log.d("RTDB", "Firestore updated for apiary: $apiaryId")
+                    }
+                    .addOnFailureListener { e ->
+                        android.util.Log.e("RTDB", "Firestore update failed: ${e.message}")
+                    }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                android.util.Log.e("RTDB", "Listener cancelled: ${error.message}")
+                _errorMessage.postValue("Sensor connection error: ${error.message}")
+            }
+        }
+
+        rtdb.getReference(path).addValueEventListener(listener)
+        rtdbListener = listener
+    }
+
     private fun saveWeightReading(apiaryId: String, weight: Double) {
         viewModelScope.launch {
             val sdf = java.text.SimpleDateFormat("MM/dd HH:mm", java.util.Locale.getDefault())
@@ -93,14 +167,13 @@ class HiveStreamsViewModel : ViewModel() {
             firestore.collection("apiaries").document(apiaryId)
                 .collection("weight_history")
                 .add(mapOf(
-                    "weight" to weight,
-                    "label" to label,
-                    "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                    "weight"    to weight,
+                    "label"     to label,
+                    "timestamp" to FieldValue.serverTimestamp()
                 ))
         }
     }
 
-    /** Listen to last 10 weight readings for the chart */
     private fun listenWeightHistory(apiaryId: String) {
         historyListener?.remove()
         historyListener = firestore.collection("apiaries").document(apiaryId)
@@ -115,7 +188,7 @@ class HiveStreamsViewModel : ViewModel() {
                         val l = doc.getString("label") ?: ""
                         WeightPoint(l, w)
                     }
-                    .reversed() // oldest first for chart
+                    .reversed()
                 _weightHistory.value = points
             }
     }
@@ -136,6 +209,11 @@ class HiveStreamsViewModel : ViewModel() {
         apiaryListener?.remove()
         analyticsListener?.remove()
         historyListener?.remove()
+        rtdbListener?.let {
+            rtdbNodePath?.let { path -> rtdb.getReference(path).removeEventListener(it) }
+        }
+        rtdbListener = null
+        rtdbNodePath = null
     }
 
     override fun onCleared() {
@@ -143,5 +221,8 @@ class HiveStreamsViewModel : ViewModel() {
         apiaryListener?.remove()
         analyticsListener?.remove()
         historyListener?.remove()
+        rtdbListener?.let {
+            rtdbNodePath?.let { path -> rtdb.getReference(path).removeEventListener(it) }
+        }
     }
 }
