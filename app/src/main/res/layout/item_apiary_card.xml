@@ -1,257 +1,292 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  FrameLayout wrapper is required so the notification badge can be
+  positioned at the absolute top-right corner of the card, bleeding
+  slightly outside — identical to how badges sit on app icons.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
-    app:cardBackgroundColor="#1A3329"
-    app:cardCornerRadius="20dp"
-    app:cardElevation="0dp"
-    app:strokeWidth="0dp">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <LinearLayout
+    <!-- The card itself — full width, no extra margin (wrapper handles it) -->
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        app:cardBackgroundColor="#1A3329"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="0dp">
 
-        <!-- Top Header: Status, Name, Alert Badge, Arrow -->
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:id="@+id/ll_name_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <View
-                    android:id="@+id/iv_status"
-                    android:layout_width="8dp"
-                    android:layout_height="8dp"
-                    android:background="@drawable/bg_green_circle" />
-
-                <TextView
-                    android:id="@+id/tv_apiary_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:fontFamily="sans-serif-black"
-                    android:text="Hfugg"
-                    android:textColor="#FFFFFF"
-                    android:textSize="20sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_alert_badge"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/bg_red_circle"
-                    android:gravity="center"
-                    android:text="1"
-                    android:textColor="#FFFFFF"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <!-- Harvest Ready badge -->
-                <TextView
-                    android:id="@+id/tv_harvest_badge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:background="@drawable/bg_login_input"
-                    android:backgroundTint="#26F4B400"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
-                    android:text="🍯 Ready"
-                    android:textColor="#F4B400"
-                    android:textSize="10sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-
-                <!-- Edit/Delete menu button — always visible, replaces undiscoverable long-press -->
-                <TextView
-                    android:id="@+id/btn_apiary_menu"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_marginStart="4dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:gravity="center"
-                    android:text="⋮"
-                    android:textColor="#9CAF9F"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginStart="4dp"
-                    android:src="@drawable/ic_chevron_right"
-                    app:tint="#4DFFFFFF" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_location"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/ll_name_container"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="2dp"
-                android:drawableStart="@drawable/ic_location"
-                android:drawablePadding="4dp"
-                android:drawableTint="#6B8B6E"
-                android:text="Ycchc"
-                android:textColor="#9CAF9F"
-                android:textSize="13sp" />
-        </RelativeLayout>
-
-        <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginVertical="16dp"
-            android:background="#0DFFFFFF" />
-
-        <!-- Sensor Grid -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="4">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <!-- Temp -->
+            <!-- Header row: left (status + name + location) | right (⋮ + ›) -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_temperature"
-                    app:tint="#F4B400" />
-                <TextView
-                    android:id="@+id/tv_temp"
+                android:gravity="top"
+                android:orientation="horizontal">
+
+                <!-- Left column -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/ll_name_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:id="@+id/iv_status"
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:background="@drawable/bg_green_circle" />
+
+                        <TextView
+                            android:id="@+id/tv_apiary_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="sans-serif-black"
+                            android:text="Apiary Name"
+                            android:textColor="#FFFFFF"
+                            android:textSize="20sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="18dp"
+                        android:layout_marginTop="3dp"
+                        android:drawableStart="@drawable/ic_location"
+                        android:drawablePadding="4dp"
+                        android:drawableTint="#6B8B6E"
+                        android:text="Location"
+                        android:textColor="#9CAF9F"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Right column: harvest badge + ⋮ menu + › chevron -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-black"
-                    android:text="33.9°C"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Temp"
-                    android:textColor="#9CAF9F"
-                    android:textSize="10sp" />
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="2dp"
+                    android:orientation="horizontal">
+
+                    <!-- Harvest Ready pill -->
+                    <TextView
+                        android:id="@+id/tv_harvest_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/bg_login_input"
+                        android:backgroundTint="#26F4B400"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="3dp"
+                        android:text="🍯 Ready"
+                        android:textColor="#F4B400"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
+
+                    <!-- ⋮ menu button -->
+                    <TextView
+                        android:id="@+id/btn_apiary_menu"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:gravity="center"
+                        android:text="⋮"
+                        android:textColor="#9CAF9F"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <!-- › chevron -->
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginStart="2dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="#4DFFFFFF" />
+                </LinearLayout>
             </LinearLayout>
 
-            <View android:layout_width="1dp" android:layout_height="30dp" android:background="#0DFFFFFF" android:layout_gravity="center_vertical"/>
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="16dp"
+                android:background="#0DFFFFFF" />
 
-            <!-- Humidity -->
+            <!-- Sensor Grid -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_humidity_droplet"
-                    app:tint="#F4B400" />
-                <TextView
-                    android:id="@+id/tv_humidity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-black"
-                    android:text="62%"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Humidity"
-                    android:textColor="#9CAF9F"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                android:orientation="horizontal"
+                android:weightSum="4">
 
-            <View android:layout_width="1dp" android:layout_height="30dp" android:background="#0DFFFFFF" android:layout_gravity="center_vertical"/>
+                <!-- Temp -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_temperature"
+                        app:tint="#F4B400" />
+                    <TextView
+                        android:id="@+id/tv_temp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif-black"
+                        android:text="--"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Temp"
+                        android:textColor="#9CAF9F"
+                        android:textSize="10sp" />
+                </LinearLayout>
 
-            <!-- Moisture -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_cloud"
-                    app:tint="#F4B400" />
-                <TextView
-                    android:id="@+id/tv_moisture"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-black"
-                    android:text="21.9%"
-                    android:textColor="#F4B400"
-                    android:textSize="15sp" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Moisture"
-                    android:textColor="#9CAF9F"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                <View android:layout_width="1dp" android:layout_height="30dp"
+                    android:background="#0DFFFFFF" android:layout_gravity="center_vertical" />
 
-            <View android:layout_width="1dp" android:layout_height="30dp" android:background="#0DFFFFFF" android:layout_gravity="center_vertical"/>
+                <!-- Humidity -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_humidity_droplet"
+                        app:tint="#F4B400" />
+                    <TextView
+                        android:id="@+id/tv_humidity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif-black"
+                        android:text="--"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Humidity"
+                        android:textColor="#9CAF9F"
+                        android:textSize="10sp" />
+                </LinearLayout>
 
-            <!-- Weight -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_weight_box"
-                    app:tint="#F4B400" />
-                <TextView
-                    android:id="@+id/tv_weight"
-                    android:layout_width="wrap_content"
+                <View android:layout_width="1dp" android:layout_height="30dp"
+                    android:background="#0DFFFFFF" android:layout_gravity="center_vertical" />
+
+                <!-- Moisture -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:fontFamily="sans-serif-black"
-                    android:text="28.9kg"
-                    android:textColor="#FFFFFF"
-                    android:textSize="15sp" />
-                <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_cloud"
+                        app:tint="#F4B400" />
+                    <TextView
+                        android:id="@+id/tv_moisture"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif-black"
+                        android:text="--"
+                        android:textColor="#F4B400"
+                        android:textSize="15sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Moisture"
+                        android:textColor="#9CAF9F"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <View android:layout_width="1dp" android:layout_height="30dp"
+                    android:background="#0DFFFFFF" android:layout_gravity="center_vertical" />
+
+                <!-- Weight -->
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Weight"
-                    android:textColor="#9CAF9F"
-                    android:textSize="10sp" />
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_weight_box"
+                        app:tint="#F4B400" />
+                    <TextView
+                        android:id="@+id/tv_weight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="sans-serif-black"
+                        android:text="--"
+                        android:textColor="#FFFFFF"
+                        android:textSize="15sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Weight"
+                        android:textColor="#9CAF9F"
+                        android:textSize="10sp" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!--
+      Badge sits outside the card corner — clipChildren=false on the
+      FrameLayout parent allows it to render fully without being clipped.
+      Fixed 22x22dp ensures a perfect circle at all times.
+    -->
+    <TextView
+        android:id="@+id/tv_alert_badge"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="-6dp"
+        android:layout_marginEnd="-6dp"
+        android:background="@drawable/bg_badge_yellow"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:text="1"
+        android:textColor="#0F241F"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+</FrameLayout>

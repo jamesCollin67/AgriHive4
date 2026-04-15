@@ -54,7 +54,7 @@ class ApiaryAdapter(
             val alerts = calculateAlerts(apiary)
             if (alerts > 0) {
                 binding.tvAlertBadge.visibility = View.VISIBLE
-                binding.tvAlertBadge.text = alerts.toString()
+                binding.tvAlertBadge.text = if (alerts > 9) "9+" else alerts.toString()
             } else {
                 binding.tvAlertBadge.visibility = View.GONE
             }
