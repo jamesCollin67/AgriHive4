@@ -42,7 +42,8 @@ class ApiaryAdapter(
             if (apiary.isConnected) {
                 binding.tvTemp.text     = "%.1f°C".format(apiary.temperature)
                 binding.tvHumidity.text = "%.0f%%".format(apiary.humidity)
-                binding.tvMoisture.text = "%.1f%%".format(apiary.moisture)
+                // Hive Lid: moisture field stores ultrasonic distance in cm
+                binding.tvMoisture.text = if (apiary.moisture < 5.0) "Closed" else "Open"
                 binding.tvWeight.text   = "%.1fkg".format(apiary.weight)
             } else {
                 binding.tvTemp.text     = "--"
@@ -91,19 +92,24 @@ class ApiaryAdapter(
         }
 
         private fun calculateAlerts(apiary: Apiary): Int {
+            if (!apiary.isConnected) return 0  // no alerts when offline
             var count = 0
-            if (apiary.moisture > 18.0) count++
+            // Hive lid open (moisture = 10.0 means open)
+            if (apiary.moisture >= 5.0) count++
+            // Temperature out of range
             if (apiary.temperature > 0 && (apiary.temperature < 34.0 || apiary.temperature > 36.0)) count++
-            if (apiary.weight in 0.1..4.9) count++ // low weight alert
+            // Weight critically low
+            if (apiary.weight in 0.1..4.9) count++
             return count
         }
 
         private fun isHarvestReady(apiary: Apiary) =
-            apiary.moisture in 0.1..18.0 && apiary.weight > 5.0 && apiary.isConnected
+            apiary.weight > 5.0 && apiary.isConnected
     }
 
     private class DiffCallback : DiffUtil.ItemCallback<Apiary>() {
         override fun areItemsTheSame(a: Apiary, b: Apiary) = a.id == b.id
+        // Always rebind — ensures badge visibility is always recalculated
         override fun areContentsTheSame(a: Apiary, b: Apiary) = a == b
     }
 }

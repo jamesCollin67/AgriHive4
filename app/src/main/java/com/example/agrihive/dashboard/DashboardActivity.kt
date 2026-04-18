@@ -223,9 +223,9 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Ensure correct item is selected when returning to this activity
         binding.bottomNavigation.selectedItemId = R.id.nav_apiaries
-        // Update notification count badge in case some were read in the NotificationActivity
         viewModel.updateNotificationCount()
+        // Force adapter rebind so badges are recalculated after returning from HiveStreams
+        adapter.notifyDataSetChanged()
     }
 }

@@ -76,6 +76,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     // RTDB listeners — one per apiary nodeId, kept alive on the dashboard
     private val rtdb = FirebaseDatabase.getInstance()
     private val rtdbListeners = mutableMapOf<String, ValueEventListener>() // nodeId → listener
+    private val offlineJobs   = mutableMapOf<String, kotlinx.coroutines.Job>() // nodeId → timeout job
 
     init {
         observeConnection()
@@ -278,26 +279,36 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
                     val temperature = snapshot.child("temperature").getValue(Double::class.java) ?: 0.0
                     val humidity    = snapshot.child("humidity").getValue(Double::class.java)    ?: 0.0
-                    val moisture    = snapshot.child("moisture").getValue(Double::class.java)    ?: 0.0
+                    val lidOpen     = snapshot.child("lidOpen").getValue(Boolean::class.java)    ?: false
                     val weightKg    = snapshot.child("weight").getValue(Double::class.java)      ?: 0.0
-                    val isConnected = snapshot.child("isConnected").getValue(Boolean::class.java) ?: false
 
-                    Log.d("RTDB", "[$nodeId] T=$temperature H=$humidity Mo=$moisture W=$weightKg")
+                    Log.d("RTDB", "[$nodeId] T=$temperature H=$humidity Lid=${if (lidOpen) "OPEN" else "CLOSED"} W=$weightKg")
 
-                    // Write into Firestore — the Firestore snapshot listener on the dashboard
-                    // will pick this up and refresh the card automatically
-                    firestore.collection("apiaries").document(apiaryId)
-                        .update(mapOf(
-                            "temperature" to temperature,
-                            "humidity"    to humidity,
-                            "moisture"    to moisture,
-                            "weight"      to weightKg,
-                            "isConnected" to isConnected,
-                            "lastUpdate"  to FieldValue.serverTimestamp()
-                        ))
-                        .addOnFailureListener { e ->
-                            Log.e("RTDB", "Firestore update failed for $nodeId: ${e.message}")
-                        }
+                    val moistureForLid = if (lidOpen) 10.0 else 0.0
+
+                    // Data arrived — sensor is online, reset the 30s offline timer
+                    offlineJobs[nodeId]?.cancel()
+                    offlineJobs[nodeId] = viewModelScope.launch {
+                        // Mark online immediately
+                        firestore.collection("apiaries").document(apiaryId)
+                            .update(mapOf(
+                                "temperature" to temperature,
+                                "humidity"    to humidity,
+                                "moisture"    to moistureForLid,
+                                "weight"      to weightKg,
+                                "isConnected" to true,
+                                "lastUpdate"  to FieldValue.serverTimestamp()
+                            ))
+                            .addOnFailureListener { e ->
+                                Log.e("RTDB", "Firestore update failed for $nodeId: ${e.message}")
+                            }
+
+                        // After 30s with no new data, mark offline
+                        kotlinx.coroutines.delay(30_000)
+                        Log.w("RTDB", "[$nodeId] No update in 30s — marking OFFLINE")
+                        firestore.collection("apiaries").document(apiaryId)
+                            .update("isConnected", false)
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -320,10 +331,15 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private fun calculateStats(list: List<Apiary>) {
         _totalApiaries.value = list.size
         _onlineCount.value = list.count { it.isConnected }
-        _alertsCount.value = list.count { 
-            it.moisture > 18.0 || (it.temperature > 0 && (it.temperature < 34.0 || it.temperature > 36.0))
+        _alertsCount.value = list.count { apiary ->
+            // Hive lid open (moisture = 10.0)
+            (apiary.moisture >= 5.0 && apiary.isConnected) ||
+            // Temperature out of range
+            (apiary.temperature > 0 && (apiary.temperature < 34.0 || apiary.temperature > 36.0)) ||
+            // Weight critically low
+            (apiary.weight in 0.1..4.9)
         }
-        _harvestReadyCount.value = list.count { it.moisture in 0.1..18.0 && it.weight > 5.0 }
+        _harvestReadyCount.value = list.count { it.weight > 5.0 && it.isConnected }
     }
 
     private fun ApiaryEntity.toDomain() = Apiary(
@@ -368,10 +384,12 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         super.onCleared()
         apiaryListener?.remove()
         reportReplyListener?.remove()
-        // Remove all RTDB listeners
+        // Remove all RTDB listeners and cancel offline timers
         rtdbListeners.forEach { (nodeId, listener) ->
             rtdb.getReference("/$nodeId").removeEventListener(listener)
         }
         rtdbListeners.clear()
+        offlineJobs.values.forEach { it.cancel() }
+        offlineJobs.clear()
     }
 }

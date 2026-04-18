@@ -56,10 +56,11 @@
                     android:background="@drawable/bg_green_circle" />
 
                 <TextView
+                    android:id="@+id/tv_connection_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:text="Live"
+                    android:text="Offline"
                     android:textColor="#9CAF9F"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -283,7 +284,7 @@
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
-                    <!-- Honey Moisture -->
+                    <!-- Hive Lid (Ultrasonic — shows OPEN or CLOSED) -->
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/card_moisture"
                         android:layout_width="0dp"
@@ -294,58 +295,52 @@
                         app:cardBackgroundColor="#1A3329"
                         app:cardCornerRadius="20dp"
                         app:cardElevation="0dp"
-                        app:strokeColor="#3E3400"
+                        app:strokeColor="#2D4A3E"
                         app:strokeWidth="1dp">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:orientation="vertical"
                             android:padding="16dp">
+
                             <ImageView
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/ic_ai"
-                                app:tint="#F4B400"
+                                android:src="@drawable/ic_settings"
+                                app:tint="#66BB6A"
                                 android:alpha="0.4"/>
-                            <LinearLayout
+
+                            <!-- Single large word: OPEN or CLOSED -->
+                            <TextView
+                                android:id="@+id/tv_moisture_value"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="20dp"
-                                android:orientation="horizontal"
-                                android:gravity="bottom">
-                                <TextView
-                                    android:id="@+id/tv_moisture_value"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:fontFamily="sans-serif-black"
-                                    android:text="21.9"
-                                    android:textColor="#FFFFFF"
-                                    android:textSize="28sp" />
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginBottom="4dp"
-                                    android:text="%"
-                                    android:textColor="#9CAF9F"
-                                    android:textSize="14sp" />
-                            </LinearLayout>
+                                android:layout_marginTop="16dp"
+                                android:fontFamily="sans-serif-black"
+                                android:text="--"
+                                android:textColor="#66BB6A"
+                                android:textSize="22sp" />
+
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Honey Moisture"
+                                android:layout_marginTop="4dp"
+                                android:text="Hive Lid"
                                 android:textColor="#9CAF9F"
                                 android:textSize="12sp" />
+
+                            <!-- Status pill — shows alert when open -->
                             <TextView
                                 android:id="@+id/tv_moisture_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:background="@drawable/bg_login_input"
-                                android:backgroundTint="#26F4B400"
+                                android:backgroundTint="#2D66BB6A"
                                 android:paddingHorizontal="8dp"
                                 android:paddingVertical="2dp"
-                                android:text="Warning"
-                                android:textColor="#F4B400"
+                                android:text="Secure"
+                                android:textColor="#66BB6A"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
                         </LinearLayout>

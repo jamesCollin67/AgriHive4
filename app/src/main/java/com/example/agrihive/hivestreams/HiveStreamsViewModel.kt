@@ -13,6 +13,8 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 data class WeightPoint(val timeLabel: String, val weight: Float)
@@ -42,6 +44,21 @@ class HiveStreamsViewModel : ViewModel() {
     private var historyListener: ListenerRegistration? = null
     private var rtdbListener: ValueEventListener? = null
     private var rtdbNodePath: String? = null
+
+    // Offline timeout — if no RTDB update in 30s, mark sensor as offline
+    private var offlineTimeoutJob: Job? = null
+    private val _sensorOnline = MutableLiveData<Boolean>(false)
+    val sensorOnline: LiveData<Boolean> = _sensorOnline
+
+    private fun resetOfflineTimer() {
+        offlineTimeoutJob?.cancel()
+        _sensorOnline.postValue(true)
+        offlineTimeoutJob = viewModelScope.launch {
+            delay(30_000) // 30 seconds with no update = offline
+            _sensorOnline.postValue(false)
+            android.util.Log.w("RTDB", "No update in 30s — sensor marked OFFLINE")
+        }
+    }
 
     fun startListening(apiaryId: String) {
         _isLoading.value = true
@@ -123,21 +140,28 @@ class HiveStreamsViewModel : ViewModel() {
                     return
                 }
 
+                // Data arrived — sensor is online, reset the 30s offline timer
+                resetOfflineTimer()
+
                 // ESP32 now sends weight in kg directly
                 val temperature = snapshot.child("temperature").getValue(Double::class.java) ?: 0.0
                 val humidity    = snapshot.child("humidity").getValue(Double::class.java)    ?: 0.0
-                val moisture    = snapshot.child("moisture").getValue(Double::class.java)    ?: 0.0
+                // Read lidOpen boolean directly — 1.0 = open, 0.0 = closed
+                val lidOpen     = snapshot.child("lidOpen").getValue(Boolean::class.java)    ?: false
                 val weightKg    = snapshot.child("weight").getValue(Double::class.java)      ?: 0.0
                 val isConnected = snapshot.child("isConnected").getValue(Boolean::class.java) ?: false
 
-                android.util.Log.d("RTDB", "Data received → T=$temperature H=$humidity Mo=$moisture W=$weightKg connected=$isConnected")
+                android.util.Log.d("RTDB", "Data received → T=$temperature H=$humidity Lid=${if (lidOpen) "OPEN" else "CLOSED"} W=$weightKg connected=$isConnected")
 
-                // Push live values into Firestore so HiveStreams UI updates
+                // Store lid state as moisture: 10.0 = open, 0.0 = closed
+                // HiveStreamsActivity reads this and shows OPEN/CLOSED word
+                val moistureForLid = if (lidOpen) 10.0 else 0.0
+
                 firestore.collection("apiaries").document(apiaryId)
                     .update(mapOf(
                         "temperature" to temperature,
                         "humidity"    to humidity,
-                        "moisture"    to moisture,
+                        "moisture"    to moistureForLid,
                         "weight"      to weightKg,
                         "isConnected" to isConnected,
                         "lastUpdate"  to FieldValue.serverTimestamp()

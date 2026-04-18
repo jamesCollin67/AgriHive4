@@ -163,13 +163,13 @@ class HiveStreamsActivity : AppCompatActivity() {
                 binding.viewLiveStatus.setBackgroundResource(
                     if (it.isConnected) R.drawable.bg_green_circle else R.drawable.bg_red_circle
                 )
+                // Online/Offline is now driven by sensorOnline LiveData (30s timeout)
 
                 if (it.isConnected) {
                     binding.tvTempValue.text     = "%.1f".format(it.temperature)
                     binding.tvHumidityValue.text = "%.1f".format(it.humidity)
-                    binding.tvMoistureValue.text = "%.1f".format(it.moisture)
                     binding.tvWeightValue.text   = "%.1f".format(it.weight)
-                    // Check thresholds and fire local alerts
+                    // tvMoistureValue (Hive Lid) is set in updateStatusLabels below
                     checkAndAlert(it)
                 } else {
                     binding.tvTempValue.text     = "--"
@@ -207,6 +207,20 @@ class HiveStreamsActivity : AppCompatActivity() {
             updateChart(points)
         }
 
+        // Online / Offline status from 30s timeout
+        viewModel.sensorOnline.observe(this) { online ->
+            binding.viewLiveStatus.setBackgroundResource(
+                if (online) R.drawable.bg_green_circle else R.drawable.bg_red_circle
+            )
+            binding.tvConnectionStatus.text = if (online) "Online" else "Offline"
+            binding.tvConnectionStatus.setTextColor(
+                if (online)
+                    ContextCompat.getColor(this, android.R.color.holo_green_light)
+                else
+                    ContextCompat.getColor(this, android.R.color.holo_red_light)
+            )
+        }
+
         viewModel.errorMessage.observe(this) { error ->
             error?.let { Toast.makeText(this, it, Toast.LENGTH_SHORT).show() }
         }
@@ -239,11 +253,11 @@ class HiveStreamsActivity : AppCompatActivity() {
         }
         lastHumidityAlerted = humAlert
 
-        // Moisture alert (honey too wet)
-        val moistAlert = apiary.moisture > 22.0
+        // Hive Lid alert — open when moisture = 10.0
+        val moistAlert = apiary.moisture >= 5.0 && apiary.isConnected
         if (moistAlert && !lastMoistureAlerted) {
-            val msg = "${apiary.name}: Honey moisture too high (${apiary.moisture}%). Risk of fermentation!"
-            repo.addNotification("🍯 Moisture Alert", msg, NotificationType.FEEDING_ALERT)
+            val msg = "${apiary.name}: Hive lid is OPEN! Check your hive immediately."
+            repo.addNotification("🔓 Hive Lid Open", msg, NotificationType.FEEDING_ALERT)
             RainAlertNotification.showAdminReplyNotification(this, msg)
         }
         lastMoistureAlerted = moistAlert
@@ -278,26 +292,51 @@ class HiveStreamsActivity : AppCompatActivity() {
         binding.tvHumidityStatus.text = humStatus
         binding.tvHumidityStatus.setTextColor(statusColor(humStatus))
 
-        val moistStatus = when {
-            apiary.moisture <= 0    -> "No Data"
-            apiary.moisture <= 18.0 -> "Harvest Ready"
-            apiary.moisture <= 22.0 -> "Normal"
-            else -> "Too Wet"
+        // Hive Lid — moisture: 10.0 = OPEN, 0.0 = CLOSED (set by RTDB listener)
+        val lidIsOpen = apiary.moisture >= 5.0 && apiary.isConnected
+        val lidWord = when {
+            !apiary.isConnected    -> "--"
+            lidIsOpen              -> "OPEN"
+            else                   -> "CLOSED"
         }
-        binding.tvMoistureStatus.text = moistStatus
-        binding.tvMoistureStatus.setTextColor(when (moistStatus) {
-            "Harvest Ready" -> ContextCompat.getColor(this, android.R.color.holo_green_light)
-            "Normal"        -> ContextCompat.getColor(this, android.R.color.holo_blue_light)
-            "No Data"       -> ContextCompat.getColor(this, android.R.color.darker_gray)
-            else            -> ContextCompat.getColor(this, android.R.color.holo_orange_light)
-        })
-        binding.cardMoisture.strokeWidth = if (moistStatus == "Too Wet") 2 else 0
-        if (moistStatus == "Too Wet")
+
+        // Main value: the word OPEN or CLOSED
+        binding.tvMoistureValue.text = lidWord
+        binding.tvMoistureValue.setTextColor(
+            when (lidWord) {
+                "OPEN"   -> ContextCompat.getColor(this, android.R.color.holo_orange_light)
+                "CLOSED" -> ContextCompat.getColor(this, android.R.color.holo_green_light)
+                else     -> ContextCompat.getColor(this, android.R.color.darker_gray)
+            }
+        )
+
+        // Status pill below
+        binding.tvMoistureStatus.text = when (lidWord) {
+            "OPEN"   -> "⚠ Check Hive"
+            "CLOSED" -> "Secure"
+            else     -> "No Data"
+        }
+        binding.tvMoistureStatus.setTextColor(
+            if (lidIsOpen) ContextCompat.getColor(this, android.R.color.holo_orange_light)
+            else ContextCompat.getColor(this, android.R.color.holo_green_light)
+        )
+        binding.tvMoistureStatus.backgroundTintList =
+            android.content.res.ColorStateList.valueOf(
+                if (lidIsOpen) android.graphics.Color.parseColor("#2DEF5350")
+                else android.graphics.Color.parseColor("#2D66BB6A")
+            )
+
+        // Orange card stroke when lid is open
+        if (lidIsOpen) {
+            binding.cardMoisture.strokeWidth = 2
             binding.cardMoisture.strokeColor = ContextCompat.getColor(this, android.R.color.holo_orange_light)
+        } else {
+            binding.cardMoisture.strokeWidth = 0
+        }
 
         val weightStatus = when {
             apiary.weight <= 0   -> "No Data"
-            apiary.weight < 5.0  -> "Low — Check Hive"
+            apiary.weight < 5.0  -> "Low - Check Hive"
             else -> "Normal"
         }
         binding.tvWeightStatus.text = weightStatus
@@ -315,13 +354,21 @@ class HiveStreamsActivity : AppCompatActivity() {
 
     private fun resetValues() {
         listOf(binding.tvTempValue, binding.tvHumidityValue,
-               binding.tvMoistureValue, binding.tvWeightValue).forEach { it.text = "--" }
+               binding.tvWeightValue).forEach { it.text = "--" }
+        binding.tvMoistureValue.text = "--"
+        binding.tvMoistureValue.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
         listOf(binding.tvTempStatus, binding.tvHumidityStatus,
                binding.tvMoistureStatus, binding.tvWeightStatus).forEach {
             it.text = "No Data"
             it.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
         }
         binding.cardMoisture.strokeWidth = 0
+        // Show Offline when sensor disconnects
+        binding.viewLiveStatus.setBackgroundResource(R.drawable.bg_red_circle)
+        binding.tvConnectionStatus.text = "Offline"
+        binding.tvConnectionStatus.setTextColor(
+            ContextCompat.getColor(this, android.R.color.holo_red_light)
+        )
     }
 
     override fun onDestroy() {

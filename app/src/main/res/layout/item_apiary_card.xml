@@ -204,7 +204,7 @@
                 <View android:layout_width="1dp" android:layout_height="30dp"
                     android:background="#0DFFFFFF" android:layout_gravity="center_vertical" />
 
-                <!-- Moisture -->
+                <!-- Hive Lid -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -214,8 +214,8 @@
                     <ImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
-                        android:src="@drawable/ic_cloud"
-                        app:tint="#F4B400" />
+                        android:src="@drawable/ic_settings"
+                        app:tint="#66BB6A" />
                     <TextView
                         android:id="@+id/tv_moisture"
                         android:layout_width="wrap_content"
@@ -223,12 +223,12 @@
                         android:layout_marginTop="4dp"
                         android:fontFamily="sans-serif-black"
                         android:text="--"
-                        android:textColor="#F4B400"
-                        android:textSize="15sp" />
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Moisture"
+                        android:text="Lid"
                         android:textColor="#9CAF9F"
                         android:textSize="10sp" />
                 </LinearLayout>
