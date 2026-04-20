@@ -160,7 +160,7 @@
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/card_temp"
                         android:layout_width="0dp"
-                        android:layout_height="140dp"
+                        android:layout_height="wrap_content"
                         android:layout_rowWeight="1"
                         android:layout_columnWeight="1"
                         android:layout_margin="6dp"
@@ -183,7 +183,7 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="20dp"
+                                android:layout_marginTop="8dp"
                                 android:orientation="horizontal"
                                 android:gravity="bottom">
                                 <TextView
@@ -206,15 +206,15 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Temperature"
-                                android:textColor="#9CAF9F"
-                                android:textSize="12sp" />
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp" />
                             <TextView
                                 android:id="@+id/tv_temp_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="Normal"
-                                android:textColor="#66BB6A"
+                                android:textColor="#FFFFFF"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -224,7 +224,7 @@
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/card_humidity"
                         android:layout_width="0dp"
-                        android:layout_height="140dp"
+                        android:layout_height="wrap_content"
                         android:layout_rowWeight="1"
                         android:layout_columnWeight="1"
                         android:layout_margin="6dp"
@@ -247,7 +247,7 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="20dp"
+                                android:layout_marginTop="8dp"
                                 android:orientation="horizontal"
                                 android:gravity="bottom">
                                 <TextView
@@ -270,15 +270,15 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Humidity"
-                                android:textColor="#9CAF9F"
-                                android:textSize="12sp" />
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp" />
                             <TextView
                                 android:id="@+id/tv_humidity_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="Normal"
-                                android:textColor="#66BB6A"
+                                android:textColor="#FFFFFF"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -288,7 +288,7 @@
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/card_moisture"
                         android:layout_width="0dp"
-                        android:layout_height="140dp"
+                        android:layout_height="wrap_content"
                         android:layout_rowWeight="1"
                         android:layout_columnWeight="1"
                         android:layout_margin="6dp"
@@ -326,8 +326,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="Hive Lid"
-                                android:textColor="#9CAF9F"
-                                android:textSize="12sp" />
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp" />
 
                             <!-- Status pill — shows alert when open -->
                             <TextView
@@ -335,12 +335,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:background="@drawable/bg_login_input"
-                                android:backgroundTint="#2D66BB6A"
-                                android:paddingHorizontal="8dp"
-                                android:paddingVertical="2dp"
                                 android:text="Secure"
-                                android:textColor="#66BB6A"
+                                android:textColor="#FFFFFF"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
                         </LinearLayout>
@@ -350,7 +346,7 @@
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/card_weight"
                         android:layout_width="0dp"
-                        android:layout_height="140dp"
+                        android:layout_height="wrap_content"
                         android:layout_rowWeight="1"
                         android:layout_columnWeight="1"
                         android:layout_margin="6dp"
@@ -373,7 +369,7 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="20dp"
+                                android:layout_marginTop="8dp"
                                 android:orientation="horizontal"
                                 android:gravity="bottom">
                                 <TextView
@@ -396,15 +392,15 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Hive Weight"
-                                android:textColor="#9CAF9F"
-                                android:textSize="12sp" />
+                                android:textColor="#FFFFFF"
+                                android:textSize="13sp" />
                             <TextView
                                 android:id="@+id/tv_weight_status"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="Normal"
-                                android:textColor="#66BB6A"
+                                android:textColor="#FFFFFF"
                                 android:textSize="12sp"
                                 android:textStyle="bold" />
                         </LinearLayout>

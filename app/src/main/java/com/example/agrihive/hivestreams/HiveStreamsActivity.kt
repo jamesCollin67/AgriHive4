@@ -171,18 +171,19 @@ class HiveStreamsActivity : AppCompatActivity() {
                     binding.tvWeightValue.text   = "%.1f".format(it.weight)
                     // tvMoistureValue (Hive Lid) is set in updateStatusLabels below
                     checkAndAlert(it)
+                    updateStatusLabels(it)
                 } else {
                     binding.tvTempValue.text     = "--"
                     binding.tvHumidityValue.text = "--"
                     binding.tvMoistureValue.text = "--"
                     binding.tvWeightValue.text   = "--"
+                    resetStatusLabels()
                 }
 
                 binding.tvLocationValue.text = it.location
                 binding.tvNodeIdValue.text   = "Node ID: ${it.nodeId}"
                 val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
                 binding.tvLastUpdatedValue.text = "Last updated: ${sdf.format(Date(it.lastUpdate))}"
-                updateStatusLabels(it)
             } ?: resetValues()
         }
 
@@ -317,14 +318,9 @@ class HiveStreamsActivity : AppCompatActivity() {
             else     -> "No Data"
         }
         binding.tvMoistureStatus.setTextColor(
-            if (lidIsOpen) ContextCompat.getColor(this, android.R.color.holo_orange_light)
-            else ContextCompat.getColor(this, android.R.color.holo_green_light)
+            if (lidIsOpen) android.graphics.Color.parseColor("#FF9800")  // bright orange
+            else android.graphics.Color.parseColor("#4CAF50")            // bright green
         )
-        binding.tvMoistureStatus.backgroundTintList =
-            android.content.res.ColorStateList.valueOf(
-                if (lidIsOpen) android.graphics.Color.parseColor("#2DEF5350")
-                else android.graphics.Color.parseColor("#2D66BB6A")
-            )
 
         // Orange card stroke when lid is open
         if (lidIsOpen) {
@@ -341,15 +337,24 @@ class HiveStreamsActivity : AppCompatActivity() {
         }
         binding.tvWeightStatus.text = weightStatus
         binding.tvWeightStatus.setTextColor(
-            if (weightStatus == "Normal") ContextCompat.getColor(this, android.R.color.holo_green_light)
-            else ContextCompat.getColor(this, android.R.color.holo_red_light)
+            if (weightStatus == "Normal") android.graphics.Color.parseColor("#4CAF50")
+            else android.graphics.Color.parseColor("#FF5252")
         )
     }
 
     private fun statusColor(status: String): Int = when (status) {
-        "Normal" -> ContextCompat.getColor(this, android.R.color.holo_green_light)
-        "No Data" -> ContextCompat.getColor(this, android.R.color.darker_gray)
-        else -> ContextCompat.getColor(this, android.R.color.holo_red_light)
+        "Normal"  -> android.graphics.Color.parseColor("#4CAF50")  // bright green
+        "No Data" -> android.graphics.Color.parseColor("#888888")  // grey
+        else      -> android.graphics.Color.parseColor("#FF5252")  // bright red
+    }
+
+    private fun resetStatusLabels() {
+        val noDataColor = android.graphics.Color.parseColor("#888888")
+        listOf(binding.tvTempStatus, binding.tvHumidityStatus,
+               binding.tvMoistureStatus, binding.tvWeightStatus).forEach {
+            it.text = "No Data"
+            it.setTextColor(noDataColor)
+        }
     }
 
     private fun resetValues() {
