@@ -35,9 +35,29 @@ object DiagnosisCopy {
             "Healthy Colony" ->
                 "1. Regular monitoring monthly\n2. Ensure fresh water source nearby\n3. Check for mites every 30 days\n4. Maintain enough food stores"
             "Varroa Mite Infestation" ->
-                "1. Formic acid application\n2. Oxalic acid treatment\n3. Thymol strips (Apiguard)\n4. Screened bottom boards\n5. Brood interruption method\n6. Regular mite monitoring"
+                "1. Confirm the infestation first. Do not treat based on appearance alone. Use a mite test, usually an alcohol wash or powdered sugar roll, to estimate the mite level in the colony.\n" +
+                "2. Check if the colony already needs treatment. A conservative target is to keep mite levels below 1% year-round, and treatment is commonly warranted when levels go above 2%. Also remember that testing adult bees can underestimate the true mite load when the colony has a lot of brood.\n" +
+                "3. Assess the season and brood condition of the hive. This matters because treatment choice changes depending on whether the colony has capped brood or is relatively broodless. Varroa populations can rebound quickly, and in colonies with brood, they can increase very fast, so timing matters.\n" +
+                "4. Choose the treatment based on brood status.\n" +
+                "- If the colony is broodless or has very little brood, oxalic acid is often used because it works best when mites are on adult bees and not protected inside capped cells.\n" +
+                "- If the colony has capped brood, formic acid is often preferred because it is the soft acaricide specifically noted to penetrate capped brood.\n" +
+                "- Other registered treatment categories include thymol, amitraz, fluvalinate, and newer approved products in some countries, but which one is appropriate depends on local registration, season, temperature, and resistance risk.\n" +
+                "5. Use only registered products and follow the label exactly. Do not use unregistered chemicals or use a registered product outside its label conditions.\n" +
+                "6. Treat as part of an IPM plan, not as a one-time fix. Regular monitoring, cultural practices such as drone brood removal, requeening with varroa-resistant stock when possible.\n" +
+                "7. Reduce reinfestation pressure while treating. Highly infested colonies can spread mites and associated disease to other colonies through drifting, robbing, swarming, and the movement of bees.\n" +
+                "8. Re-test after treatment.\n" +
+                "9. Keep records and rotate actives for the next cycle."
             "Chalkbrood Infection" ->
-                "1. Improve hive ventilation and reduce moisture\n2. Replace old combs and clean affected frames\n3. Strengthen colony with good nutrition\n4. Re-queen if colony remains weak"
+                "1. Confirm that it is chalkbrood.\n" +
+                "2. Do not rely on chemical medicine as the main treatment.\n" +
+                "3. Prevent the disease from spreading to other colonies.\n" +
+                "4. Remove visible mummies and clean the hive interior.\n" +
+                "5. Make the hive warmer and drier. Improve ventilation, tilt the hive slightly forward so water does not collect, place the colony where it gets sun, and avoid damp low areas or overgrown sites.\n" +
+                "6. Reduce brood chilling and stress. Avoid long inspections during cold or wet weather, and do not overexpand the brood nest until the colony is strong enough to keep the brood warm.\n" +
+                "7. Strengthen the colony with proper nutrition. Make sure the hive has enough food reserves.\n" +
+                "8. Requeen if the outbreak is moderate, severe, or recurring. Replacing the queen with a hygienic or resistant stock is commonly recommended.\n" +
+                "9. Reinspect after 7 to 14 days. Look for fewer new mummies, a drier brood nest, and a stronger adult bee population.\n" +
+                "10. Keep the colony out of damp shade."
             "Dead Bees / Colony Loss" ->
                 "1. Clean out the hive and debris\n2. Investigate for starvation or disease\n3. Sterilize equipment before reuse\n4. Seal hive to prevent robbing"
             "Not a bee" ->
