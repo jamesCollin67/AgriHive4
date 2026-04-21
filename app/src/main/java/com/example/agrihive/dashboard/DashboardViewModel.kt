@@ -281,15 +281,37 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                     val humidity    = snapshot.child("humidity").getValue(Double::class.java)    ?: 0.0
                     val lidOpen     = snapshot.child("lidOpen").getValue(Boolean::class.java)    ?: false
                     val weightKg    = snapshot.child("weight").getValue(Double::class.java)      ?: 0.0
+                    val moistureForLid = if (lidOpen) 10.0 else 0.0
+
+                    // Check ESP32 timestamp to skip stale cached data.
+                    // If no timestamp field exists, treat the FIRST onDataChange as stale
+                    // (it's always a cached replay) and only trust subsequent ones.
+                    val espTimestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
+                    val nowMs = System.currentTimeMillis()
+
+                    val isStale = if (espTimestamp > 0L) {
+                        // ESP32 writes a timestamp — use it directly
+                        (nowMs - espTimestamp) > 60_000L
+                    } else {
+                        // No timestamp — only trust if a job is already running for this node,
+                        // meaning we've already processed at least one update this session.
+                        !offlineJobs.containsKey(nodeId) || offlineJobs[nodeId]?.isActive == false
+                    }
+
+                    if (isStale) {
+                        Log.w("RTDB", "[$nodeId] Stale/cached data — marking offline")
+                        offlineJobs[nodeId]?.cancel()
+                        offlineJobs.remove(nodeId)
+                        firestore.collection("apiaries").document(apiaryId)
+                            .update("isConnected", false)
+                        return
+                    }
 
                     Log.d("RTDB", "[$nodeId] T=$temperature H=$humidity Lid=${if (lidOpen) "OPEN" else "CLOSED"} W=$weightKg")
 
-                    val moistureForLid = if (lidOpen) 10.0 else 0.0
-
-                    // Data arrived — sensor is online, reset the 30s offline timer
+                    // Fresh data — update Firestore and reset the 30s offline timer
                     offlineJobs[nodeId]?.cancel()
                     offlineJobs[nodeId] = viewModelScope.launch {
-                        // Mark online immediately
                         firestore.collection("apiaries").document(apiaryId)
                             .update(mapOf(
                                 "temperature" to temperature,

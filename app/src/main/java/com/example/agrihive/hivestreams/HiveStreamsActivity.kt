@@ -152,39 +152,63 @@ class HiveStreamsActivity : AppCompatActivity() {
     }
 
     // ── ViewModel observers ───────────────────────────────────────────────────
+    private var lastKnownApiary: com.example.agrihive.addapiary.Apiary? = null
+
     private fun observeViewModel() {
         viewModel.isLoading.observe(this) { loading ->
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
             binding.contentLayout.alpha = if (loading) 0.5f else 1.0f
         }
 
+        // Always show the latest Firestore data regardless of online state
         viewModel.apiaryData.observe(this) { apiary ->
             apiary?.let {
-                binding.viewLiveStatus.setBackgroundResource(
-                    if (it.isConnected) R.drawable.bg_green_circle else R.drawable.bg_red_circle
-                )
-                // Online/Offline is now driven by sensorOnline LiveData (30s timeout)
-
-                if (it.isConnected) {
-                    binding.tvTempValue.text     = "%.1f".format(it.temperature)
-                    binding.tvHumidityValue.text = "%.1f".format(it.humidity)
-                    binding.tvWeightValue.text   = "%.1f".format(it.weight)
-                    // tvMoistureValue (Hive Lid) is set in updateStatusLabels below
-                    checkAndAlert(it)
-                    updateStatusLabels(it)
-                } else {
-                    binding.tvTempValue.text     = "--"
-                    binding.tvHumidityValue.text = "--"
-                    binding.tvMoistureValue.text = "--"
-                    binding.tvWeightValue.text   = "--"
-                    resetStatusLabels()
-                }
-
+                lastKnownApiary = it
                 binding.tvLocationValue.text = it.location
                 binding.tvNodeIdValue.text   = "Node ID: ${it.nodeId}"
                 val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
                 binding.tvLastUpdatedValue.text = "Last updated: ${sdf.format(Date(it.lastUpdate))}"
+
+                // Only render sensor values if the sensor is confirmed online.
+                // sensorOnline observer handles the offline "--" display.
+                if (viewModel.sensorOnline.value == true) {
+                    binding.tvTempValue.text     = "%.1f".format(it.temperature)
+                    binding.tvHumidityValue.text = "%.1f".format(it.humidity)
+                    binding.tvWeightValue.text   = "%.1f".format(it.weight)
+                    updateStatusLabels(it)
+                }
             } ?: resetValues()
+        }
+
+        // sensorOnline only controls the Online/Offline indicator — not data visibility
+        viewModel.sensorOnline.observe(this) { online ->
+            binding.viewLiveStatus.setBackgroundResource(
+                if (online) R.drawable.bg_green_circle else R.drawable.bg_red_circle
+            )
+            binding.tvConnectionStatus.text = if (online) "Online" else "Offline"
+            binding.tvConnectionStatus.setTextColor(
+                if (online)
+                    ContextCompat.getColor(this, android.R.color.holo_green_light)
+                else
+                    ContextCompat.getColor(this, android.R.color.holo_red_light)
+            )
+            // When sensor goes offline, show "--" for live values
+            if (!online) {
+                binding.tvTempValue.text     = "--"
+                binding.tvHumidityValue.text = "--"
+                binding.tvMoistureValue.text = "--"
+                binding.tvWeightValue.text   = "--"
+                resetStatusLabels()
+            } else {
+                // Sensor just came online — re-render from last known data
+                lastKnownApiary?.let {
+                    binding.tvTempValue.text     = "%.1f".format(it.temperature)
+                    binding.tvHumidityValue.text = "%.1f".format(it.humidity)
+                    binding.tvWeightValue.text   = "%.1f".format(it.weight)
+                    checkAndAlert(it)
+                    updateStatusLabels(it)
+                }
+            }
         }
 
         viewModel.weightAnalytics.observe(this) { analytics ->
@@ -206,20 +230,6 @@ class HiveStreamsActivity : AppCompatActivity() {
         // Render chart whenever history updates
         viewModel.weightHistory.observe(this) { points ->
             updateChart(points)
-        }
-
-        // Online / Offline status from 30s timeout
-        viewModel.sensorOnline.observe(this) { online ->
-            binding.viewLiveStatus.setBackgroundResource(
-                if (online) R.drawable.bg_green_circle else R.drawable.bg_red_circle
-            )
-            binding.tvConnectionStatus.text = if (online) "Online" else "Offline"
-            binding.tvConnectionStatus.setTextColor(
-                if (online)
-                    ContextCompat.getColor(this, android.R.color.holo_green_light)
-                else
-                    ContextCompat.getColor(this, android.R.color.holo_red_light)
-            )
         }
 
         viewModel.errorMessage.observe(this) { error ->

@@ -1,17 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, limit, where } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const AdminDataContext = createContext(null);
 
 /**
- * Single source of truth for users + reports + subscriptions.
+ * Single source of truth for users + reports + subscriptions + apiaries.
  * All pages consume from here — no duplicate Firestore listeners.
  */
 export function AdminDataProvider({ children }) {
   const [users, setUsers] = useState([]);
   const [reports, setReports] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
+  const [apiaries, setApiaries] = useState([]);
   const [usersLoading, setUsersLoading] = useState(true);
   const [reportsLoading, setReportsLoading] = useState(true);
   const [subsLoading, setSubsLoading] = useState(true);
@@ -68,7 +69,16 @@ export function AdminDataProvider({ children }) {
       (err) => { console.error('Subs listener:', err); setSubsLoading(false); }
     );
 
-    return () => { unsubUsers(); unsubReports(); unsubSubs(); };
+    // ── Apiaries listener (all hives, real-time sensor data) ───────
+    const unsubApiaries = onSnapshot(
+      query(collection(db, 'apiaries'), limit(500)),
+      (snap) => {
+        setApiaries(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      },
+      (err) => { console.error('Apiaries listener:', err); }
+    );
+
+    return () => { unsubUsers(); unsubReports(); unsubSubs(); unsubApiaries(); };
   }, []);
 
   // Derived: set of farm keys that have pending reports (used by Dashboard)
@@ -83,6 +93,7 @@ export function AdminDataProvider({ children }) {
       users, usersLoading,
       reports, reportsLoading,
       subscriptions, subsLoading,
+      apiaries,
       pendingReportFarmKeys,
     }}>
       {children}

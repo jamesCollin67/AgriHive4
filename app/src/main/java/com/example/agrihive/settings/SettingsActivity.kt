@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.agrihive.R
 import com.example.agrihive.dashboard.DashboardActivity
 import com.example.agrihive.data.UserSessionManager
-import com.example.agrihive.device.DeviceControlActivity
 import com.example.agrihive.editprofile.EditProfileActivity
 import com.example.agrihive.hivestreams.SendReportActivity
 import com.example.agrihive.log.ActivityLogActivity
@@ -44,11 +43,22 @@ class SettingsActivity : AppCompatActivity() {
         // Refresh from server
         loadUserProfile()
 
-        findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_notifications).setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleNotifications(isChecked)
+        val switchNotifications = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_notifications)
+        val switchSync = findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_sync)
+        val tvNotificationsStatus = findViewById<TextView>(R.id.tv_notifications_status)
+        val tvSyncStatus = findViewById<TextView>(R.id.tv_sync_status)
+
+        switchNotifications.setOnCheckedChangeListener { _, isChecked ->
+            if (switchNotifications.isPressed) {
+                viewModel.toggleNotifications(isChecked)
+                tvNotificationsStatus.text = if (isChecked) "On" else "Off"
+            }
         }
-        findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_sync).setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleCloudSync(isChecked)
+        switchSync.setOnCheckedChangeListener { _, isChecked ->
+            if (switchSync.isPressed) {
+                viewModel.toggleCloudSync(isChecked)
+                tvSyncStatus.text = if (isChecked) "On" else "Off"
+            }
         }
 
         setupObservers()
@@ -106,10 +116,6 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(Intent(this, com.example.agrihive.hivestreams.SavedTreatmentsActivity::class.java))
         }
 
-        findViewById<View>(R.id.btn_device_controls).setOnClickListener {
-            startActivity(Intent(this, DeviceControlActivity::class.java))
-        }
-
         findViewById<View>(R.id.btn_subscription).setOnClickListener {
             startActivity(Intent(this, SensorSubscriptionActivity::class.java))
         }
@@ -163,11 +169,16 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
+        val tvNotificationsStatus = findViewById<TextView>(R.id.tv_notifications_status)
+        val tvSyncStatus = findViewById<TextView>(R.id.tv_sync_status)
+
         viewModel.notificationsEnabled.observe(this) { enabled ->
             findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_notifications).isChecked = enabled
+            tvNotificationsStatus.text = if (enabled) "On" else "Off"
         }
         viewModel.cloudSyncEnabled.observe(this) { enabled ->
             findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switch_sync).isChecked = enabled
+            tvSyncStatus.text = if (enabled) "On" else "Off"
         }
     }
 

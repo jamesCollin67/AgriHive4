@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:fontFamily="sans-serif-medium"
-            android:text="MobileNetV2 + BeeClassifier • 7-class"
+            android:text="TENSORFLOW LITE"
             android:textColor="#9CAF9F"
             android:textSize="13sp" />
 
