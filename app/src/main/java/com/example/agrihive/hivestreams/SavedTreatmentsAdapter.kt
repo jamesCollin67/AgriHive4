@@ -44,7 +44,7 @@ class SavedTreatmentsAdapter(
             itemView.setOnClickListener { onItemClick(item) }
 
             tvTitle.text = item.diseaseName
-            val date = SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(item.timestamp))
+            val date = SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(item.timestampMillis))
             val hive = item.hiveName.ifBlank { "Hive" }
             tvSubtitle.text = "$hive · $date"
             tvDescription.text = item.description

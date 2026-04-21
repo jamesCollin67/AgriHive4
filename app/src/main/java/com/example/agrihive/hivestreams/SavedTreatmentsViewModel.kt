@@ -3,6 +3,7 @@ package com.example.agrihive.hivestreams
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -46,7 +47,29 @@ class SavedTreatmentsViewModel : ViewModel() {
                 _isLoading.value = false
                 if (e != null || snapshot == null) return@addSnapshotListener
 
-                val list = snapshot.toObjects(SavedTreatment::class.java)
+                val list = snapshot.documents.mapNotNull { doc ->
+                    try {
+                        val ts = when (val raw = doc.get("timestamp")) {
+                            is Timestamp -> raw
+                            is Long -> Timestamp(raw / 1000, ((raw % 1000) * 1_000_000).toInt())
+                            is Number -> Timestamp(raw.toLong() / 1000, 0)
+                            else -> Timestamp.now()
+                        }
+                        SavedTreatment(
+                            id = doc.id,
+                            diseaseName = doc.getString("diseaseName") ?: "",
+                            hiveName = doc.getString("hiveName") ?: "",
+                            timestamp = ts,
+                            description = doc.getString("description") ?: "",
+                            symptoms = doc.getString("symptoms") ?: "",
+                            healthScore = (doc.getLong("healthScore") ?: 0L).toInt(),
+                            imageUrl = doc.getString("imageUrl") ?: "",
+                            apiaryId = doc.getString("apiaryId") ?: ""
+                        )
+                    } catch (ex: Exception) {
+                        null
+                    }
+                }
                 allTreatmentsList = list
                 _treatments.value = list
                 
