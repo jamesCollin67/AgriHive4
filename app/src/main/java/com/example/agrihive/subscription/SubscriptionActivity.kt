@@ -75,13 +75,16 @@ class SubscriptionActivity : AppCompatActivity() {
                 price = planPrice
             )
             viewModel.setSelectedPlan(plan)
-            when {
-                planName.equals("Starter", true) -> applyCardSelection(cardStarter)
-                planName.equals("Pro", true) -> applyCardSelection(cardPro)
-                planName.equals("Enterprise", true) -> applyCardSelection(cardEnterprise)
-                else -> applyCardSelection(cardPro)
+            val initialCard = when {
+                planName.equals("Starter", true) -> cardStarter
+                planName.equals("Pro", true) -> cardPro
+                planName.equals("Enterprise", true) -> cardEnterprise
+                else -> cardPro
             }
+            selectedCard = initialCard
+            applyCardSelection(initialCard)
         } else {
+            selectedCard = cardPro
             viewModel.setSelectedPlan(planPro)
             applyCardSelection(cardPro)
         }
@@ -90,22 +93,109 @@ class SubscriptionActivity : AppCompatActivity() {
 
         // Payment method is selected on the PaymentDetailsActivity — no chip group here
         setupPlanCardClicks()
+        setupBillingToggle()
         setupViews()
         observeViewModel()
     }
 
+    private var isMonthly = false
+    private var selectedCard: MaterialCardView? = null
+
+    // Price/period views — stored as fields so they're accessible from card clicks too
+    private lateinit var tvStarterPrice: android.widget.TextView
+    private lateinit var tvStarterPeriod: android.widget.TextView
+    private lateinit var tvProPrice: android.widget.TextView
+    private lateinit var tvProPeriod: android.widget.TextView
+    private lateinit var tvEnterprisePrice: android.widget.TextView
+
+    private fun selectPlanCard(card: MaterialCardView) {
+        selectedCard = card
+        val price: Double
+        val billing: BillingType
+        val id: String
+        val basePlan: SubscriptionPlan
+        when (card) {
+            cardStarter -> {
+                price = if (isMonthly) 183.0 else 550.0
+                billing = if (isMonthly) BillingType.MONTHLY else BillingType.QUARTERLY
+                id = if (isMonthly) "plan_starter_1mo" else "plan_starter_3mo"
+                basePlan = planStarter
+            }
+            cardPro -> {
+                price = if (isMonthly) 250.0 else 750.0
+                billing = if (isMonthly) BillingType.MONTHLY else BillingType.QUARTERLY
+                id = if (isMonthly) "plan_pro_1mo" else "plan_pro_3mo"
+                basePlan = planPro
+            }
+            else -> {
+                price = if (isMonthly) 333.0 else 999.0
+                billing = if (isMonthly) BillingType.MONTHLY else BillingType.QUARTERLY
+                id = if (isMonthly) "plan_enterprise_1mo" else "plan_enterprise_3mo"
+                basePlan = planEnterprise
+            }
+        }
+        viewModel.setSelectedPlan(basePlan.copy(price = price, billingType = billing, id = id))
+        applyCardSelection(card)
+    }
+
     private fun setupPlanCardClicks() {
-        cardStarter.setOnClickListener {
-            viewModel.setSelectedPlan(planStarter)
-            applyCardSelection(cardStarter)
+        cardStarter.setOnClickListener { selectPlanCard(cardStarter) }
+        cardPro.setOnClickListener { selectPlanCard(cardPro) }
+        cardEnterprise.setOnClickListener { selectPlanCard(cardEnterprise) }
+    }
+
+    private fun setupBillingToggle() {
+        tvStarterPrice    = findViewById(R.id.tv_starter_price)
+        tvStarterPeriod   = findViewById(R.id.tv_starter_period)
+        tvProPrice        = findViewById(R.id.tv_pro_price)
+        tvProPeriod       = findViewById(R.id.tv_pro_period)
+        tvEnterprisePrice = findViewById(R.id.tv_enterprise_price)
+
+        val btnMonthly   = findViewById<android.widget.TextView>(R.id.btn_monthly)
+        val btnQuarterly = findViewById<android.widget.TextView>(R.id.btn_quarterly)
+
+        val gold    = ContextCompat.getColor(this, R.color.fab_yellow)
+        val muted   = ContextCompat.getColor(this, R.color.text_secondary)
+        val white10 = ContextCompat.getColor(this, R.color.white_10_percent)
+
+        btnMonthly.setOnClickListener {
+            if (isMonthly) return@setOnClickListener
+            isMonthly = true
+            // Toggle highlight
+            btnMonthly.setTextColor(gold)
+            btnMonthly.setBackgroundResource(R.drawable.bg_login_input)
+            btnMonthly.backgroundTintList = android.content.res.ColorStateList.valueOf(white10)
+            btnQuarterly.setTextColor(muted)
+            btnQuarterly.setBackgroundResource(android.R.color.transparent)
+            btnQuarterly.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
+            // Update price labels
+            tvStarterPrice.text    = "₱183"
+            tvStarterPeriod.text   = "/ month"
+            tvProPrice.text        = "₱250"
+            tvProPeriod.text       = "/ month"
+            tvEnterprisePrice.text = "₱333"
+            // Re-apply selection with updated billing
+            selectedCard?.let { selectPlanCard(it) }
         }
-        cardPro.setOnClickListener {
-            viewModel.setSelectedPlan(planPro)
-            applyCardSelection(cardPro)
-        }
-        cardEnterprise.setOnClickListener {
-            viewModel.setSelectedPlan(planEnterprise)
-            applyCardSelection(cardEnterprise)
+
+        btnQuarterly.setOnClickListener {
+            if (!isMonthly) return@setOnClickListener
+            isMonthly = false
+            // Toggle highlight
+            btnQuarterly.setTextColor(gold)
+            btnQuarterly.setBackgroundResource(R.drawable.bg_login_input)
+            btnQuarterly.backgroundTintList = android.content.res.ColorStateList.valueOf(white10)
+            btnMonthly.setTextColor(muted)
+            btnMonthly.setBackgroundResource(android.R.color.transparent)
+            btnMonthly.backgroundTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.TRANSPARENT)
+            // Update price labels
+            tvStarterPrice.text    = "₱550"
+            tvStarterPeriod.text   = "/ 3 months"
+            tvProPrice.text        = "₱750"
+            tvProPeriod.text       = "/ 3 months"
+            tvEnterprisePrice.text = "₱999"
+            // Re-apply selection with updated billing
+            selectedCard?.let { selectPlanCard(it) }
         }
     }
 

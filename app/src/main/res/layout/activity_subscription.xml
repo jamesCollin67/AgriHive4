@@ -56,6 +56,48 @@
                 android:textColor="#9CAF9F"
                 android:textSize="14sp" />
 
+            <!-- Billing toggle -->
+            <LinearLayout
+                android:id="@+id/billing_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_login_input"
+                android:backgroundTint="#1A3329"
+                android:orientation="horizontal"
+                android:padding="4dp"
+                android:clickable="false"
+                android:focusable="false">
+
+                <TextView
+                    android:id="@+id/btn_monthly"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Monthly"
+                    android:textSize="13sp"
+                    android:textColor="#9CAF9F"
+                    android:gravity="center"
+                    android:paddingHorizontal="20dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@android:color/transparent" />
+
+                <TextView
+                    android:id="@+id/btn_quarterly"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="3 Months"
+                    android:textSize="13sp"
+                    android:textColor="#F4B400"
+                    android:gravity="center"
+                    android:paddingHorizontal="20dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="@drawable/bg_login_input"
+                    android:backgroundTint="#1AFFFFFF" />
+            </LinearLayout>
+
             <!-- 0. BASIC PLAN (FREE) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_basic"
@@ -222,8 +264,8 @@
                     </com.google.android.material.card.MaterialCardView>
                     <TextView android:id="@+id/t1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon1" android:fontFamily="sans-serif-black" android:text="Starter" android:textColor="#FFFFFF" android:textSize="20sp" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/t1" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon1" android:text="1-2 Apiaries" android:textColor="#9CAF9F" android:textSize="13sp" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:fontFamily="sans-serif-black" android:text="₱550" android:textColor="#F4B400" android:textSize="24sp" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_marginTop="28dp" android:text="/ 3 months" android:textColor="#6B8B6E" android:textSize="11sp" />
+                    <TextView android:id="@+id/tv_starter_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:fontFamily="sans-serif-black" android:text="₱550" android:textColor="#F4B400" android:textSize="24sp" />
+                    <TextView android:id="@+id/tv_starter_period" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_marginTop="28dp" android:text="/ 3 months" android:textColor="#6B8B6E" android:textSize="11sp" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/icon1" android:layout_marginTop="24dp" android:orientation="vertical">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawablePadding="12dp" android:text="Temperature monitoring" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Humidity monitoring" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
@@ -266,8 +308,8 @@
                         </com.google.android.material.card.MaterialCardView>
                         <TextView android:id="@+id/t2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon2" android:fontFamily="sans-serif-black" android:text="Pro" android:textColor="#FFFFFF" android:textSize="20sp" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/t2" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon2" android:text="3-5 Apiaries" android:textColor="#9CAF9F" android:textSize="13sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:fontFamily="sans-serif-black" android:text="₱750" android:textColor="#66BB6A" android:textSize="24sp" />
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_marginTop="28dp" android:text="/ 3 months" android:textColor="#6B8B6E" android:textSize="11sp" />
+                        <TextView android:id="@+id/tv_pro_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:fontFamily="sans-serif-black" android:text="₱750" android:textColor="#66BB6A" android:textSize="24sp" />
+                        <TextView android:id="@+id/tv_pro_period" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:layout_marginTop="28dp" android:text="/ 3 months" android:textColor="#6B8B6E" android:textSize="11sp" />
                         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/icon2" android:layout_marginTop="24dp" android:orientation="vertical">
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawablePadding="12dp" android:text="All Starter features" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#66BB6A" />
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Multi-hive dashboard" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#66BB6A" />
@@ -308,7 +350,7 @@
                     </com.google.android.material.card.MaterialCardView>
                     <TextView android:id="@+id/t3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon3" android:fontFamily="sans-serif-black" android:text="Enterprise" android:textColor="#FFFFFF" android:textSize="20sp" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_below="@id/t3" android:layout_marginStart="16dp" android:layout_toEndOf="@id/icon3" android:text="5+ Apiaries" android:textColor="#9CAF9F" android:textSize="13sp" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:layout_alignParentEnd="true" android:text="₱999" android:textColor="#F4B400" android:textSize="24sp" />
+                    <TextView android:id="@+id/tv_enterprise_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:layout_alignParentEnd="true" android:text="₱999" android:textColor="#F4B400" android:textSize="24sp" />
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_below="@id/icon3" android:layout_marginTop="24dp" android:orientation="vertical">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:drawablePadding="12dp" android:text="All Pro features" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:drawablePadding="12dp" android:text="Unlimited apiaries" android:textColor="#FFFFFF" android:textSize="13sp" app:drawableStartCompat="@drawable/ic_check_small" app:drawableTint="#F4B400" />
