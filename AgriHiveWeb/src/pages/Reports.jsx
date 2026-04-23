@@ -113,10 +113,10 @@ export default function Reports() {
   if (selectedReport) {
     return (
       <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          mb: { xs: 2, md: 4 }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between',
+          mb: { xs: 2.5, md: 4 }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
           <Box onClick={() => { setSelectedReport(null); setShowReplyBox(false); setReplyText(''); }}
-            sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer', alignSelf: 'flex-start' }}>
+            sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}>
             <ArrowLeftIcon sx={{ fontSize: 20, color: '#1a5c2a' }} />
             <Typography sx={{ fontSize: 14, fontWeight: 600, color: '#1a5c2a' }}>Back to Reports</Typography>
           </Box>
@@ -124,20 +124,20 @@ export default function Reports() {
             <Button variant="contained" fullWidth={isMobile} startIcon={<CornerUpLeftIcon />}
               onClick={() => setShowReplyBox(v => !v)}
               sx={{ bgcolor: '#43a047', '&:hover': { bgcolor: '#2e7d32' }, borderRadius: 2,
-                fontWeight: 700, fontSize: 13, textTransform: 'none', px: 2.5 }}>
-              {selectedReport.reply ? 'Send Follow-up' : 'Reply'}
+                fontWeight: 700, fontSize: 13, textTransform: 'none', px: { xs: 1.5, sm: 2.5 }, py: 1 }}>
+              {selectedReport.reply ? (isMobile ? 'Follow-up' : 'Send Follow-up') : 'Reply'}
             </Button>
             <Button variant="contained" fullWidth={isMobile} startIcon={<Trash2Icon />}
               onClick={() => setShowDeleteConfirm(true)}
               sx={{ bgcolor: '#e53935', '&:hover': { bgcolor: '#c62828' }, borderRadius: 2,
-                fontWeight: 700, fontSize: 13, textTransform: 'none', px: 2.5 }}>
+                fontWeight: 700, fontSize: 13, textTransform: 'none', px: { xs: 1.5, sm: 2.5 }, py: 1 }}>
               Delete
             </Button>
           </Box>
         </Box>
 
         <Paper elevation={0} sx={{ maxWidth: 620, mx: 'auto', border: '1px solid rgba(0,0,0,0.08)',
-          borderRadius: 3, bgcolor: 'white', p: { xs: 2, md: 3 } }}>
+          borderRadius: 4, bgcolor: 'white', p: { xs: 2.5, md: 4 }, boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2.5 }}>
             <Typography sx={{ fontSize: 18, fontWeight: 700 }}>Report Details</Typography>
             {selectedReport.timestamp && (
@@ -161,19 +161,19 @@ export default function Reports() {
           </Box>
 
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2, mb: 3 }}>
-            <Box sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 2, p: 2 }}>
+            <Box sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 3, p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                 <MapPinIcon sx={{ fontSize: 14, color: '#43a047' }} />
                 <Typography sx={{ fontSize: 11, color: '#43a047', fontWeight: 600 }}>Location</Typography>
               </Box>
-              <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{selectedReport.location || 'Unknown'}</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{selectedReport.location || 'Unknown'}</Typography>
             </Box>
-            <Box sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 2, p: 2 }}>
+            <Box sx={{ bgcolor: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 3, p: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
                 <LayersIcon sx={{ fontSize: 14, color: '#43a047' }} />
                 <Typography sx={{ fontSize: 11, color: '#43a047', fontWeight: 600 }}>Active Hives</Typography>
               </Box>
-              <Typography sx={{ fontWeight: 700, fontSize: 15 }}>{selectedReport.hiveCount}</Typography>
+              <Typography sx={{ fontWeight: 700, fontSize: 16 }}>{selectedReport.hiveCount}</Typography>
             </Box>
           </Box>
 
@@ -249,49 +249,50 @@ export default function Reports() {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-        mb: 3, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: 'space-between',
+        mb: 4, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight={700} sx={{ fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
-            Received Reports
+          <Typography variant="h4" fontWeight={800} sx={{ fontSize: { xs: '1.75rem', md: '2.25rem' }, color: '#1a5c2a' }}>
+            Reports Feed
           </Typography>
-          <Typography sx={{ color: '#888', fontSize: 14, mt: 0.5 }}>
-            {pendingCount > 0 ? `${pendingCount} pending` : 'All caught up'} · {reports.length} total
+          <Typography sx={{ color: '#666', fontSize: 14, mt: 0.5 }}>
+            {pendingCount > 0 ? `${pendingCount} alerts pending` : 'System healthy'} · {reports.length} total reports
           </Typography>
         </Box>
         {pendingCount > 0 && (
           <Chip label={`${pendingCount} Pending`}
-            sx={{ bgcolor: '#ffebee', color: '#c62828', fontWeight: 700, fontSize: 13,
-              px: 0.5, height: 32, borderRadius: 5 }} />
+            sx={{ bgcolor: '#fee2e2', color: '#dc2626', fontWeight: 800, fontSize: 13,
+              px: 1, height: 36, borderRadius: 2, border: '1px solid #fca5a5' }} />
         )}
       </Box>
 
       {/* Search + Filter Bar */}
-      <Box sx={{ display: 'flex', gap: 1.5, mb: 3, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'flex', gap: 2, mb: 4, flexDirection: { xs: 'column', lg: 'row' }, overflow: 'hidden' }}>
         <Paper elevation={0} sx={{ display: 'flex', alignItems: 'center',
-          border: '1px solid rgba(0,0,0,0.12)', borderRadius: 3, px: 2, py: 0.8,
-          gap: 1, flex: 1, minWidth: 200 }}>
-          <SearchIcon sx={{ fontSize: 18, color: '#aaa' }} />
-          <InputBase placeholder="Search by name, farm, or message..."
+          border: '1px solid rgba(0,0,0,0.12)', borderRadius: 3, px: 2.5, py: 1.2,
+          gap: 1.5, flex: { lg: 1 }, width: '100%' }}>
+          <SearchIcon sx={{ fontSize: 20, color: '#999' }} />
+          <InputBase placeholder="Search reports..."
             value={search} onChange={e => setSearch(e.target.value)}
-            sx={{ fontSize: 14, flex: 1 }} />
+            sx={{ fontSize: 15, flex: 1 }} />
         </Paper>
 
-        {/* Quick filter chips */}
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', pb: { xs: 1, lg: 0 } }}>
           {['all', 'pending', 'replied', ...farmNames].map(f => (
             <Chip key={f}
               label={f === 'all' ? 'All' : f === 'pending' ? 'Pending' : f === 'replied' ? 'Replied' : f}
               onClick={() => setFilter(f)}
-              size="small"
               sx={{
                 cursor: 'pointer',
-                bgcolor: filter === f ? '#1a5c2a' : 'white',
-                color: filter === f ? 'white' : '#555',
+                bgcolor: filter === f ? '#1a5c2a' : '#fff',
+                color: filter === f ? '#fff' : '#555',
                 border: '1px solid',
                 borderColor: filter === f ? '#1a5c2a' : 'rgba(0,0,0,0.15)',
                 fontWeight: filter === f ? 700 : 500,
-                fontSize: 12,
+                fontSize: 13,
+                px: 1,
+                transition: 'all 0.2s',
+                '&:hover': { bgcolor: filter === f ? '#1a5c2a' : '#f5f5f5' }
               }}
             />
           ))}
@@ -340,13 +341,13 @@ export default function Reports() {
                     justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: 19 }}>
                     {getInitial(report.name)}
                   </Box>
-                  <Box sx={{ flex: 1, overflow: 'hidden' }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, whiteSpace: 'nowrap',
+                  <Box sx={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap',
                       overflow: 'hidden', textOverflow: 'ellipsis' }}>{report.name}</Typography>
-                    <Typography sx={{ fontSize: 13, color: '#2e7d32', fontWeight: 600,
+                    <Typography sx={{ fontSize: 12, color: '#2e7d32', fontWeight: 600,
                       whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{report.farm}</Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5, flexShrink: 0 }}>
                     {report.reply && (
                       <Chip label="Replied" size="small"
                         sx={{ bgcolor: '#e8f5e9', color: '#2e7d32', fontWeight: 700, fontSize: 10 }} />
@@ -372,9 +373,9 @@ export default function Reports() {
                   </Box>
                 )}
 
-                <Typography sx={{ fontSize: 13, color: '#555', pl: { xs: 0, sm: 7 },
+                <Typography sx={{ fontSize: { xs: 12, md: 13 }, color: '#555', pl: { xs: 0, sm: 7 },
                   overflow: 'hidden', display: '-webkit-box',
-                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.65 }}>
+                  WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', lineHeight: 1.6 }}>
                   {report.message}
                 </Typography>
 

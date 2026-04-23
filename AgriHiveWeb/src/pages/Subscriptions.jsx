@@ -165,7 +165,7 @@ export default function Subscriptions() {
                 </Box>
 
                 {/* Info */}
-                <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                <Box sx={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
                   <Typography sx={{ fontWeight: 700, fontSize: 15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub.name || 'Unknown'}</Typography>
                   <Typography sx={{ fontSize: 12, color: '#2e7d32', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub.farm || 'No Farm'}</Typography>
                   <Typography sx={{ fontSize: 11, color: '#aaa', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub.email}</Typography>

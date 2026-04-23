@@ -101,21 +101,8 @@ export default function Users() {
     } catch (e) { console.error(e); }
   };
 
-  const handleDelete = async () => {
-    setConfirmDialog(null);
-    try {
-      await deleteDoc(doc(db, 'users', selectedUser.id));
-      await addDoc(collection(db, 'activity_logs'), {
-        action: 'Account Deleted', user: 'Admin',
-        target: selectedUser.email, status: 'Error', timestamp: serverTimestamp(),
-      });
-      setActionMsg('Account deleted permanently.');
-      setTimeout(() => { setActionMsg(''); setSelectedUser(null); }, 2000);
-    } catch (e) { console.error(e); }
-  };
 
   const confirmAction = () => {
-    if (confirmDialog?.type === 'delete') return handleDelete();
     if (confirmDialog?.type === 'reactivate') return handleReactivate();
     return handleDeactivate();
   };
@@ -198,12 +185,6 @@ export default function Users() {
                   Reactivate Account
                 </Box>
               )}
-              <Box onClick={() => setConfirmDialog({ type: 'delete' })}
-                sx={{ flex: 1, textAlign: 'center', py: 1.5, borderRadius: 2,
-                  bgcolor: '#e53935', color: 'white', fontWeight: 700, fontSize: 15,
-                  cursor: 'pointer', '&:hover': { bgcolor: '#c62828' }, transition: 'background 0.2s' }}>
-                Delete Account
-              </Box>
             </Box>
           </Paper>
         )}
@@ -219,15 +200,12 @@ export default function Users() {
                 fontSize: 28
               }} />
               <Typography variant="h6" fontWeight={700}>
-                {confirmDialog?.type === 'delete' ? 'Delete Account?'
-                  : confirmDialog?.type === 'reactivate' ? 'Reactivate Account?'
+                {confirmDialog?.type === 'reactivate' ? 'Reactivate Account?'
                   : 'Deactivate Account?'}
               </Typography>
             </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              {confirmDialog?.type === 'delete'
-                ? `This will permanently delete ${selectedUser?.email}'s account. This cannot be undone.`
-                : confirmDialog?.type === 'reactivate'
+              {confirmDialog?.type === 'reactivate'
                 ? `This will restore ${selectedUser?.email}'s access to the mobile app.`
                 : `This will suspend ${selectedUser?.email}'s access. You can reactivate them later.`}
             </Typography>
@@ -235,15 +213,12 @@ export default function Users() {
               <Button onClick={() => setConfirmDialog(null)} color="inherit">Cancel</Button>
               <Button variant="contained" onClick={confirmAction}
                 sx={{
-                  bgcolor: confirmDialog?.type === 'delete' ? '#e53935'
-                    : confirmDialog?.type === 'reactivate' ? '#43a047' : '#f9a825',
+                  bgcolor: confirmDialog?.type === 'reactivate' ? '#43a047' : '#f9a825',
                   '&:hover': {
-                    bgcolor: confirmDialog?.type === 'delete' ? '#c62828'
-                      : confirmDialog?.type === 'reactivate' ? '#2e7d32' : '#e69500'
+                    bgcolor: confirmDialog?.type === 'reactivate' ? '#2e7d32' : '#e69500'
                   }
                 }}>
-                {confirmDialog?.type === 'delete' ? 'Yes, Delete'
-                  : confirmDialog?.type === 'reactivate' ? 'Yes, Reactivate'
+                {confirmDialog?.type === 'reactivate' ? 'Yes, Reactivate'
                   : 'Yes, Deactivate'}
               </Button>
             </Box>
@@ -314,8 +289,8 @@ export default function Users() {
             return (
               <Paper key={user.id} elevation={0} onClick={() => setSelectedUser(user)}
                 sx={{ border: '1px solid rgba(0,0,0,0.09)', borderRadius: 3,
-                  p: 2, display: 'flex', alignItems: 'center', gap: 2,
-                  cursor: 'pointer',
+                  p: { xs: 1.5, md: 2 }, display: 'flex', alignItems: 'center', gap: 2,
+                  cursor: 'pointer', minWidth: 0,
                   '&:hover': { boxShadow: '0 4px 20px rgba(0,0,0,0.08)', borderColor: 'rgba(0,0,0,0.15)' },
                   transition: 'all 0.2s', bgcolor: 'white' }}>
                 <Box sx={{ width: 46, height: 46, borderRadius: 2, bgcolor: avatarColor,
@@ -323,7 +298,7 @@ export default function Users() {
                   color: 'white', fontWeight: 800, fontSize: 20, flexShrink: 0 }}>
                   {getInitial(name)}
                 </Box>
-                <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                <Box sx={{ flex: 1, overflow: 'hidden', minWidth: 0 }}>
                   <Typography sx={{ fontWeight: 700, fontSize: 15, whiteSpace: 'nowrap',
                     overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</Typography>
                   <Typography sx={{ fontSize: 12, color: '#888', whiteSpace: 'nowrap',
@@ -333,7 +308,7 @@ export default function Users() {
                   <Typography sx={{ fontSize: 11, color: '#aaa', whiteSpace: 'nowrap',
                     overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.email}</Typography>
                 </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1, flexShrink: 0 }}>
                   <Chip label={isActive ? 'Active' : 'Inactive'} size="small"
                     sx={{ bgcolor: isActive ? '#e8f5e9' : '#f5f5f5',
                       color: isActive ? '#2e7d32' : '#777', fontWeight: 600, fontSize: 11 }} />

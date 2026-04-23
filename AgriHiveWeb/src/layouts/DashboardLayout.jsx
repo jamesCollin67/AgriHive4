@@ -161,7 +161,9 @@ export default function DashboardLayout() {
         width: { xs: '100%', md: `calc(100% - ${drawerWidth}px)` },
         mt: { xs: '56px', sm: '64px' },
         pb: { xs: 2, md: 4 },
-        overflowX: 'hidden',
+        maxWidth: '100%',
+        minWidth: 0,
+        overflow: 'hidden',
       }}>
         <Outlet />
       </Box>

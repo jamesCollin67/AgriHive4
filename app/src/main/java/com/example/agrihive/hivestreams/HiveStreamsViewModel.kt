@@ -59,6 +59,10 @@ class HiveStreamsViewModel : ViewModel() {
             delay(35_000)
             _sensorOnline.postValue(false)
             android.util.Log.w("RTDB", "No update in 35s — sensor marked OFFLINE")
+            _apiaryData.value?.id?.let { id ->
+                firestore.collection("apiaries").document(id)
+                    .update("isConnected", false)
+            }
         }
     }
 
@@ -128,9 +132,7 @@ class HiveStreamsViewModel : ViewModel() {
         rtdb.getReference(path).keepSynced(false)
 
         android.util.Log.d("RTDB", "Starting listener on path: $path for apiary: $apiaryId")
-
-        // Start offline — only flip to online when a server-confirmed update arrives
-        _sensorOnline.postValue(false)
+        // Do NOT reset sensorOnline here — it was already set from Firestore isConnected
 
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -140,30 +142,38 @@ class HiveStreamsViewModel : ViewModel() {
                     return
                 }
 
-                // Use the ESP32 timestamp field to distinguish live vs cached data.
-                // If the ESP32 doesn't write a timestamp, fall back to lastUpdate from Firestore.
+                // Use the ESP32 timestamp field if available, otherwise fall back
+                // to Firestore's lastUpdate timestamp to determine freshness.
                 val espTimestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
                 val nowMs = System.currentTimeMillis()
 
                 if (espTimestamp > 0L) {
+                    // ESP32 writes a timestamp — use it directly
                     val ageMs = nowMs - espTimestamp
                     if (ageMs > 60_000L) {
                         android.util.Log.w("RTDB", "Stale data age=${ageMs}ms — offline")
                         _sensorOnline.postValue(false)
+                        firestore.collection("apiaries").document(apiaryId)
+                            .update("isConnected", false)
                         return
                     }
-                    // Fresh confirmed by ESP32 timestamp
                     markOnlineAndSync(snapshot, apiaryId)
                 } else {
-                    // No ESP32 timestamp — the very first onDataChange is always a cached
-                    // replay from Firebase's in-memory store. Only trust it if we have
-                    // already received at least one live update this session.
-                    if (!receivedLiveUpdate) {
-                        android.util.Log.w("RTDB", "First onDataChange, no timestamp — treating as stale cache, staying offline")
+                    // No ESP32 timestamp — use Firestore lastUpdate to check freshness.
+                    // If Firestore says isConnected=true and lastUpdate is within 60s, trust it.
+                    val firestoreLastUpdate = _apiaryData.value?.lastUpdate ?: 0L
+                    val firestoreAge = nowMs - firestoreLastUpdate
+                    val firestoreOnline = _apiaryData.value?.isConnected == true
+
+                    if (firestoreOnline && firestoreAge < 60_000L) {
+                        android.util.Log.d("RTDB", "No ESP32 timestamp — using Firestore lastUpdate (age=${firestoreAge}ms), marking online")
+                        markOnlineAndSync(snapshot, apiaryId)
+                    } else {
+                        android.util.Log.w("RTDB", "No ESP32 timestamp and Firestore stale (age=${firestoreAge}ms, online=$firestoreOnline) — offline")
                         _sensorOnline.postValue(false)
-                        return
+                        firestore.collection("apiaries").document(apiaryId)
+                            .update("isConnected", false)
                     }
-                    markOnlineAndSync(snapshot, apiaryId)
                 }
             }
 
@@ -190,6 +200,7 @@ class HiveStreamsViewModel : ViewModel() {
 
         android.util.Log.d("RTDB", "Live data → T=$temperature H=$humidity Lid=${if (lidOpen) "OPEN" else "CLOSED"} W=$weightKg")
 
+        // Update Firestore directly — not inside a coroutine so it cannot be cancelled
         firestore.collection("apiaries").document(apiaryId)
             .update(mapOf(
                 "temperature" to temperature,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AdminDataProvider } from './context/AdminDataContext';
 
@@ -24,47 +24,27 @@ const Spinner = () => (
  * - Shows "Access Denied" only if auth is fully resolved AND user is NOT an admin
  */
 function AdminRoute({ children }) {
-  const { user, isAdmin, authReady, adminChecked } = useAuth();
+  const { user, authReady } = useAuth();
 
-  // Still waiting for Firebase auth or Firestore admin check
-  if (!authReady || (user && !adminChecked)) return <Spinner />;
-
+  if (!authReady) return <Spinner />;
   if (!user) return <Navigate to="/login" replace />;
-
-  if (!isAdmin) {
-    return (
-      <Box sx={{
-        minHeight: '100vh', display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', gap: 2, p: 4,
-        background: 'linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)',
-      }}>
-        <Typography variant="h5" fontWeight={700} sx={{ color: 'white' }}>Access Denied</Typography>
-        <Typography sx={{ color: 'rgba(255,255,255,0.8)', textAlign: 'center', maxWidth: 360 }}>
-          Your account does not have admin privileges. Please contact the system administrator.
-        </Typography>
-      </Box>
-    );
-  }
 
   return children;
 }
 
 function AppRoutes() {
-  const { user, isAdmin, authReady, adminChecked } = useAuth();
+  const { user, authReady } = useAuth();
+
+  if (!authReady) return <Spinner />;
 
   return (
-    <Box sx={{ width: '100vw', minHeight: '100vh' }}>
+    <Box sx={{ width: '100%', minHeight: '100vh' }}>
       <Routes>
         <Route
           path="/login"
-          element={
-            authReady && adminChecked && user && isAdmin
-              ? <Navigate to="/dashboard" replace />
-              : <Login />
-          }
+          element={user ? <Navigate to="/dashboard" replace /> : <Login />}
         />
 
-        {/* Admin-only routes wrapped in shared data provider */}
         <Route
           path="/"
           element={

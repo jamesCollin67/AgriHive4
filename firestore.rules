@@ -28,6 +28,11 @@ service cloud.firestore {
       allow create: if isOwner(uid); // mobile app registration
       allow update: if isOwner(uid) || isAdmin();
       allow delete: if isAdmin();
+
+      // activity_logs subcollection — user can read/write their own logs
+      match /activity_logs/{logId} {
+        allow read, write: if isOwner(uid);
+      }
     }
 
     // ── apiaries collection ─────────────────────────────────────────────────
@@ -39,6 +44,12 @@ service cloud.firestore {
                        request.resource.data.ownerId == request.auth.uid;
       allow update: if request.auth != null && resource.data.ownerId == request.auth.uid;
       allow delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+
+      // weight_history subcollection — owner can read/write
+      match /weight_history/{entryId} {
+        allow read, write: if request.auth != null &&
+                              get(/databases/$(database)/documents/apiaries/$(apiaryId)).data.ownerId == request.auth.uid;
+      }
     }
 
     // ── reports collection ──────────────────────────────────────────────────
@@ -85,8 +96,10 @@ service cloud.firestore {
     // ── weight_analytics collection ─────────────────────────────────────────
     // Owner or admin can read. Only IoT device (via Admin SDK) writes.
     match /weight_analytics/{docId} {
-      allow read:  if isAdmin() ||
-                      (request.auth != null && resource.data.ownerId == request.auth.uid);
+      allow read:  if request.auth != null &&
+                      (isAdmin() ||
+                       !exists(/databases/$(database)/documents/weight_analytics/$(docId)) ||
+                       resource.data.ownerId == request.auth.uid);
       allow write: if false; // written by backend/IoT only
     }
 

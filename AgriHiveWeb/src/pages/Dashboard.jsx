@@ -255,11 +255,12 @@ export default function Dashboard() {
             transition: 'transform 0.15s, box-shadow 0.15s',
             '&:hover': card.onClick ? { transform: 'translateY(-2px)', boxShadow: '0 8px 24px rgba(0,0,0,0.18)' } : {},
           }}>
-            <Box>
-              <Typography sx={{ fontSize: { xs: 10, md: 13 }, fontWeight: 600, opacity: 0.85, mb: 0.5 }}>
+            <Box sx={{ minWidth: 0, overflow: 'hidden', flex: 1 }}>
+              <Typography sx={{ fontSize: { xs: 10, md: 13 }, fontWeight: 600, opacity: 0.85, mb: 0.5,
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {card.label}
               </Typography>
-              <Typography sx={{ fontSize: { xs: 28, md: 44 }, fontWeight: 800, lineHeight: 1 }}>
+              <Typography sx={{ fontSize: { xs: 24, md: 44 }, fontWeight: 800, lineHeight: 1 }}>
                 {loading ? '—' : card.value}
               </Typography>
             </Box>
@@ -358,11 +359,13 @@ export default function Dashboard() {
                   }}>
                     🐝
                   </Box>
-                  <Box sx={{ pr: 3 }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: 15, lineHeight: 1.3 }}>
+                  <Box sx={{ pr: 3, minWidth: 0, overflow: 'hidden', flex: 1 }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: 14, lineHeight: 1.3,
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {farm.farmName || farm.farm || 'Unnamed Farm'}
                     </Typography>
-                    <Typography sx={{ fontSize: 11, color: '#bbb', lineHeight: 1.3 }}>
+                    <Typography sx={{ fontSize: 11, color: '#bbb', lineHeight: 1.3,
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {farm.firstName && farm.lastName
                         ? `${farm.firstName} ${farm.lastName}`
                         : farm.firstName || farm.lastName || farm.email || 'Unknown beekeeper'}

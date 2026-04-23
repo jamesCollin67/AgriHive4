@@ -293,9 +293,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                         // ESP32 writes a timestamp — use it directly
                         (nowMs - espTimestamp) > 60_000L
                     } else {
-                        // No timestamp — only trust if a job is already running for this node,
-                        // meaning we've already processed at least one update this session.
-                        !offlineJobs.containsKey(nodeId) || offlineJobs[nodeId]?.isActive == false
+                        // No timestamp field — treat as live data
+                        false
                     }
 
                     if (isStale) {
@@ -309,22 +308,23 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
                     Log.d("RTDB", "[$nodeId] T=$temperature H=$humidity Lid=${if (lidOpen) "OPEN" else "CLOSED"} W=$weightKg")
 
-                    // Fresh data — update Firestore and reset the 30s offline timer
+                    // Fresh data — update Firestore immediately (not inside a coroutine that can be cancelled)
+                    firestore.collection("apiaries").document(apiaryId)
+                        .update(mapOf(
+                            "temperature" to temperature,
+                            "humidity"    to humidity,
+                            "moisture"    to moistureForLid,
+                            "weight"      to weightKg,
+                            "isConnected" to true,
+                            "lastUpdate"  to FieldValue.serverTimestamp()
+                        ))
+                        .addOnFailureListener { e ->
+                            Log.e("RTDB", "Firestore update failed for $nodeId: ${e.message}")
+                        }
+
+                    // Reset the 30s offline timer separately
                     offlineJobs[nodeId]?.cancel()
                     offlineJobs[nodeId] = viewModelScope.launch {
-                        firestore.collection("apiaries").document(apiaryId)
-                            .update(mapOf(
-                                "temperature" to temperature,
-                                "humidity"    to humidity,
-                                "moisture"    to moistureForLid,
-                                "weight"      to weightKg,
-                                "isConnected" to true,
-                                "lastUpdate"  to FieldValue.serverTimestamp()
-                            ))
-                            .addOnFailureListener { e ->
-                                Log.e("RTDB", "Firestore update failed for $nodeId: ${e.message}")
-                            }
-
                         // After 30s with no new data, mark offline
                         kotlinx.coroutines.delay(30_000)
                         Log.w("RTDB", "[$nodeId] No update in 30s — marking OFFLINE")
