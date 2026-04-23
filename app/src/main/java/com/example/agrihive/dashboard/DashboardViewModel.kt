@@ -253,6 +253,13 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
      * For each apiary with a nodeId, attach an RTDB listener that pushes
      * live sensor data into Firestore. This makes dashboard cards update
      * in real-time without the user needing to open HiveStreams first.
+     *
+     * Strategy: On first attach, immediately mark the apiary offline.
+     * Only mark online when a NEW RTDB update arrives AFTER the listener
+     * was attached (i.e., not the initial cached replay).
+     * We detect "new" updates by comparing the RTDB data against what
+     * Firestore already has — if the values differ, it's a live update.
+     * The 30s timer marks offline if no update arrives.
      */
     private fun syncRtdbForApiaries(apiaries: List<Apiary>) {
         val activeNodeIds = apiaries.mapNotNull { it.nodeId.takeIf { id -> id.isNotBlank() } }.toSet()
@@ -262,6 +269,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         toRemove.forEach { nodeId ->
             rtdbListeners[nodeId]?.let { rtdb.getReference("/$nodeId").removeEventListener(it) }
             rtdbListeners.remove(nodeId)
+            offlineJobs[nodeId]?.cancel()
+            offlineJobs.remove(nodeId)
             Log.d("RTDB", "Removed listener for nodeId: $nodeId")
         }
 
@@ -273,64 +282,46 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             val apiaryId = apiary.id
             Log.d("RTDB", "Dashboard: attaching RTDB listener → /$nodeId → apiary $apiaryId")
 
+            // Track whether the first onDataChange has fired (it's always a cached replay)
+            var firstCallbackDone = false
+
             val listener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (!snapshot.exists()) return
 
-                    val temperature = snapshot.child("temperature").getValue(Double::class.java) ?: 0.0
-                    val humidity    = snapshot.child("humidity").getValue(Double::class.java)    ?: 0.0
-                    val lidOpen     = snapshot.child("lidOpen").getValue(Boolean::class.java)    ?: false
-                    val weightKg    = snapshot.child("weight").getValue(Double::class.java)      ?: 0.0
-                    val moistureForLid = if (lidOpen) 10.0 else 0.0
-
-                    // Check ESP32 timestamp to skip stale cached data.
-                    // If no timestamp field exists, treat the FIRST onDataChange as stale
-                    // (it's always a cached replay) and only trust subsequent ones.
                     val espTimestamp = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
                     val nowMs = System.currentTimeMillis()
 
-                    val isStale = if (espTimestamp > 0L) {
-                        // ESP32 writes a timestamp — use it directly
-                        (nowMs - espTimestamp) > 60_000L
-                    } else {
-                        // No timestamp field — treat as live data
-                        false
+                    if (espTimestamp > 0L) {
+                        // ESP32 writes a timestamp — definitive freshness check
+                        val ageMs = nowMs - espTimestamp
+                        if (ageMs > 60_000L) {
+                            Log.w("RTDB", "[$nodeId] Stale ESP32 timestamp ${ageMs}ms — offline")
+                            offlineJobs[nodeId]?.cancel()
+                            offlineJobs.remove(nodeId)
+                            firestore.collection("apiaries").document(apiaryId)
+                                .update("isConnected", false)
+                            return
+                        }
+                        // Fresh — mark online and start timer
+                        markApiaryOnline(nodeId, apiaryId, snapshot)
+                        return
                     }
 
-                    if (isStale) {
-                        Log.w("RTDB", "[$nodeId] Stale/cached data — marking offline")
-                        offlineJobs[nodeId]?.cancel()
-                        offlineJobs.remove(nodeId)
+                    // No ESP32 timestamp — skip the very first callback (cached replay)
+                    if (!firstCallbackDone) {
+                        firstCallbackDone = true
+                        Log.d("RTDB", "[$nodeId] First callback (cached replay) — skipping, marking offline")
+                        // Mark offline immediately on first load — the 30s timer will
+                        // keep it offline unless a second callback (live data) arrives
                         firestore.collection("apiaries").document(apiaryId)
                             .update("isConnected", false)
                         return
                     }
 
-                    Log.d("RTDB", "[$nodeId] T=$temperature H=$humidity Lid=${if (lidOpen) "OPEN" else "CLOSED"} W=$weightKg")
-
-                    // Fresh data — update Firestore immediately (not inside a coroutine that can be cancelled)
-                    firestore.collection("apiaries").document(apiaryId)
-                        .update(mapOf(
-                            "temperature" to temperature,
-                            "humidity"    to humidity,
-                            "moisture"    to moistureForLid,
-                            "weight"      to weightKg,
-                            "isConnected" to true,
-                            "lastUpdate"  to FieldValue.serverTimestamp()
-                        ))
-                        .addOnFailureListener { e ->
-                            Log.e("RTDB", "Firestore update failed for $nodeId: ${e.message}")
-                        }
-
-                    // Reset the 30s offline timer separately
-                    offlineJobs[nodeId]?.cancel()
-                    offlineJobs[nodeId] = viewModelScope.launch {
-                        // After 30s with no new data, mark offline
-                        kotlinx.coroutines.delay(30_000)
-                        Log.w("RTDB", "[$nodeId] No update in 30s — marking OFFLINE")
-                        firestore.collection("apiaries").document(apiaryId)
-                            .update("isConnected", false)
-                    }
+                    // Second+ callback with no timestamp = live data from ESP32
+                    Log.d("RTDB", "[$nodeId] Live update (no timestamp) — marking online")
+                    markApiaryOnline(nodeId, apiaryId, snapshot)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -340,6 +331,38 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
             rtdb.getReference("/$nodeId").addValueEventListener(listener)
             rtdbListeners[nodeId] = listener
+        }
+    }
+
+    private fun markApiaryOnline(nodeId: String, apiaryId: String, snapshot: DataSnapshot) {
+        val temperature    = snapshot.child("temperature").getValue(Double::class.java) ?: 0.0
+        val humidity       = snapshot.child("humidity").getValue(Double::class.java)    ?: 0.0
+        val lidOpen        = snapshot.child("lidOpen").getValue(Boolean::class.java)    ?: false
+        val weightKg       = snapshot.child("weight").getValue(Double::class.java)      ?: 0.0
+        val moistureForLid = if (lidOpen) 10.0 else 0.0
+
+        Log.d("RTDB", "[$nodeId] T=$temperature H=$humidity Lid=${if (lidOpen) "OPEN" else "CLOSED"} W=$weightKg")
+
+        firestore.collection("apiaries").document(apiaryId)
+            .update(mapOf(
+                "temperature" to temperature,
+                "humidity"    to humidity,
+                "moisture"    to moistureForLid,
+                "weight"      to weightKg,
+                "isConnected" to true,
+                "lastUpdate"  to FieldValue.serverTimestamp()
+            ))
+            .addOnFailureListener { e ->
+                Log.e("RTDB", "Firestore update failed for $nodeId: ${e.message}")
+            }
+
+        // Reset 30s offline timer
+        offlineJobs[nodeId]?.cancel()
+        offlineJobs[nodeId] = viewModelScope.launch {
+            kotlinx.coroutines.delay(30_000)
+            Log.w("RTDB", "[$nodeId] No update in 30s — marking OFFLINE")
+            firestore.collection("apiaries").document(apiaryId)
+                .update("isConnected", false)
         }
     }
 
