@@ -14,7 +14,11 @@ import com.example.agrihive.camera.CameraActivity
 import com.example.agrihive.databinding.ActivityDashboardBinding
 import com.example.agrihive.hivestreams.HiveStreamsActivity
 import com.example.agrihive.notification.NotificationActivity
+import com.example.agrihive.notification.IotNotificationService
 import com.example.agrihive.settings.SettingsActivity
+import android.net.Uri
+import android.os.PowerManager
+import android.provider.Settings
 
 /**
  * Dashboard Activity - Main screen showing apiary list and stats
@@ -66,6 +70,31 @@ class DashboardActivity : AppCompatActivity() {
 
         // Load data from Firebase
         viewModel.loadApiaries()
+
+        // Start background IoT notification service
+        IotNotificationService.start(this)
+
+        // Ask user to disable battery optimization so the service survives
+        // when the app is closed (critical for MIUI/Xiaomi devices)
+        requestIgnoreBatteryOptimization()
+    }
+
+    private fun requestIgnoreBatteryOptimization() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            val pm = getSystemService(PowerManager::class.java)
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                try {
+                    startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                        data = Uri.parse("package:$packageName")
+                    })
+                } catch (e: Exception) {
+                    // Some devices don't support this intent — open battery settings instead
+                    try {
+                        startActivity(Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS))
+                    } catch (ignored: Exception) {}
+                }
+            }
+        }
     }
 
     private fun setupRecyclerView() {

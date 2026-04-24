@@ -47,8 +47,9 @@ class HiveStreamsViewModel : ViewModel() {
 
     // Offline timeout — marks offline if no live update arrives within 35s
     private var offlineTimeoutJob: Job? = null
-    private val _sensorOnline = MutableLiveData<Boolean>(false)
-    val sensorOnline: LiveData<Boolean> = _sensorOnline
+    // null = not yet determined (show nothing), true = online, false = offline
+    private val _sensorOnline = MutableLiveData<Boolean?>(null)
+    val sensorOnline: LiveData<Boolean?> = _sensorOnline
 
     private fun resetOfflineTimer() {
         offlineTimeoutJob?.cancel()
@@ -97,6 +98,12 @@ class HiveStreamsViewModel : ViewModel() {
                 )
                 _apiaryData.value = apiary
 
+                // Set the initial online state from Firestore immediately —
+                // this prevents the brief "Offline" flash while RTDB connects.
+                // The RTDB listener will confirm/correct this once it fires.
+                if (_sensorOnline.value != apiary.isConnected) {
+                    _sensorOnline.postValue(apiary.isConnected)
+                }
                 val nodeId = apiary.nodeId
                 if (nodeId.isNotBlank()) {
                     startRtdbListener(nodeId, apiaryId)
@@ -125,8 +132,8 @@ class HiveStreamsViewModel : ViewModel() {
 
         android.util.Log.d("RTDB", "Starting listener on path: $path for apiary: $apiaryId")
 
-        // Start offline — only flip to online when confirmed live data arrives
-        _sensorOnline.postValue(false)
+        // Do NOT reset sensorOnline here — Firestore already set the correct
+        // initial state in startListening. Only RTDB callbacks update it from here.
 
         // Track whether the first onDataChange has fired (always a cached replay)
         var firstCallbackDone = false
@@ -160,8 +167,10 @@ class HiveStreamsViewModel : ViewModel() {
                 // No ESP32 timestamp — skip the very first callback (cached replay)
                 if (!firstCallbackDone) {
                     firstCallbackDone = true
-                    android.util.Log.d("RTDB", "First callback (cached replay) — skipping, staying offline")
-                    _sensorOnline.postValue(false)
+                    android.util.Log.d("RTDB", "First callback (cached replay) — skipping, keeping Firestore state")
+                    // Do NOT override sensorOnline here — Firestore already set the correct
+                    // initial state. Overriding with false causes the "Offline" flash when
+                    // the device is actually online.
                     return
                 }
 

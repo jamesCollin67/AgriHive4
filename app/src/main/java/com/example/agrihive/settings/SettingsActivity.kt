@@ -194,6 +194,7 @@ class SettingsActivity : AppCompatActivity() {
                 sessionManager.clearUserData()
                 ActivityLogViewModel.getInstance().resetUserState()
                 prefs.edit().putBoolean("subscription_dialog_shown_this_login", false).apply()
+                com.example.agrihive.notification.IotNotificationService.stop(this)
 
                 val intent = Intent(this, com.example.agrihive.login.LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

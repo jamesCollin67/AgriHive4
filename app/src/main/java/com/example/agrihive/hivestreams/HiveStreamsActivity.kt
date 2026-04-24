@@ -160,7 +160,7 @@ class HiveStreamsActivity : AppCompatActivity() {
             binding.contentLayout.alpha = if (loading) 0.5f else 1.0f
         }
 
-        // Always show the latest Firestore data regardless of online state
+        // Show sensor data only when IoT is online
         viewModel.apiaryData.observe(this) { apiary ->
             apiary?.let {
                 lastKnownApiary = it
@@ -169,19 +169,31 @@ class HiveStreamsActivity : AppCompatActivity() {
                 val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
                 binding.tvLastUpdatedValue.text = "Last updated: ${sdf.format(Date(it.lastUpdate))}"
 
-                // Only render sensor values if the sensor is confirmed online.
-                // sensorOnline observer handles the offline "--" display.
-                if (viewModel.sensorOnline.value == true) {
+                // Only show sensor values if IoT is online
+                val isOnline = viewModel.sensorOnline.value == true
+                if (isOnline) {
                     binding.tvTempValue.text     = "%.1f".format(it.temperature)
                     binding.tvHumidityValue.text = "%.1f".format(it.humidity)
                     binding.tvWeightValue.text   = "%.1f".format(it.weight)
                     updateStatusLabels(it)
+                    checkAndAlert(it)
+                } else {
+                    // IoT offline — show "--" for all sensor values
+                    binding.tvTempValue.text     = "--"
+                    binding.tvHumidityValue.text = "--"
+                    binding.tvWeightValue.text   = "--"
+                    binding.tvMoistureValue.text = "--"
+                    binding.tvMoistureValue.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+                    resetStatusLabels()
+                    binding.cardMoisture.strokeWidth = 0
                 }
             } ?: resetValues()
         }
 
-        // sensorOnline only controls the Online/Offline indicator — not data visibility
+        // sensorOnline controls the Online/Offline indicator and data visibility
         viewModel.sensorOnline.observe(this) { online ->
+            // null means not yet determined — keep showing whatever state Firestore set
+            if (online == null) return@observe
             binding.viewLiveStatus.setBackgroundResource(
                 if (online) R.drawable.bg_green_circle else R.drawable.bg_red_circle
             )
@@ -192,21 +204,22 @@ class HiveStreamsActivity : AppCompatActivity() {
                 else
                     ContextCompat.getColor(this, android.R.color.holo_red_light)
             )
-            // When sensor goes offline, show "--" for live values
-            if (!online) {
-                binding.tvTempValue.text     = "--"
-                binding.tvHumidityValue.text = "--"
-                binding.tvMoistureValue.text = "--"
-                binding.tvWeightValue.text   = "--"
-                resetStatusLabels()
-            } else {
-                // Sensor just came online — re-render from last known data
-                lastKnownApiary?.let {
-                    binding.tvTempValue.text     = "%.1f".format(it.temperature)
-                    binding.tvHumidityValue.text = "%.1f".format(it.humidity)
-                    binding.tvWeightValue.text   = "%.1f".format(it.weight)
-                    checkAndAlert(it)
-                    updateStatusLabels(it)
+            // Re-render data immediately when online state changes
+            val apiary = lastKnownApiary
+            if (apiary != null) {
+                if (online) {
+                    binding.tvTempValue.text     = "%.1f".format(apiary.temperature)
+                    binding.tvHumidityValue.text = "%.1f".format(apiary.humidity)
+                    binding.tvWeightValue.text   = "%.1f".format(apiary.weight)
+                    updateStatusLabels(apiary)
+                } else {
+                    binding.tvTempValue.text     = "--"
+                    binding.tvHumidityValue.text = "--"
+                    binding.tvWeightValue.text   = "--"
+                    binding.tvMoistureValue.text = "--"
+                    binding.tvMoistureValue.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+                    resetStatusLabels()
+                    binding.cardMoisture.strokeWidth = 0
                 }
             }
         }
@@ -378,12 +391,6 @@ class HiveStreamsActivity : AppCompatActivity() {
             it.setTextColor(ContextCompat.getColor(this, android.R.color.darker_gray))
         }
         binding.cardMoisture.strokeWidth = 0
-        // Show Offline when sensor disconnects
-        binding.viewLiveStatus.setBackgroundResource(R.drawable.bg_red_circle)
-        binding.tvConnectionStatus.text = "Offline"
-        binding.tvConnectionStatus.setTextColor(
-            ContextCompat.getColor(this, android.R.color.holo_red_light)
-        )
     }
 
     override fun onDestroy() {
