@@ -256,12 +256,12 @@ class HiveStreamsActivity : AppCompatActivity() {
 
         // Temperature alert
         val tempAlert = apiary.temperature > 0 &&
-                (apiary.temperature < 34.0 || apiary.temperature > 36.0)
+                (apiary.temperature < 32.0 || apiary.temperature > 38.0)
         if (tempAlert && !lastTempAlerted) {
-            val msg = if (apiary.temperature < 34.0)
-                "${apiary.name}: Temperature too cold (${apiary.temperature}°C). Optimal: 34–36°C"
+            val msg = if (apiary.temperature < 32.0)
+                "${apiary.name}: Temperature too cold (${apiary.temperature}°C). Optimal: 32–38°C"
             else
-                "${apiary.name}: Temperature too hot (${apiary.temperature}°C). Optimal: 34–36°C"
+                "${apiary.name}: Temperature too hot (${apiary.temperature}°C). Optimal: 32–38°C"
             repo.addNotification("🌡️ Temperature Alert", msg, NotificationType.TEMPERATURE_ALERT)
             RainAlertNotification.showAdminReplyNotification(this, msg)
         }
@@ -300,8 +300,8 @@ class HiveStreamsActivity : AppCompatActivity() {
     private fun updateStatusLabels(apiary: com.example.agrihive.addapiary.Apiary) {
         val tempStatus = when {
             apiary.temperature <= 0  -> "No Data"
-            apiary.temperature < 34.0 -> "Too Cold"
-            apiary.temperature > 36.0 -> "Too Hot"
+            apiary.temperature < 32.0 -> "Too Cold"
+            apiary.temperature > 38.0 -> "Too Hot"
             else -> "Normal"
         }
         binding.tvTempStatus.text = tempStatus
