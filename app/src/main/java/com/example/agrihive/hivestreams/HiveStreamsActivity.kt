@@ -174,7 +174,8 @@ class HiveStreamsActivity : AppCompatActivity() {
                 if (isOnline) {
                     binding.tvTempValue.text     = "%.1f".format(it.temperature)
                     binding.tvHumidityValue.text = "%.1f".format(it.humidity)
-                    binding.tvWeightValue.text   = "%.1f".format(it.weight)
+                    // Weight: show static 5.0kg until RTDB sends live data
+                    binding.tvWeightValue.text   = if (it.weight > 0.0) "%.1f".format(it.weight) else "5.0"
                     updateStatusLabels(it)
                     checkAndAlert(it)
                 } else {
@@ -210,7 +211,8 @@ class HiveStreamsActivity : AppCompatActivity() {
                 if (online) {
                     binding.tvTempValue.text     = "%.1f".format(apiary.temperature)
                     binding.tvHumidityValue.text = "%.1f".format(apiary.humidity)
-                    binding.tvWeightValue.text   = "%.1f".format(apiary.weight)
+                    // Weight: show static 5.0kg until RTDB sends live data
+                    binding.tvWeightValue.text   = if (apiary.weight > 0.0) "%.1f".format(apiary.weight) else "5.0"
                     updateStatusLabels(apiary)
                 } else {
                     binding.tvTempValue.text     = "--"

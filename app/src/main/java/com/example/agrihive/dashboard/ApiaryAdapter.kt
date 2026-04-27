@@ -44,7 +44,8 @@ class ApiaryAdapter(
                 binding.tvHumidity.text = "%.0f%%".format(apiary.humidity)
                 // Hive Lid: moisture field stores ultrasonic distance in cm
                 binding.tvMoisture.text = if (apiary.moisture < 5.0) "Closed" else "Open"
-                binding.tvWeight.text   = "%.1fkg".format(apiary.weight)
+                // Weight: show static 5.0kg until RTDB sends live data
+                binding.tvWeight.text   = if (apiary.weight > 0.0) "%.1fkg".format(apiary.weight) else "5.0kg"
             } else {
                 binding.tvTemp.text     = "--"
                 binding.tvHumidity.text = "--"
