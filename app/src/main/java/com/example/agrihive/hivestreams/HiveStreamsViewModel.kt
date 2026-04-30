@@ -51,6 +51,12 @@ class HiveStreamsViewModel : ViewModel() {
     private val _sensorOnline = MutableLiveData<Boolean?>(null)
     val sensorOnline: LiveData<Boolean?> = _sensorOnline
 
+    // Sudden weight drop detection — tracks last known weight + timestamp from RTDB
+    private var lastRtdbWeight: Double = 0.0
+    private var lastRtdbWeightTimeMs: Long = 0L
+    private val _suddenWeightDrop = MutableLiveData<Boolean>(false)
+    val suddenWeightDrop: LiveData<Boolean> = _suddenWeightDrop
+
     private fun resetOfflineTimer() {
         offlineTimeoutJob?.cancel()
         offlineTimeoutJob = viewModelScope.launch {
@@ -198,6 +204,26 @@ class HiveStreamsViewModel : ViewModel() {
         val weightKg       = snapshot.child("weight").getValue(Double::class.java)      ?: 0.0
         val moistureForLid = if (lidOpen) 10.0 else 0.0
         android.util.Log.d("RTDB", "Sensor values → T=$temperature H=$humidity Lid=${if (lidOpen) "OPEN" else "CLOSED"} W=$weightKg")
+
+        // Sudden weight drop detection — triggers if weight drops ≥1kg within 1 hour
+        val nowMs = System.currentTimeMillis()
+        if (lastRtdbWeight > 0.0 && weightKg > 0.0) {
+            val drop = lastRtdbWeight - weightKg
+            val elapsedMs = nowMs - lastRtdbWeightTimeMs
+            val withinWindow = elapsedMs <= 60L * 60L * 1000L  // within 1 hour
+            if (drop >= 1.0 && withinWindow) {
+                android.util.Log.w("RTDB", "Sudden weight drop detected: ${lastRtdbWeight}kg → ${weightKg}kg (drop=${drop}kg in ${elapsedMs}ms)")
+                _suddenWeightDrop.postValue(true)
+            } else {
+                _suddenWeightDrop.postValue(false)
+            }
+        }
+        // Update baseline for next comparison
+        if (weightKg > 0.0) {
+            lastRtdbWeight = weightKg
+            lastRtdbWeightTimeMs = nowMs
+        }
+
         // Update the local LiveData so the UI reflects latest values
         _apiaryData.value = _apiaryData.value?.copy(
             temperature = temperature,

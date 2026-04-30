@@ -29,11 +29,13 @@ class HiveStreamsActivity : AppCompatActivity() {
     private var apiaryId: String = ""
     private var apiaryName: String = "Hive"
 
-    // Track last alerted state to avoid spamming notifications
-    private var lastTempAlerted = false
-    private var lastHumidityAlerted = false
-    private var lastMoistureAlerted = false
-    private var lastWeightAlerted = false
+    // Cooldown tracking for in-app alerts — stores last time each alert fired (ms).
+    // Alerts repeat if the condition is still active after the cooldown window.
+    private var lastTempAlertMs     = 0L
+    private var lastHumidityAlertMs = 0L
+    private var lastMoistureAlertMs = 0L
+    private var lastWeightAlertMs   = 0L
+    private val ALERT_COOLDOWN_MS   = 5 * 60 * 1000L  // 5 minutes
 
     companion object {
         const val EXTRA_APIARY_ID = "APIARY_ID"
@@ -250,16 +252,27 @@ class HiveStreamsActivity : AppCompatActivity() {
         viewModel.errorMessage.observe(this) { error ->
             error?.let { Toast.makeText(this, it, Toast.LENGTH_SHORT).show() }
         }
+
+        // Sudden weight drop — override tvWeightStatus to show "Swarming" when detected
+        viewModel.suddenWeightDrop.observe(this) { isSwarming ->
+            if (isSwarming) {
+                binding.tvWeightStatus.text = "⚠ Swarming"
+                binding.tvWeightStatus.setTextColor(android.graphics.Color.parseColor("#FF5252"))
+            }
+            // When false, updateStatusLabels() already sets the correct status — no override needed
+        }
     }
 
     // ── Threshold alerts ──────────────────────────────────────────────────────
     private fun checkAndAlert(apiary: com.example.agrihive.addapiary.Apiary) {
         val repo = NotificationRepository(this)
+        val now = System.currentTimeMillis()
 
         // Temperature alert
         val tempAlert = apiary.temperature > 0 &&
                 (apiary.temperature < 32.0 || apiary.temperature > 38.0)
-        if (tempAlert && !lastTempAlerted) {
+        if (tempAlert && now - lastTempAlertMs > ALERT_COOLDOWN_MS) {
+            lastTempAlertMs = now
             val msg = if (apiary.temperature < 32.0)
                 "${apiary.name}: Temperature too cold (${apiary.temperature}°C). Optimal: 32–38°C"
             else
@@ -267,35 +280,38 @@ class HiveStreamsActivity : AppCompatActivity() {
             repo.addNotification("🌡️ Temperature Alert", msg, NotificationType.TEMPERATURE_ALERT)
             RainAlertNotification.showAdminReplyNotification(this, msg)
         }
-        lastTempAlerted = tempAlert
+        if (!tempAlert) lastTempAlertMs = 0L  // reset so it fires immediately when condition returns
 
         // Humidity alert
         val humAlert = apiary.humidity > 0 &&
                 (apiary.humidity < 50.0 || apiary.humidity > 80.0)
-        if (humAlert && !lastHumidityAlerted) {
+        if (humAlert && now - lastHumidityAlertMs > ALERT_COOLDOWN_MS) {
+            lastHumidityAlertMs = now
             val msg = "${apiary.name}: Humidity out of range (${apiary.humidity}%). Optimal: 50–80%"
             repo.addNotification("💧 Humidity Alert", msg, NotificationType.SYSTEM)
             RainAlertNotification.showAdminReplyNotification(this, msg)
         }
-        lastHumidityAlerted = humAlert
+        if (!humAlert) lastHumidityAlertMs = 0L
 
         // Hive Lid alert — open when moisture = 10.0
         val moistAlert = apiary.moisture >= 5.0 && apiary.isConnected
-        if (moistAlert && !lastMoistureAlerted) {
+        if (moistAlert && now - lastMoistureAlertMs > ALERT_COOLDOWN_MS) {
+            lastMoistureAlertMs = now
             val msg = "${apiary.name}: Hive lid is OPEN! Check your hive immediately."
             repo.addNotification("🔓 Hive Lid Open", msg, NotificationType.FEEDING_ALERT)
             RainAlertNotification.showAdminReplyNotification(this, msg)
         }
-        lastMoistureAlerted = moistAlert
+        if (!moistAlert) lastMoistureAlertMs = 0L
 
         // Weight alert (possible theft or swarm)
         val weightAlert = apiary.weight in 0.1..4.9
-        if (weightAlert && !lastWeightAlerted) {
+        if (weightAlert && now - lastWeightAlertMs > ALERT_COOLDOWN_MS) {
+            lastWeightAlertMs = now
             val msg = "${apiary.name}: Weight critically low (${apiary.weight}kg). Possible swarm or theft!"
             repo.addNotification("⚖️ Weight Alert", msg, NotificationType.SYSTEM)
             RainAlertNotification.showAdminReplyNotification(this, msg)
         }
-        lastWeightAlerted = weightAlert
+        if (!weightAlert) lastWeightAlertMs = 0L
     }
 
     // ── Status label helpers ──────────────────────────────────────────────────

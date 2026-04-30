@@ -139,10 +139,14 @@ object RainAlertNotification {
         val intent = Intent(context, DashboardActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        
+
+        // Use a unique ID so each notification appears separately instead of
+        // replacing the previous one of the same type.
+        val uniqueId = (notificationId * 100_000 + (System.currentTimeMillis() % 100_000)).toInt()
+
         val pendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            uniqueId,
             intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
@@ -158,7 +162,7 @@ object RainAlertNotification {
             .setVibrate(longArrayOf(0, 250, 250, 250))
 
         try {
-            NotificationManagerCompat.from(context).notify(notificationId, builder.build())
+            NotificationManagerCompat.from(context).notify(uniqueId, builder.build())
         } catch (e: SecurityException) {
             // Handle case where notification permission is not granted
             e.printStackTrace()
