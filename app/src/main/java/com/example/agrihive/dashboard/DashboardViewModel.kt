@@ -276,7 +276,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
         // Add listeners for new nodeIds
         apiaries.forEach { apiary ->
-            val nodeId = apiary.nodeId
+            val nodeId   = apiary.nodeId
+            val apiaryName = apiary.name
             if (nodeId.isBlank() || rtdbListeners.containsKey(nodeId)) return@forEach
 
             val apiaryId = apiary.id
@@ -304,7 +305,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
                             return
                         }
                         // Fresh — mark online and start timer
-                        markApiaryOnline(nodeId, apiaryId, snapshot)
+                        markApiaryOnline(nodeId, apiaryId, apiaryName, snapshot)
                         return
                     }
 
@@ -321,7 +322,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
                     // Second+ callback with no timestamp = live data from ESP32
                     Log.d("RTDB", "[$nodeId] Live update (no timestamp) — marking online")
-                    markApiaryOnline(nodeId, apiaryId, snapshot)
+                    markApiaryOnline(nodeId, apiaryId, apiaryName, snapshot)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -334,7 +335,7 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    private fun markApiaryOnline(nodeId: String, apiaryId: String, snapshot: DataSnapshot) {
+    private fun markApiaryOnline(nodeId: String, apiaryId: String, apiaryName: String, snapshot: DataSnapshot) {
         val temperature    = snapshot.child("temperature").getValue(Double::class.java) ?: 0.0
         val humidity       = snapshot.child("humidity").getValue(Double::class.java)    ?: 0.0
         val lidOpen        = snapshot.child("lidOpen").getValue(Boolean::class.java)    ?: false
@@ -363,7 +364,17 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             Log.w("RTDB", "[$nodeId] No update in 30s — marking OFFLINE")
             firestore.collection("apiaries").document(apiaryId)
                 .update("isConnected", false)
+            // Notify user that the IoT device has gone offline
+            sendOfflineNotification(apiaryName, nodeId)
         }
+    }
+
+    private fun sendOfflineNotification(apiaryName: String, nodeId: String) {
+        val title = "🔴 Sensor Node Offline"
+        val msg   = "$apiaryName ($nodeId) has gone offline. Check your IoT device."
+        NotificationRepository(getApplication()).addNotification(title, msg, NotificationType.SYSTEM)
+        RainAlertNotification.showAdminReplyNotification(getApplication(), msg)
+        Log.w("RTDB", "[$nodeId] Offline notification sent")
     }
 
     private fun saveToCache(list: List<Apiary>) {
