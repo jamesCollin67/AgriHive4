@@ -254,6 +254,8 @@ class DashboardActivity : AppCompatActivity() {
         super.onResume()
         binding.bottomNavigation.selectedItemId = R.id.nav_apiaries
         viewModel.updateNotificationCount()
+        // Clear visited set so badges re-evaluate on return from HiveStreams
+        adapter.clearVisited()
         // Force adapter rebind so badges are recalculated after returning from HiveStreams
         adapter.notifyDataSetChanged()
     }

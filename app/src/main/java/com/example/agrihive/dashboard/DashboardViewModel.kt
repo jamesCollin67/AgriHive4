@@ -344,6 +344,28 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
 
         Log.d("RTDB", "[$nodeId] T=$temperature H=$humidity Lid=${if (lidOpen) "OPEN" else "CLOSED"} W=$weightKg")
 
+        // ── Fast path: update _apiaries LiveData directly from RTDB ──────────
+        // This bypasses the Firestore write round-trip so the apiary card
+        // reflects the latest sensor values immediately, without waiting for
+        // Firestore to be written and its snapshot listener to fire.
+        val currentList = _apiaries.value
+        if (currentList != null) {
+            val updatedList = currentList.map { apiary ->
+                if (apiary.id == apiaryId) {
+                    apiary.copy(
+                        temperature = temperature,
+                        humidity    = humidity,
+                        moisture    = moistureForLid,
+                        weight      = weightKg,
+                        isConnected = true
+                    )
+                } else apiary
+            }
+            _apiaries.postValue(updatedList)
+            calculateStats(updatedList)
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         firestore.collection("apiaries").document(apiaryId)
             .update(mapOf(
                 "temperature" to temperature,
@@ -364,6 +386,15 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             Log.w("RTDB", "[$nodeId] No update in 30s — marking OFFLINE")
             firestore.collection("apiaries").document(apiaryId)
                 .update("isConnected", false)
+            // Also update LiveData directly so the card goes offline immediately
+            val list = _apiaries.value
+            if (list != null) {
+                val offlineList = list.map { apiary ->
+                    if (apiary.id == apiaryId) apiary.copy(isConnected = false) else apiary
+                }
+                _apiaries.postValue(offlineList)
+                calculateStats(offlineList)
+            }
             // Notify user that the IoT device has gone offline
             sendOfflineNotification(apiaryName, nodeId)
         }

@@ -16,9 +16,17 @@ class ApiaryAdapter(
     private val onApiaryLongClick: (Apiary) -> Unit = {}
 ) : ListAdapter<Apiary, ApiaryAdapter.ViewHolder>(DiffCallback()) {
 
+    // Track which apiary IDs the user has tapped — badge is hidden for these
+    // until the adapter is refreshed with new data after they return
+    private val visitedApiaryIds = mutableSetOf<String>()
+
+    fun clearVisited() {
+        visitedApiaryIds.clear()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemApiaryCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, onApiaryClick, onApiaryLongClick)
+        return ViewHolder(binding, onApiaryClick, onApiaryLongClick, visitedApiaryIds)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -28,7 +36,8 @@ class ApiaryAdapter(
     class ViewHolder(
         private val binding: ItemApiaryCardBinding,
         private val onApiaryClick: (Apiary) -> Unit,
-        private val onApiaryLongClick: (Apiary) -> Unit
+        private val onApiaryLongClick: (Apiary) -> Unit,
+        private val visitedApiaryIds: MutableSet<String>
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(apiary: Apiary) {
             binding.tvApiaryName.text = apiary.name
@@ -54,7 +63,8 @@ class ApiaryAdapter(
             }
 
             val alerts = calculateAlerts(apiary)
-            if (alerts > 0) {
+            // Hide the badge if the user has already visited this apiary
+            if (alerts > 0 && apiary.id !in visitedApiaryIds) {
                 binding.tvAlertBadge.visibility = View.VISIBLE
                 binding.tvAlertBadge.text = if (alerts > 9) "9+" else alerts.toString()
             } else {
@@ -82,8 +92,12 @@ class ApiaryAdapter(
                 popup.show()
             }
 
-            // Short tap → open HiveStreams
-            binding.root.setOnClickListener { onApiaryClick(apiary) }
+            // Short tap → mark visited (hides badge), then open HiveStreams
+            binding.root.setOnClickListener {
+                visitedApiaryIds.add(apiary.id)
+                binding.tvAlertBadge.visibility = View.GONE
+                onApiaryClick(apiary)
+            }
 
             // Long press still works as fallback
             binding.root.setOnLongClickListener {
